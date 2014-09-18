@@ -1,0 +1,43 @@
+{
+	"ImportPath": "github.com/maximilien/bosh-softlayer-stemcells",
+	"GoVersion": "go1.2",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/maximilien/softlayer-go/client",
+			"Comment": "v0.0.1-1-g3f6ae3e",
+			"Rev": "3f6ae3e01704e6ebe92c8eab4980d790689dd82d"
+		},
+		{
+			"ImportPath": "github.com/maximilien/softlayer-go/data_types",
+			"Comment": "v0.0.1-1-g3f6ae3e",
+			"Rev": "3f6ae3e01704e6ebe92c8eab4980d790689dd82d"
+		},
+		{
+			"ImportPath": "github.com/maximilien/softlayer-go/services",
+			"Comment": "v0.0.1-1-g3f6ae3e",
+			"Rev": "3f6ae3e01704e6ebe92c8eab4980d790689dd82d"
+		},
+		{
+			"ImportPath": "github.com/maximilien/softlayer-go/softlayer",
+			"Comment": "v0.0.1-1-g3f6ae3e",
+			"Rev": "3f6ae3e01704e6ebe92c8eab4980d790689dd82d"
+		},
+		{
+			"ImportPath": "github.com/maximilien/softlayer-go/test_helpers",
+			"Comment": "v0.0.1-1-g3f6ae3e",
+			"Rev": "3f6ae3e01704e6ebe92c8eab4980d790689dd82d"
+		},
+		{
+			"ImportPath": "github.com/onsi/ginkgo",
+			"Comment": "v1.1.0",
+			"Rev": "aa7870df5380d9da6904a29ba19e208694e0d0c1"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega",
+			"Rev": "f5533d435ebfcf4fa0463202dc0e966b983618b8"
+		}
+	]
+}
