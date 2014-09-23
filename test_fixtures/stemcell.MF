@@ -1,0 +1,15 @@
+---
+name: bosh-softlayer-xen-ubuntu-trusty-go_agent
+version: '2710'
+bosh_protocol: 1
+sha1: 2d8f951f25333ac941c490a8f4e7b8dc670c9dc9
+cloud_properties:
+  name: bosh-softlayer-xen-ubuntu-trusty-go_agent
+  version: '2710'
+  infrastructure: softlayer
+  architecture: x86_64
+  root_device_name: /dev/sda1
+  softlayer:
+  	virtual-disk-image-id: 4868344
+  	virtual-disk-image-uuid: 8c7a8358-d9a9-4e4d-9345-6f637e10ccb7
+  	datacenter-name: ams0

@@ -27,5 +27,5 @@
   ginkgo -r -p -v --noisyPendings integration
 
   echo -e "\n Vetting packages for potential issues..."
-  go tool vet main stemcells integration
+  go tool vet main common stemcells integration
 )
