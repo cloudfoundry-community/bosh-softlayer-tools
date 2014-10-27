@@ -1,8 +1,8 @@
 package stemcells
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
@@ -16,24 +16,24 @@ type lightStemcellCmd struct {
 }
 
 type LightStemcellMF struct {
-	Name string `json:"name"`
-	Version string `json:"name"`
-	BoshProtocol int `json:"bosh_protocol"`
-	Sha1 string `json:"sha1"`
+	Name            string          `json:"name"`
+	Version         string          `json:"name"`
+	BoshProtocol    int             `json:"bosh_protocol"`
+	Sha1            string          `json:"sha1"`
 	CloudProperties CloudProperties `json:"cloud_properties"`
 }
 
 type CloudProperties struct {
-  Infrastructure string `json:"infrastructure"`
-  Architecture string `json:"architecture"`
-  RootDeviceName string `json:"root_device_name"`
-  SoftlayerProperties SoftlayerProperties `json:"softlayer"`
+	Infrastructure      string              `json:"infrastructure"`
+	Architecture        string              `json:"architecture"`
+	RootDeviceName      string              `json:"root_device_name"`
+	SoftlayerProperties SoftlayerProperties `json:"softlayer"`
 }
 
 type SoftlayerProperties struct {
-	VirtualDiskImageId string `json:"virtual-disk-image-id"`
+	VirtualDiskImageId   string `json:"virtual-disk-image-id"`
 	VirtualDiskImageUuid string `json:"virtual-disk-image-uuid"`
-	DatacenterName string `json:"datacenter-name"`
+	DatacenterName       string `json:"datacenter-name"`
 }
 
 func NewLightStemcellCmd(stemcellsPath string, client softlayer.Client) LightStemcellCmd {
@@ -60,8 +60,7 @@ func (lsd *lightStemcellCmd) Create(virtualDiskImageId int) (string, error) {
 	virtualDiskImage, err := virtualDiskImageService.GetObject(virtualDiskImageId)
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Could not get Virtual_Disk_Image from softlayer-go service: `%s`", err.Error()))
-	}	
-
+	}
 
 	ligthStemcellPath, err := lsd.createLightStemcell(virtualDiskImage)
 	if err != nil {

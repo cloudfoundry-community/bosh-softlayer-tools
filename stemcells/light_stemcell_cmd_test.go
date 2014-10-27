@@ -1,8 +1,9 @@
 package stemcells_test
 
 import (
-	"os"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -25,7 +26,7 @@ var _ = Describe("LightStemcellCmd", func() {
 
 		accountService softlayer.SoftLayer_Account_Service
 
-		stemcellsPath string
+		stemcellsPath    string
 		lightStemcellCmd LightStemcellCmd
 	)
 
@@ -57,7 +58,7 @@ var _ = Describe("LightStemcellCmd", func() {
 			Expect(cmd.GetStemcellsPath()).To(Equal(stemcellsPath))
 		})
 
-		XIt("#Create", func() {
+		It("#Create", func() {
 			lightStemcellPath, err := lightStemcellCmd.Create(4868344)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(lightStemcellPath).ToNot(Equal(""), "the light stemcell path cannot be empty")
@@ -71,12 +72,12 @@ var _ = Describe("LightStemcellCmd", func() {
 		})
 
 		It("#GetLightStemcellMF", func() {
-			expectedLightStemcellMF, err := common.LoadLightStemcellMF()
+			expectedLightStemcellMF, err := common.LoadLightStemcellMF(filepath.Join(stemcellsPath, "manifest.MF"))
 			Expect(err).ToNot(HaveOccurred())
 
-			_, err := lightStemcellCmd.Create(4868344)
+			_, err = lightStemcellCmd.Create(4868344)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(lightStemcellCmd.GetLightStemcellMF()).To(Equal(expectedLightStemcellMF))
+			Expect(lightStemcellCmd.GetLigthStemcellMF()).To(Equal(expectedLightStemcellMF))
 		})
 
 	})
