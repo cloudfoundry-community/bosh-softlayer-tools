@@ -1,4 +1,4 @@
-bosh-softlayer-stemcells
+bosh-softlayer-stemcells [![Build Status](https://travis-ci.org/maximilien/bosh-softlayer-stemcells.svg?branch=master)](https://travis-ci.org/maximilien/bosh-softlayer-stemcells#)
 ========================
 
 Simple utility to create [BOSH](https://github.com/cloudfoundry/bosh) stemcells (light) for SoftLayer and [bosh-softlayer-cpi](https://github.com/maximilien/bosh-softlayer-cpi) project
