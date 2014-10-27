@@ -10,6 +10,6 @@ cloud_properties:
   architecture: x86_64
   root_device_name: /dev/sda1
   softlayer:
-  	virtual-disk-image-id: 4868344
+    virtual-disk-image-id: 4868344
   	virtual-disk-image-uuid: 8c7a8358-d9a9-4e4d-9345-6f637e10ccb7
   	datacenter-name: ams0
