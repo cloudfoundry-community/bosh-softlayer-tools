@@ -24,8 +24,10 @@ type FakeSoftLayerClient struct {
 
 	SoftLayerServices map[string]softlayer.Service
 
-	DoRawHttpRequestResponse []byte
-	DoRawHttpRequestError    error
+	DoRawHttpRequestResponse       []byte
+	DoRawHttpRequestResponses      [][]byte
+	DoRawHttpRequestResponsesIndex int
+	DoRawHttpRequestError          error
 
 	GenerateRequestBodyBuffer *bytes.Buffer
 	GenerateRequestBodyError  error
@@ -43,8 +45,10 @@ func NewFakeSoftLayerClient(username, apiKey string) *FakeSoftLayerClient {
 
 		SoftLayerServices: map[string]softlayer.Service{},
 
-		DoRawHttpRequestResponse: []byte{},
-		DoRawHttpRequestError:    nil,
+		DoRawHttpRequestResponse:       nil,
+		DoRawHttpRequestResponses:      [][]byte{},
+		DoRawHttpRequestResponsesIndex: 0,
+		DoRawHttpRequestError:          nil,
 
 		GenerateRequestBodyBuffer: new(bytes.Buffer),
 		GenerateRequestBodyError:  nil,
@@ -87,8 +91,17 @@ func (fslc *FakeSoftLayerClient) GetSoftLayer_Virtual_Guest_Service() (softlayer
 	return slService.(softlayer.SoftLayer_Virtual_Guest_Service), nil
 }
 
+func (fslc *FakeSoftLayerClient) GetSoftLayer_Virtual_Disk_Image_Service() (softlayer.SoftLayer_Virtual_Disk_Image_Service, error) {
+	slService, err := fslc.GetService("SoftLayer_Virtual_Disk_Image")
+	if err != nil {
+		return nil, err
+	}
+
+	return slService.(softlayer.SoftLayer_Virtual_Disk_Image_Service), nil
+}
+
 func (fslc *FakeSoftLayerClient) GetSoftLayer_Security_Ssh_Key_Service() (softlayer.SoftLayer_Security_Ssh_Key_Service, error) {
-	slService, err := fslc.GetService("SoftLayer_Ssh_Key")
+	slService, err := fslc.GetService("SoftLayer_Security_Ssh_Key")
 	if err != nil {
 		return nil, err
 	}
@@ -96,10 +109,76 @@ func (fslc *FakeSoftLayerClient) GetSoftLayer_Security_Ssh_Key_Service() (softla
 	return slService.(softlayer.SoftLayer_Security_Ssh_Key_Service), nil
 }
 
+func (fslc *FakeSoftLayerClient) GetSoftLayer_Network_Storage_Service() (softlayer.SoftLayer_Network_Storage_Service, error) {
+	slService, err := fslc.GetService("SoftLayer_Network_Storage")
+	if err != nil {
+		return nil, err
+	}
+
+	return slService.(softlayer.SoftLayer_Network_Storage_Service), nil
+}
+
+func (fslc *FakeSoftLayerClient) GetSoftLayer_Product_Order_Service() (softlayer.SoftLayer_Product_Order_Service, error) {
+	slService, err := fslc.GetService("SoftLayer_Product_Order")
+	if err != nil {
+		return nil, err
+	}
+
+	return slService.(softlayer.SoftLayer_Product_Order_Service), nil
+}
+
+func (fslc *FakeSoftLayerClient) GetSoftLayer_Product_Package_Service() (softlayer.SoftLayer_Product_Package_Service, error) {
+	slService, err := fslc.GetService("SoftLayer_Product_Package")
+	if err != nil {
+		return nil, err
+	}
+
+	return slService.(softlayer.SoftLayer_Product_Package_Service), nil
+}
+
+func (fslc *FakeSoftLayerClient) GetSoftLayer_Billing_Item_Cancellation_Request_Service() (softlayer.SoftLayer_Billing_Item_Cancellation_Request_Service, error) {
+	slService, err := fslc.GetService("SoftLayer_Billing_Item_Cancellation_Request")
+	if err != nil {
+		return nil, err
+	}
+
+	return slService.(softlayer.SoftLayer_Billing_Item_Cancellation_Request_Service), nil
+}
+
+func (fslc *FakeSoftLayerClient) GetSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service() (softlayer.SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service, error) {
+	slService, err := fslc.GetService("SoftLayer_Virtual_Guest_Block_Device_Template_Group")
+	if err != nil {
+		return nil, err
+	}
+
+	return slService.(softlayer.SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service), nil
+}
+
 //Public methods
+func (fslc *FakeSoftLayerClient) DoRawHttpRequestWithObjectMask(path string, masks []string, requestType string, requestBody *bytes.Buffer) ([]byte, error) {
+	if fslc.DoRawHttpRequestError != nil {
+		return []byte{}, fslc.DoRawHttpRequestError
+	}
+
+	if fslc.DoRawHttpRequestResponse != nil {
+		return fslc.DoRawHttpRequestResponse, fslc.DoRawHttpRequestError
+	} else {
+		fslc.DoRawHttpRequestResponsesIndex = fslc.DoRawHttpRequestResponsesIndex + 1
+		return fslc.DoRawHttpRequestResponses[fslc.DoRawHttpRequestResponsesIndex-1], fslc.DoRawHttpRequestError
+	}
+}
 
 func (fslc *FakeSoftLayerClient) DoRawHttpRequest(path string, requestType string, requestBody *bytes.Buffer) ([]byte, error) {
-	return fslc.DoRawHttpRequestResponse, fslc.DoRawHttpRequestError
+	if fslc.DoRawHttpRequestError != nil {
+		return []byte{}, fslc.DoRawHttpRequestError
+	}
+
+	if fslc.DoRawHttpRequestResponse != nil {
+		return fslc.DoRawHttpRequestResponse, fslc.DoRawHttpRequestError
+	} else {
+		fslc.DoRawHttpRequestResponsesIndex = fslc.DoRawHttpRequestResponsesIndex + 1
+		return fslc.DoRawHttpRequestResponses[fslc.DoRawHttpRequestResponsesIndex-1], fslc.DoRawHttpRequestError
+	}
 }
 
 func (fslc *FakeSoftLayerClient) GenerateRequestBody(templateData interface{}) (*bytes.Buffer, error) {
@@ -119,5 +198,11 @@ func (fslc *FakeSoftLayerClient) CheckForHttpResponseErrors(data []byte) error {
 func (fslc *FakeSoftLayerClient) initSoftLayerServices() {
 	fslc.SoftLayerServices["SoftLayer_Account"] = services.NewSoftLayer_Account_Service(fslc)
 	fslc.SoftLayerServices["SoftLayer_Virtual_Guest"] = services.NewSoftLayer_Virtual_Guest_Service(fslc)
-	fslc.SoftLayerServices["SoftLayer_Ssh_Key"] = services.NewSoftLayer_Ssh_Key_Service(fslc)
+	fslc.SoftLayerServices["SoftLayer_Virtual_Disk_Image"] = services.NewSoftLayer_Virtual_Disk_Image_Service(fslc)
+	fslc.SoftLayerServices["SoftLayer_Security_Ssh_Key"] = services.NewSoftLayer_Security_Ssh_Key_Service(fslc)
+	fslc.SoftLayerServices["SoftLayer_Network_Storage"] = services.NewSoftLayer_Network_Storage_Service(fslc)
+	fslc.SoftLayerServices["SoftLayer_Product_Order"] = services.NewSoftLayer_Product_Order_Service(fslc)
+	fslc.SoftLayerServices["SoftLayer_Product_Package"] = services.NewSoftLayer_Product_Package_Service(fslc)
+	fslc.SoftLayerServices["SoftLayer_Billing_Item_Cancellation_Request"] = services.NewSoftLayer_Billing_Item_Cancellation_Request_Service(fslc)
+	fslc.SoftLayerServices["SoftLayer_Virtual_Guest_Block_Device_Template_Group"] = services.NewSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service(fslc)
 }

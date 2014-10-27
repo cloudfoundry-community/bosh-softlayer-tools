@@ -1,0 +1,11 @@
+language: go
+go:
+  - 1.3.3
+before_install:
+- go get github.com/tools/godep
+- go get code.google.com/p/go.tools/cmd/vet
+install: true
+script: bin/ci
+branches:
+  only:
+  - master

@@ -52,7 +52,7 @@ var _ = Describe("SoftLayer_Ssh_Key_Service", func() {
 
 	Context("#CreateObject", func() {
 		BeforeEach(func() {
-			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Ssh_Key_Service_createObject.json")
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Security_Ssh_Key_Service_createObject.json")
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -89,6 +89,35 @@ var _ = Describe("SoftLayer_Ssh_Key_Service", func() {
 			deleted, err := sshKeyService.DeleteObject(sshKey.Id)
 			Expect(err).To(HaveOccurred())
 			Expect(deleted).To(BeFalse())
+		})
+	})
+
+	Context("#GetSoftwarePasswords", func() {
+		BeforeEach(func() {
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Security_Ssh_Key_Service_getSoftwarePasswords.json")
+			Expect(err).ToNot(HaveOccurred())
+
+			sshKey.Id = 1234567
+		})
+
+		It("retrieves the software passwords associated with this virtual guest", func() {
+			passwords, err := sshKeyService.GetSoftwarePasswords(sshKey.Id)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(len(passwords)).To(Equal(1))
+
+			password := passwords[0]
+			Expect(password.CreateDate).ToNot(BeNil())
+			Expect(password.Id).To(Equal(4244148))
+			Expect(password.ModifyDate).ToNot(BeNil())
+			Expect(password.Notes).To(Equal(""))
+			Expect(password.Password).To(Equal("QJ95Gznz"))
+			Expect(password.Port).To(Equal(0))
+			Expect(password.SoftwareId).To(Equal(4181746))
+			Expect(password.Username).To(Equal("root"))
+
+			Expect(password.Software.HardwareId).To(Equal(0))
+			Expect(password.Software.Id).To(Equal(4181746))
+			Expect(password.Software.ManufacturerLicenseInstance).To(Equal(""))
 		})
 	})
 })

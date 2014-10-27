@@ -3,12 +3,25 @@ package test_helpers
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
+	"time"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gexec"
 
 	slclient "github.com/maximilien/softlayer-go/client"
 	datatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
+)
+
+var (
+	TIMEOUT          time.Duration
+	POLLING_INTERVAL time.Duration
 )
 
 const (
@@ -162,6 +175,37 @@ func CreateSecuritySshKeyService() (softlayer.SoftLayer_Security_Ssh_Key_Service
 	return sshKeyService, nil
 }
 
+// TODO: need to refine and merge the CreateXXXService in test_helpers
+func CreateProductPackageService() (softlayer.SoftLayer_Product_Package_Service, error) {
+	username, apiKey, err := GetUsernameAndApiKey()
+	if err != nil {
+		return nil, err
+	}
+
+	client := slclient.NewSoftLayerClient(username, apiKey)
+	productPackageService, err := client.GetSoftLayer_Product_Package_Service()
+	if err != nil {
+		return nil, err
+	}
+
+	return productPackageService, nil
+}
+
+func CreateNetworkStorageService() (softlayer.SoftLayer_Network_Storage_Service, error) {
+	username, apiKey, err := GetUsernameAndApiKey()
+	if err != nil {
+		return nil, err
+	}
+
+	client := slclient.NewSoftLayerClient(username, apiKey)
+	networkStorageService, err := client.GetSoftLayer_Network_Storage_Service()
+	if err != nil {
+		return nil, err
+	}
+
+	return networkStorageService, nil
+}
+
 func FindAndDeleteTestSshKeys() error {
 	sshKeys, err := FindTestSshKeys()
 	if err != nil {
@@ -233,4 +277,276 @@ func MarkVirtualGuestAsTest(virtualGuest datatypes.SoftLayer_Virtual_Guest) erro
 	}
 
 	return nil
+}
+
+func FileExists(filePath string) bool {
+	_, err := os.Stat(filePath)
+	if err != nil {
+		return false
+	}
+
+	return !os.IsNotExist(err)
+}
+
+func CreateTestSshKey(sshKeyPath string) datatypes.SoftLayer_Security_Ssh_Key {
+	testSshKeyValue, err := ioutil.ReadFile(sshKeyPath)
+	Expect(err).ToNot(HaveOccurred())
+
+	sshKey := datatypes.SoftLayer_Security_Ssh_Key{
+		Key:         strings.Trim(string(testSshKeyValue), "\n"),
+		Fingerprint: "f6:c2:9d:57:2f:74:be:a1:db:71:f2:e5:8e:0f:84:7e",
+		Label:       TEST_LABEL_PREFIX,
+		Notes:       TEST_NOTES_PREFIX,
+	}
+
+	sshKeyService, err := CreateSecuritySshKeyService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> creating ssh key\n")
+	createdSshKey, err := sshKeyService.CreateObject(sshKey)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(createdSshKey.Key).To(Equal(sshKey.Key), "key")
+	Expect(createdSshKey.Label).To(Equal(sshKey.Label), "label")
+	Expect(createdSshKey.Notes).To(Equal(sshKey.Notes), "notes")
+	Expect(createdSshKey.CreateDate).ToNot(BeNil(), "createDate")
+	Expect(createdSshKey.Fingerprint).ToNot(Equal(""), "fingerprint")
+	Expect(createdSshKey.Id).To(BeNumerically(">", 0), "id")
+	Expect(createdSshKey.ModifyDate).To(BeNil(), "modifyDate")
+	fmt.Printf("----> created ssh key: %d\n", createdSshKey.Id)
+
+	return createdSshKey
+}
+
+func CreateVirtualGuestAndMarkItTest(securitySshKeys []datatypes.SoftLayer_Security_Ssh_Key) datatypes.SoftLayer_Virtual_Guest {
+	sshKeys := make([]datatypes.SshKey, len(securitySshKeys))
+	for i, securitySshKey := range securitySshKeys {
+		sshKeys[i] = datatypes.SshKey{Id: securitySshKey.Id}
+	}
+
+	virtualGuestTemplate := datatypes.SoftLayer_Virtual_Guest_Template{
+		Hostname:  "test",
+		Domain:    "softlayergo.com",
+		StartCpus: 1,
+		MaxMemory: 1024,
+		Datacenter: datatypes.Datacenter{
+			Name: "ams01",
+		},
+		SshKeys:                      sshKeys,
+		HourlyBillingFlag:            true,
+		LocalDiskFlag:                true,
+		OperatingSystemReferenceCode: "UBUNTU_LATEST",
+	}
+
+	virtualGuestService, err := CreateVirtualGuestService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> creating new virtual guest\n")
+	virtualGuest, err := virtualGuestService.CreateObject(virtualGuestTemplate)
+	Expect(err).ToNot(HaveOccurred())
+	fmt.Printf("----> created virtual guest: %d\n", virtualGuest.Id)
+
+	WaitForVirtualGuestToBeRunning(virtualGuest.Id)
+	WaitForVirtualGuestToHaveNoActiveTransactions(virtualGuest.Id)
+
+	fmt.Printf("----> marking virtual guest with TEST:softlayer-go\n")
+	err = MarkVirtualGuestAsTest(virtualGuest)
+	Expect(err).ToNot(HaveOccurred(), "Could not mark virtual guest as test")
+	fmt.Printf("----> marked virtual guest with TEST:softlayer-go\n")
+
+	return virtualGuest
+}
+
+func DeleteVirtualGuest(virtualGuestId int) {
+	virtualGuestService, err := CreateVirtualGuestService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> deleting virtual guest: %d\n", virtualGuestId)
+	deleted, err := virtualGuestService.DeleteObject(virtualGuestId)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(deleted).To(BeTrue(), "could not delete virtual guest")
+
+	WaitForVirtualGuestToHaveNoActiveTransactions(virtualGuestId)
+}
+
+func DeleteSshKey(sshKeyId int) {
+	sshKeyService, err := CreateSecuritySshKeyService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> deleting ssh key: %d\n", sshKeyId)
+	deleted, err := sshKeyService.DeleteObject(sshKeyId)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(deleted).To(BeTrue(), "could not delete ssh key")
+
+	WaitForDeletedSshKeyToNoLongerBePresent(sshKeyId)
+}
+
+func WaitForVirtualGuest(virtualGuestId int, targetState string, timeout time.Duration) {
+	virtualGuestService, err := CreateVirtualGuestService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> waiting for virtual guest: %d, until %s\n", virtualGuestId, targetState)
+	Eventually(func() string {
+		vgPowerState, err := virtualGuestService.GetPowerState(virtualGuestId)
+		Expect(err).ToNot(HaveOccurred())
+		fmt.Printf("----> virtual guest: %d, has power state: %s\n", virtualGuestId, vgPowerState.KeyName)
+		return vgPowerState.KeyName
+	}, timeout, POLLING_INTERVAL).Should(Equal(targetState), fmt.Sprintf("failed waiting for virtual guest to be %s", targetState))
+}
+
+func WaitForVirtualGuestToBeRunning(virtualGuestId int) {
+	WaitForVirtualGuest(virtualGuestId, "RUNNING", TIMEOUT)
+}
+
+func WaitForVirtualGuestToHaveNoActiveTransactions(virtualGuestId int) {
+	virtualGuestService, err := CreateVirtualGuestService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> waiting for virtual guest to have no active transactions pending\n")
+	Eventually(func() int {
+		activeTransactions, err := virtualGuestService.GetActiveTransactions(virtualGuestId)
+		Expect(err).ToNot(HaveOccurred())
+		fmt.Printf("----> virtual guest: %d, has %d active transactions\n", virtualGuestId, len(activeTransactions))
+		return len(activeTransactions)
+	}, TIMEOUT, POLLING_INTERVAL).Should(Equal(0), "failed waiting for virtual guest to have no active transactions")
+}
+
+func WaitForDeletedSshKeyToNoLongerBePresent(sshKeyId int) {
+	accountService, err := CreateAccountService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> waiting for deleted ssh key to no longer be present\n")
+	Eventually(func() bool {
+		sshKeys, err := accountService.GetSshKeys()
+		Expect(err).ToNot(HaveOccurred())
+
+		deleted := true
+		for _, sshKey := range sshKeys {
+			if sshKey.Id == sshKeyId {
+				deleted = false
+			}
+		}
+		return deleted
+	}, TIMEOUT, POLLING_INTERVAL).Should(BeTrue(), "failed waiting for deleted ssh key to be removed from list of ssh keys")
+}
+
+func WaitForCreatedSshKeyToBePresent(sshKeyId int) {
+	accountService, err := CreateAccountService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> waiting for created ssh key to be present\n")
+	Eventually(func() bool {
+		sshKeys, err := accountService.GetSshKeys()
+		Expect(err).ToNot(HaveOccurred())
+
+		keyPresent := false
+		for _, sshKey := range sshKeys {
+			if sshKey.Id == sshKeyId {
+				keyPresent = true
+			}
+		}
+		return keyPresent
+	}, TIMEOUT, POLLING_INTERVAL).Should(BeTrue(), "created ssh key but not in the list of ssh keys")
+}
+
+func SetUserDataToVirtualGuest(virtualGuestId int, metadata string) {
+	virtualGuestService, err := CreateVirtualGuestService()
+	Expect(err).ToNot(HaveOccurred())
+
+	success, err := virtualGuestService.SetMetadata(virtualGuestId, metadata)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(success).To(BeTrue())
+	fmt.Printf(fmt.Sprintf("----> successfully set metadata: `%s` to virtual guest instance: %d\n", metadata, virtualGuestId))
+}
+
+func ConfigureMetadataDiskOnVirtualGuest(virtualGuestId int) datatypes.SoftLayer_Provisioning_Version1_Transaction {
+	virtualGuestService, err := CreateVirtualGuestService()
+	Expect(err).ToNot(HaveOccurred())
+
+	transaction, err := virtualGuestService.ConfigureMetadataDisk(virtualGuestId)
+	Expect(err).ToNot(HaveOccurred())
+	fmt.Printf(fmt.Sprintf("----> successfully configured metadata disk for virtual guest instance: %d\n", virtualGuestId))
+
+	return transaction
+}
+
+func SetUserMetadataAndConfigureDisk(virtualGuestId int, userMetadata string) datatypes.SoftLayer_Provisioning_Version1_Transaction {
+	SetUserDataToVirtualGuest(virtualGuestId, userMetadata)
+	transaction := ConfigureMetadataDiskOnVirtualGuest(virtualGuestId)
+	Expect(transaction.Id).ToNot(Equal(0))
+
+	return transaction
+}
+
+func RunCommand(timeout time.Duration, cmd string, args ...string) *Session {
+	command := exec.Command(cmd, args...)
+	session, err := Start(command, GinkgoWriter, GinkgoWriter)
+	Ω(err).ShouldNot(HaveOccurred())
+	session.Wait(timeout)
+	return session
+}
+
+func ScpToVirtualGuest(virtualGuestId int, sshKeyFilePath string, localFilePath string, remotePath string) {
+	virtualGuestService, err := CreateVirtualGuestService()
+	Expect(err).ToNot(HaveOccurred())
+
+	virtualGuest, err := virtualGuestService.GetObject(virtualGuestId)
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> sending SCP command: %s\n", fmt.Sprintf("scp -i %s %s root@%s:%s", sshKeyFilePath, localFilePath, virtualGuest.PrimaryIpAddress, remotePath))
+	session := RunCommand(TIMEOUT, "scp", "-o", "StrictHostKeyChecking=no", "-i", sshKeyFilePath, localFilePath, fmt.Sprintf("root@%s:%s", virtualGuest.PrimaryIpAddress, remotePath))
+	Ω(session.ExitCode()).Should(Equal(0))
+}
+
+func SshExecOnVirtualGuest(virtualGuestId int, sshKeyFilePath string, remoteFilePath string, args ...string) int {
+	virtualGuestService, err := CreateVirtualGuestService()
+	Expect(err).ToNot(HaveOccurred())
+
+	virtualGuest, err := virtualGuestService.GetObject(virtualGuestId)
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> sending SSH command: %s\n", fmt.Sprintf("ssh -i %s root@%s '%s \"%s\"'", sshKeyFilePath, virtualGuest.PrimaryIpAddress, remoteFilePath, args[0]))
+	session := RunCommand(TIMEOUT, "ssh", "-o", "StrictHostKeyChecking=no", "-i", sshKeyFilePath, fmt.Sprintf("root@%s", virtualGuest.PrimaryIpAddress), fmt.Sprintf("%s \"%s\"", remoteFilePath, args[0]))
+
+	return session.ExitCode()
+}
+
+func TestUserMetadata(userMetadata, sshKeyFilePath string) {
+	workingDir, err := os.Getwd()
+	Expect(err).ToNot(HaveOccurred())
+
+	fetchUserMetadataShFilePath := filepath.Join(workingDir, "..", "scripts", "fetch_user_metadata.sh")
+	Expect(err).ToNot(HaveOccurred())
+
+	ScpToVirtualGuest(6396994, sshKeyFilePath, fetchUserMetadataShFilePath, "/tmp")
+	retCode := SshExecOnVirtualGuest(6396994, sshKeyFilePath, "/tmp/fetch_user_metadata.sh", userMetadata)
+	Expect(retCode).To(Equal(0))
+}
+
+func WaitForIscsiStorageToBeDeleted(storageId int) {
+	accountService, err := CreateAccountService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> waiting for created iSCSI volume to be deleted\n")
+	Eventually(func() bool {
+		storages, err := accountService.GetIscsiNetworkStorage()
+		Expect(err).ToNot(HaveOccurred())
+
+		deletedFlag := false
+		for _, storage := range storages {
+			if storage.Id == storageId && storage.BillingItem == nil {
+				deletedFlag = true
+			}
+		}
+		return deletedFlag
+	}, TIMEOUT, POLLING_INTERVAL).Should(BeTrue(), "created iSCSI volume but not deleted successfully")
+}
+
+func GetVirtualGuestPrimaryIpAddress(virtualGuestId int) string {
+	virtualGuestService, err := CreateVirtualGuestService()
+	Expect(err).ToNot(HaveOccurred())
+
+	vgIpAddress, err := virtualGuestService.GetPrimaryIpAddress(virtualGuestId)
+	Expect(err).ToNot(HaveOccurred())
+
+	return vgIpAddress
 }

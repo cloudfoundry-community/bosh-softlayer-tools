@@ -29,6 +29,24 @@ type SoftLayer_Virtual_Guest struct {
 	StartCpus                    int        `json:"startCpus,omitempty"`
 	StatusId                     int        `json:"statusId,omitempty"`
 	Uuid                         string     `json:"uuid,omitempty"`
+
+	GlobalIdentifier        string `json:"globalIdentifier,omitempty"`
+	ManagedResourceFlag     bool   `json:"managedResourceFlag,omitempty"`
+	PrimaryBackendIpAddress string `json:"primaryBackendIpAddress,omitempty"`
+	PrimaryIpAddress        string `json:"primaryIpAddress,omitempty"`
+
+	Location *SoftLayer_Location `json:"location"`
+
+	OperatingSystem *SoftLayer_Operating_System `json:"operatingSystem"`
+}
+
+type SoftLayer_Operating_System struct {
+	Passwords []SoftLayer_Password `json:"passwords"`
+}
+
+type SoftLayer_Password struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type SoftLayer_Virtual_Guest_Template_Parameters struct {
@@ -95,7 +113,7 @@ type PrimaryBackendNetworkComponent struct {
 
 type DiskImage struct {
 	//Required
-	capacity int `json:"capacity,omitempty"`
+	Capacity int `json:"capacity,omitempty"`
 }
 
 type BlockDevice struct {
