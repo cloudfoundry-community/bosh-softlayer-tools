@@ -30,7 +30,13 @@ var _ = Describe("LightStemcellCmd", func() {
 	)
 
 	BeforeEach(func() {
-		fakeClient = slclientfakes.NewFakeSoftLayerClient("fake-username", "fake-api-key")
+		username := os.Getenv("SL_USERNAME")
+		Expect(username).ToNot(Equal(""))
+
+		apiKey := os.Getenv("SL_API_KEY")
+		Expect(apiKey).ToNot(Equal(""))
+
+		fakeClient = slclientfakes.NewFakeSoftLayerClient(username, apiKey)
 
 		accountService, err = testhelpers.CreateAccountService()
 		Expect(err).ToNot(HaveOccurred())
