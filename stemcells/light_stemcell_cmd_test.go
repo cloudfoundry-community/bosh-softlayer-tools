@@ -3,16 +3,14 @@ package stemcells_test
 import (
 	"io/ioutil"
 	"os"
-	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	. "github.com/maximilien/bosh-softlayer-stemcells/stemcells"
 
-	common "github.com/maximilien/bosh-softlayer-stemcells/common"
-
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
+
 	slgocommon "github.com/maximilien/softlayer-go/common"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
 	testhelpers "github.com/maximilien/softlayer-go/test_helpers"
@@ -26,8 +24,9 @@ var _ = Describe("LightStemcellCmd", func() {
 
 		accountService softlayer.SoftLayer_Account_Service
 
-		stemcellsPath    string
-		lightStemcellCmd LightStemcellCmd
+		lightStemcellsPath string
+		lightStemcellInfo  LightStemcellInfo
+		lightStemcellCmd   LightStemcellCmd
 	)
 
 	BeforeEach(func() {
@@ -36,14 +35,24 @@ var _ = Describe("LightStemcellCmd", func() {
 		accountService, err = testhelpers.CreateAccountService()
 		Expect(err).ToNot(HaveOccurred())
 
-		stemcellsPath, err = ioutil.TempDir("", "bosh-softlayer-stemcells")
+		lightStemcellsPath, err = ioutil.TempDir("", "bosh-softlayer-stemcells")
 		Expect(err).ToNot(HaveOccurred())
 
-		lightStemcellCmd = NewLightStemcellCmd(stemcellsPath, fakeClient)
+		lightStemcellInfo = LightStemcellInfo{
+			Infrastructure: "fake-infrastructure",
+			Architecture:   "fake-architecture",
+			RootDeviceName: "fake-root-device-name",
+
+			Version:    "fake-version",
+			Hypervisor: "fake-hypervisor",
+			OsName:     "fake-os-name",
+		}
+
+		lightStemcellCmd = NewLightStemcellCmd(lightStemcellsPath, lightStemcellInfo, fakeClient)
 	})
 
 	AfterEach(func() {
-		err = os.RemoveAll(stemcellsPath)
+		err = os.RemoveAll(lightStemcellsPath)
 		Expect(err).ToNot(HaveOccurred())
 	})
 
@@ -54,31 +63,27 @@ var _ = Describe("LightStemcellCmd", func() {
 		})
 
 		It("#NewLightStemcellCmd", func() {
-			cmd := NewLightStemcellCmd(stemcellsPath, fakeClient)
-			Expect(cmd.GetStemcellsPath()).To(Equal(stemcellsPath))
+			cmd := NewLightStemcellCmd(lightStemcellsPath, lightStemcellInfo, fakeClient)
+			Expect(cmd.GetStemcellsPath()).To(Equal(lightStemcellsPath))
+		})
+
+		It("#GenerateStemcellName", func() {
+			name := lightStemcellCmd.GenerateStemcellName(lightStemcellInfo)
+			Expect(name).ToNot(Equal(""))
+			Expect(name).To(Equal("light-bosh-stemcell-fake-version-fake-infrastructure-fake-hypervisor-fake-os-name-go_agent"))
 		})
 
 		It("#Create", func() {
-			lightStemcellPath, err := lightStemcellCmd.Create(4868344)
+			lightStemcellPath, err := lightStemcellCmd.Create(1234567)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(lightStemcellPath).ToNot(Equal(""), "the light stemcell path cannot be empty")
 			Expect(testhelpers.FileExists(lightStemcellPath)).To(BeTrue())
 		})
 
 		It("#GetStemcellsPath", func() {
-			_, err := lightStemcellCmd.Create(4868344)
+			_, err := lightStemcellCmd.Create(1234567)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(lightStemcellCmd.GetStemcellsPath()).To(Equal(stemcellsPath))
+			Expect(lightStemcellCmd.GetStemcellsPath()).To(Equal(lightStemcellsPath))
 		})
-
-		It("#GetLightStemcellMF", func() {
-			expectedLightStemcellMF, err := common.LoadLightStemcellMF(filepath.Join(stemcellsPath, "manifest.MF"))
-			Expect(err).ToNot(HaveOccurred())
-
-			_, err = lightStemcellCmd.Create(4868344)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(lightStemcellCmd.GetLigthStemcellMF()).To(Equal(expectedLightStemcellMF))
-		})
-
 	})
 })

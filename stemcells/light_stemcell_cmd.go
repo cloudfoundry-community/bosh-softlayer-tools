@@ -1,54 +1,69 @@
 package stemcells
 
 import (
+	"crypto/sha1"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+
+	common "github.com/maximilien/bosh-softlayer-stemcells/common"
 
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
+
+	yaml "github.com/fraenkel/candiedyaml"
 )
 
 type lightStemcellCmd struct {
-	LightStemcellMF LightStemcellMF
-
-	stemcellsPath string
-	client        softlayer.Client
+	ligthStemcellsPath string
+	lightStemcellInfo  LightStemcellInfo
+	client             softlayer.Client
 }
 
 type LightStemcellMF struct {
-	Name            string          `json:"name"`
-	Version         string          `json:"name"`
-	BoshProtocol    int             `json:"bosh_protocol"`
-	Sha1            string          `json:"sha1"`
-	CloudProperties CloudProperties `json:"cloud_properties"`
+	Name            string          `json:"name" yaml:"name"`
+	Version         string          `json:"version" yaml:"version"`
+	BoshProtocol    int             `json:"bosh_protocol" yaml:"bosh_protocol"`
+	Sha1            string          `json:"sha1" yaml:"sha1"`
+	CloudProperties CloudProperties `json:"cloud_properties" yaml:"cloud_properties"`
 }
 
 type CloudProperties struct {
-	Infrastructure      string              `json:"infrastructure"`
-	Architecture        string              `json:"architecture"`
-	RootDeviceName      string              `json:"root_device_name"`
-	SoftlayerProperties SoftlayerProperties `json:"softlayer"`
+	Infrastructure string `json:"infrastructure" yaml:"infrastructure"`
+	Architecture   string `json:"architecture" yaml:"architecture"`
+	RootDeviceName string `json:"root_device_name" yaml:"root_device_name"`
+
+	//SoftLayer-specific properties
+	VirtualDiskImageId   int    `json:"virtual-disk-image-id" yaml:"virtual-disk-image-id"`
+	VirtualDiskImageUuid string `json:"virtual-disk-image-uuid" yaml:"virtual-disk-image-uuid"`
+	DatacenterName       string `json:"datacenter-name" yaml:"datacenter-name"`
 }
 
-type SoftlayerProperties struct {
-	VirtualDiskImageId   string `json:"virtual-disk-image-id"`
-	VirtualDiskImageUuid string `json:"virtual-disk-image-uuid"`
-	DatacenterName       string `json:"datacenter-name"`
-}
-
-func NewLightStemcellCmd(stemcellsPath string, client softlayer.Client) LightStemcellCmd {
+func NewLightStemcellCmd(stemcellsPath string, lightStemcellInfo LightStemcellInfo, client softlayer.Client) *lightStemcellCmd {
 	return &lightStemcellCmd{
-		stemcellsPath: stemcellsPath,
-		client:        client,
+		ligthStemcellsPath: stemcellsPath,
+		lightStemcellInfo:  lightStemcellInfo,
+		client:             client,
 	}
 }
 
-func (lsd *lightStemcellCmd) GetLigthStemcellMF() LightStemcellMF {
-	return lsd.LightStemcellMF
+func (lsd *lightStemcellCmd) GenerateStemcellName(info LightStemcellInfo) string {
+	return fmt.Sprintf("light-bosh-stemcell-%s-%s-%s-%s-go_agent",
+		lsd.lightStemcellInfo.Version,
+		lsd.lightStemcellInfo.Infrastructure,
+		lsd.lightStemcellInfo.Hypervisor,
+		lsd.lightStemcellInfo.OsName)
 }
 
 func (lsd *lightStemcellCmd) GetStemcellsPath() string {
-	return lsd.stemcellsPath
+	return lsd.ligthStemcellsPath
+}
+
+func (lsd *lightStemcellCmd) GetLightStemcellInfo() LightStemcellInfo {
+	return lsd.lightStemcellInfo
 }
 
 func (lsd *lightStemcellCmd) Create(virtualDiskImageId int) (string, error) {
@@ -72,6 +87,8 @@ func (lsd *lightStemcellCmd) Create(virtualDiskImageId int) (string, error) {
 
 	return "", errors.New(fmt.Sprintf("Could not create SoftLayer light stemcell from ID: '%d'", virtualDiskImageId))
 }
+
+// Private methods
 
 func (lsd *lightStemcellCmd) createLightStemcellFromVirtualDiskImage(vdImageId int) (string, error) {
 	virtualDiskImageService, err := lsd.client.GetSoftLayer_Virtual_Disk_Image_Service()
@@ -122,6 +139,92 @@ func (lsd *lightStemcellCmd) findInVirtualDiskImages(vdImageId int) (sldatatypes
 }
 
 func (lsd *lightStemcellCmd) buildLightStemcellWithVirtualDiskImage(virtualDiskImage sldatatypes.SoftLayer_Virtual_Disk_Image) (string, error) {
+	datacenterName, err := lsd.findDatacenterFromVirtualDiskImage(virtualDiskImage)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Getting datacenter name from softlayer-go client: `%s`", err.Error()))
+	}
+
+	lightStemcellMF := LightStemcellMF{
+		Name:         lsd.GenerateStemcellName(lsd.lightStemcellInfo),
+		Version:      lsd.lightStemcellInfo.Version,
+		BoshProtocol: 1, //Must be defaulted to 1 for legacy reasons (no other values supported)
+		Sha1:         base64.StdEncoding.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%d:%s", virtualDiskImage.Id, virtualDiskImage.Uuid)))),
+		CloudProperties: CloudProperties{
+			Infrastructure:       lsd.lightStemcellInfo.Infrastructure,
+			Architecture:         lsd.lightStemcellInfo.Architecture,
+			RootDeviceName:       lsd.lightStemcellInfo.RootDeviceName,
+			VirtualDiskImageId:   virtualDiskImage.Id,
+			VirtualDiskImageUuid: virtualDiskImage.Uuid,
+			DatacenterName:       datacenterName,
+		},
+	}
+
+	lightStemcellMFBytes, err := lsd.generateManifestMFBytesYAML(lightStemcellMF)
+
+	lightStemcellMFFilePath := filepath.Join(lsd.ligthStemcellsPath, "stemcell.MF")
+	err = common.CreateFile(lightStemcellMFFilePath, lightStemcellMFBytes)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Could not create stemcell.MF file, error: `%s`", err.Error()))
+	}
+
+	imageFilePath := filepath.Join(lsd.ligthStemcellsPath, "image")
+	err = common.CreateFile(imageFilePath, []byte{})
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Could not create image file, error: `%s`", err.Error()))
+	}
+
+	lightStemcellFilePath := filepath.Join(lsd.ligthStemcellsPath, fmt.Sprintf("%s.tgz", lsd.GenerateStemcellName(lsd.lightStemcellInfo)))
+	err = common.CreateTarball(lightStemcellFilePath, []string{lightStemcellMFFilePath, imageFilePath})
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Could not create tarball file, error: `%s`", err.Error()))
+	}
+
+	err = os.Remove(lightStemcellMFFilePath)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Could clean up temp file '%s', error: `%s`", lightStemcellMFFilePath, err.Error()))
+	}
+
+	err = os.Remove(imageFilePath)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Could clean up temp file '%s', error: `%s`", imageFilePath, err.Error()))
+	}
+
+	return lightStemcellFilePath, nil
+}
+
+func (lsd *lightStemcellCmd) generateManifestMFBytesJSON(lightStemcellMF LightStemcellMF) ([]byte, error) {
+	bytes, err := json.Marshal(&lightStemcellMF)
+	if err != nil {
+		return []byte{}, errors.New(fmt.Sprintf("Could not marshall stemcell manifest data into JSON, error: `%s`", err.Error()))
+	}
+
+	return bytes, err
+}
+
+func (lsd *lightStemcellCmd) generateManifestMFBytesYAML(lightStemcellMF LightStemcellMF) ([]byte, error) {
+	bytes, err := yaml.Marshal(&lightStemcellMF)
+	if err != nil {
+		return []byte{}, errors.New(fmt.Sprintf("Could not marshall stemcell manifest data into YML, error: `%s`", err.Error()))
+	}
+
+	return bytes, err
+}
+
+func (lsd *lightStemcellCmd) findDatacenterFromVirtualDiskImage(virtualDiskImage sldatatypes.SoftLayer_Virtual_Disk_Image) (string, error) {
+	accountService, err := lsd.client.GetSoftLayer_Account_Service()
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Could not get SoftLayer_Account_Service from softlayer-go client: `%s`", err.Error()))
+	}
+
+	locations, err := accountService.GetDatacentersWithSubnetAllocations()
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Could not get SoftLayer_Account_Service#GetDatacentersWithSubnetAllocations from softlayer-go client: `%s`", err.Error()))
+	}
+
+	if len(locations) > 0 {
+		return locations[0].Name, nil
+	}
+
 	return "", nil
 }
 
@@ -150,5 +253,9 @@ func (lsd *lightStemcellCmd) findInVirtualGuestDeviceTemplateGroups(vgdtgId int)
 }
 
 func (lsd *lightStemcellCmd) buildLightStemcellWithVirtualGuestDeviceTemplateGroup(vgdtgGroup sldatatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group) (string, error) {
+	return "", nil
+}
+
+func (lsd *lightStemcellCmd) findDatacenterFromVVirtualGuestDeviceTemplateGroup(vgdtgGroup sldatatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group) (string, error) {
 	return "", nil
 }
