@@ -16,7 +16,7 @@ import (
 	testhelpers "github.com/maximilien/softlayer-go/test_helpers"
 )
 
-var _ = Describe("LightStemcellCmd", func() {
+var _ = Describe("LightStemcellVDICmd", func() {
 	var (
 		err error
 
@@ -54,7 +54,7 @@ var _ = Describe("LightStemcellCmd", func() {
 			OsName:     "fake-os-name",
 		}
 
-		lightStemcellCmd = NewLightStemcellCmd(lightStemcellsPath, lightStemcellInfo, fakeClient)
+		lightStemcellCmd = NewLightStemcellVDICmd(lightStemcellsPath, lightStemcellInfo, fakeClient)
 	})
 
 	AfterEach(func() {
@@ -69,12 +69,12 @@ var _ = Describe("LightStemcellCmd", func() {
 		})
 
 		It("#NewLightStemcellCmd", func() {
-			cmd := NewLightStemcellCmd(lightStemcellsPath, lightStemcellInfo, fakeClient)
+			cmd := NewLightStemcellVDICmd(lightStemcellsPath, lightStemcellInfo, fakeClient)
 			Expect(cmd.GetStemcellsPath()).To(Equal(lightStemcellsPath))
 		})
 
 		It("#GenerateStemcellName", func() {
-			name := lightStemcellCmd.GenerateStemcellName(lightStemcellInfo)
+			name := GenerateStemcellName(lightStemcellInfo)
 			Expect(name).ToNot(Equal(""))
 			Expect(name).To(Equal("light-bosh-stemcell-fake-version-fake-infrastructure-fake-hypervisor-fake-os-name-go_agent"))
 		})
