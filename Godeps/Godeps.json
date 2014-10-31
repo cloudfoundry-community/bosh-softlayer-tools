@@ -11,39 +11,43 @@
 			"Rev": "23b39e4e860172e1983ded00a9d2f7e42b7683d0"
 		},
 		{
+			"ImportPath": "github.com/fraenkel/candiedyaml",
+			"Rev": "84842532f8194fe186b48a009251dfaec9924ccd"
+		},
+		{
 			"ImportPath": "github.com/maximilien/softlayer-go/client",
-			"Comment": "v0.0.2-45-gbdef41c",
-			"Rev": "bdef41c56edf5c7919ae30c173c416b72265930e"
+			"Comment": "v0.1.0-1-gd46f936",
+			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/common",
-			"Comment": "v0.0.2-45-gbdef41c",
-			"Rev": "bdef41c56edf5c7919ae30c173c416b72265930e"
+			"Comment": "v0.1.0-1-gd46f936",
+			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/data_types",
-			"Comment": "v0.0.2-45-gbdef41c",
-			"Rev": "bdef41c56edf5c7919ae30c173c416b72265930e"
+			"Comment": "v0.1.0-1-gd46f936",
+			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/services",
-			"Comment": "v0.0.2-45-gbdef41c",
-			"Rev": "bdef41c56edf5c7919ae30c173c416b72265930e"
+			"Comment": "v0.1.0-1-gd46f936",
+			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/softlayer",
-			"Comment": "v0.0.2-45-gbdef41c",
-			"Rev": "bdef41c56edf5c7919ae30c173c416b72265930e"
+			"Comment": "v0.1.0-1-gd46f936",
+			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/test_helpers",
-			"Comment": "v0.0.2-45-gbdef41c",
-			"Rev": "bdef41c56edf5c7919ae30c173c416b72265930e"
+			"Comment": "v0.1.0-1-gd46f936",
+			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/utils",
-			"Comment": "v0.0.2-45-gbdef41c",
-			"Rev": "bdef41c56edf5c7919ae30c173c416b72265930e"
+			"Comment": "v0.1.0-1-gd46f936",
+			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
