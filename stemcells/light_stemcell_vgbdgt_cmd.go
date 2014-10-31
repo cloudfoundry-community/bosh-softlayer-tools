@@ -16,7 +16,7 @@ type lightStemcellVGBDTGCmd struct {
 	client             softlayer.Client
 }
 
-func NewLightStemcellVGBDTGCmd(stemcellsPath string, lightStemcellInfo LightStemcellInfo, client softlayer.Client) *lightStemcellVGBDTGCmd {
+func NewLightStemcellVGBDGTCmd(stemcellsPath string, lightStemcellInfo LightStemcellInfo, client softlayer.Client) *lightStemcellVGBDTGCmd {
 	return &lightStemcellVGBDTGCmd{
 		ligthStemcellsPath: stemcellsPath,
 		lightStemcellInfo:  lightStemcellInfo,
@@ -32,8 +32,27 @@ func (cmd *lightStemcellVGBDTGCmd) GetLightStemcellInfo() LightStemcellInfo {
 	return cmd.lightStemcellInfo
 }
 
-func (cmd *lightStemcellVGBDTGCmd) Create(virtualDiskImageId int) (string, error) {
-	return "", errors.New("Implement me!")
+func (cmd *lightStemcellVGBDTGCmd) Create(vgbdtgId int) (string, error) {
+	vgbdtGroup, found, err := cmd.findInVirtualGuestBlockDeviceTemplateGroups(vgbdtgId)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Could not get virtual guest block device template group '%d' from softlayer-go service: `%s`", vgbdtgId, err.Error()))
+	}
+
+	if found == true {
+		vgbdtGroupService, err := cmd.client.GetSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service()
+		if err != nil {
+			return "", errors.New(fmt.Sprintf("Could not get virtual guest block device template group service from softlayer-go service: `%s`", err.Error()))
+		}
+
+		object, err := vgbdtGroupService.GetObject(vgbdtGroup.Id)
+		if err != nil {
+			return "", errors.New(fmt.Sprintf("Could not get virtual guest block device template group object '%d' got softlayer-go service: `%s`", vgbdtgId, err.Error()))
+		}
+
+		return cmd.buildLightStemcellWithVirtualGuestBlockDeviceTemplateGroup(object)
+	}
+
+	return "", errors.New(fmt.Sprintf("Could not get virtual guest block device template group '%d'", vgbdtgId))
 }
 
 // Private methods
