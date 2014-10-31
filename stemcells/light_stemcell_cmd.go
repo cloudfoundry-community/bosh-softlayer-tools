@@ -76,7 +76,7 @@ func (lsd *lightStemcellCmd) Create(virtualDiskImageId int) (string, error) {
 		return ligthStemcellPath, nil
 	}
 
-	ligthStemcellPath, err = lsd.createLightStemcellFromVirtualGuestDeviceTemplateGroup(virtualDiskImageId)
+	ligthStemcellPath, err = lsd.createLightStemcellFromVirtualGuestBlockDeviceTemplateGroup(virtualDiskImageId)
 	if err != nil {
 		return "", err
 	}
@@ -228,11 +228,11 @@ func (lsd *lightStemcellCmd) findDatacenterFromVirtualDiskImage(virtualDiskImage
 	return "", nil
 }
 
-func (lsd *lightStemcellCmd) createLightStemcellFromVirtualGuestDeviceTemplateGroup(vgdtgId int) (string, error) {
+func (lsd *lightStemcellCmd) createLightStemcellFromVirtualGuestBlockDeviceTemplateGroup(vgdtgId int) (string, error) {
 	return "", nil
 }
 
-func (lsd *lightStemcellCmd) findInVirtualGuestDeviceTemplateGroups(vgdtgId int) (sldatatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group, bool, error) {
+func (lsd *lightStemcellCmd) findInVirtualGuestBlockDeviceTemplateGroups(vgdtgId int) (sldatatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group, bool, error) {
 	accountService, err := lsd.client.GetSoftLayer_Account_Service()
 	if err != nil {
 		return sldatatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group{}, false, errors.New(fmt.Sprintf("Could not get SoftLayer_Account_Service from softlayer-go client: `%s`", err.Error()))
@@ -252,10 +252,10 @@ func (lsd *lightStemcellCmd) findInVirtualGuestDeviceTemplateGroups(vgdtgId int)
 	return sldatatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group{}, false, nil
 }
 
-func (lsd *lightStemcellCmd) buildLightStemcellWithVirtualGuestDeviceTemplateGroup(vgdtgGroup sldatatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group) (string, error) {
+func (lsd *lightStemcellCmd) buildLightStemcellWithVirtualGuestBlockDeviceTemplateGroup(vgdtgGroup sldatatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group) (string, error) {
 	return "", nil
 }
 
-func (lsd *lightStemcellCmd) findDatacenterFromVVirtualGuestDeviceTemplateGroup(vgdtgGroup sldatatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group) (string, error) {
+func (lsd *lightStemcellCmd) findDatacenterFromVirtualGuestBlockDeviceTemplateGroup(vgdtgGroup sldatatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group) (string, error) {
 	return "", nil
 }
