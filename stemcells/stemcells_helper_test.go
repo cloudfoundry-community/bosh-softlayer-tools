@@ -11,7 +11,7 @@ import (
 	. "github.com/maximilien/bosh-softlayer-stemcells/stemcells"
 )
 
-var _ = FDescribe("stemcells_helper", func() {
+var _ = Describe("stemcells_helper", func() {
 	var (
 		err               error
 		tmpDir            string
