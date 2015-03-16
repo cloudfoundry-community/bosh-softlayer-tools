@@ -8,6 +8,7 @@ _obj
 _test
 out
 tmp
+credentials
 
 # Architecture specific extensions/prefixes
 *.[568vq]
