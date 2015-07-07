@@ -1,0 +1,8 @@
+---
+platform: linux
+
+inputs:
+  - name: softlayer-go
+
+run:
+  path: softlayer-go/bin/test-unit
