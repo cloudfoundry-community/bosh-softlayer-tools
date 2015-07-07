@@ -6,4 +6,5 @@ inputs:
 
 run:
     # path: softlayer-go/bin/ci
-  path: pwd
+  path: ls
+  args: ["-alt"]
