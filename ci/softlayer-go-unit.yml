@@ -5,4 +5,4 @@ inputs:
   - name: softlayer-go
 
 run:
-  path: softlayer-go/bin/test_unit
+  path: softlayer-go/bin/test-unit
