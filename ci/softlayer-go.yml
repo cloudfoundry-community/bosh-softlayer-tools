@@ -5,4 +5,5 @@ inputs:
   - name: softlayer-go
 
 run:
-  path: softlayer-go/bin/ci
+    # path: softlayer-go/bin/ci
+  path: pwd
