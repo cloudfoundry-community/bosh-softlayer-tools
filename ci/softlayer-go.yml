@@ -7,4 +7,4 @@ inputs:
 run:
     # path: softlayer-go/bin/ci
   path: ls
-  args: ["-alt"]
+  args: ["-alt", "softlayer-go"]
