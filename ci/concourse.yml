@@ -20,7 +20,7 @@ resources:
     private_key: {{private-repo-key}}
 
 jobs:
-- name: softlayer-go-unit
+- name: sl-go-unit
   plan:
   - aggregate:
     - get: bosh-softlayer-stemcells
@@ -32,7 +32,7 @@ jobs:
       params:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
-- name: bosh-softlayer-cpi-unit
+- name: bosh-sl-cpi-unit
   plan:
   - aggregate:
     - get: bosh-softlayer-stemcells
