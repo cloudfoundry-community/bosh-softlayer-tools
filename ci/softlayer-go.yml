@@ -8,4 +8,4 @@ inputs:
 
 run:
   path: softlayer-go/bin/ci
-  args: 'sh'
+  args: ['sh']
