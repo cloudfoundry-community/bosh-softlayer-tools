@@ -9,6 +9,6 @@ run:
   path: softlayer-go/bin/ci
 
 params:
-   SL_USERNAME: `echo $SL_USERNAME`
-   SL_API_KEY: `echo $SL_API_KEY`
+  SL_USERNAME: `echo $SL_USERNAME`
+  SL_API_KEY: `echo $SL_API_KEY`
 
