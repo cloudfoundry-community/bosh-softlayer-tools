@@ -1,0 +1,47 @@
+---
+resources:
+- name: bosh-softlayer-stemcells
+  type: git
+  source:
+    uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
+    branch: concourse
+    private_key: {{private-repo-key}}
+- name: softlayer-go
+  type: git
+  source:
+    uri: git@github.com:maximilien/softlayer-go.git
+    branch: concourse
+    private_key: {{private-repo-key}}
+- name: bosh-softlayer-cpi
+  type: git
+  source:
+    uri: git@github.com:maximilien/bosh-softlayer-cpi.git
+    branch: concourse
+    private_key: {{private-repo-key}}
+
+jobs:
+- name: softlayer-go-unit
+  plan:
+  - aggregate:
+    - get: bosh-softlayer-stemcells
+    - get: softlayer-go
+      trigger: true
+  - task: unit
+    file: bosh-softlayer-stemcells/ci/softlayer-go.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
+- name: bosh-softlayer-cpi-unit
+  plan:
+  - aggregate:
+    - get: bosh-softlayer-stemcells
+    - get: bosh-softlayer-cpi
+      trigger: true
+    - get: softlayer-go
+  - task: unit
+    file: bosh-softlayer-stemcells/ci/bosh-softlayer-cpi.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
