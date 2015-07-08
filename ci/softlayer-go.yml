@@ -5,6 +5,4 @@ inputs:
   - name: softlayer-go
 
 run:
-  path: "./softlayer-go/bin/ci"
-  #  path: ls
-  # args: ["-alt", "softlayer-go"]
+  path: softlayer-go/bin/ci
