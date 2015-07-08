@@ -4,7 +4,8 @@ image: docker:///busybox
 
 inputs:
   - name: softlayer-go
+  - name: bosh-softlayer-stemcells
 
 run:
   path: softlayer-go/bin/ci
-  args: ["sh"]
+  args: 'sh'
