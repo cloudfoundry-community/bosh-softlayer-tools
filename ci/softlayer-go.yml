@@ -1,10 +1,9 @@
 ---
 platform: linux
-image: docker:///busybox
+image: docker:///ubuntu#14.04
 
 inputs:
   - name: softlayer-go
-  - name: bosh-softlayer-stemcells
 
 run:
   path: softlayer-go/bin/ci
