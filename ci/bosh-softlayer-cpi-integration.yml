@@ -6,4 +6,5 @@ inputs:
   - name: bosh-softlayer-cpi
 
 run:
+  path: bosh-softlayer-cpi/bin/build
   path: bosh-softlayer-cpi/bin/test-integration
