@@ -4,6 +4,7 @@ image: docker:///golang
 
 inputs:
   - name: softlayer-go
+  	path: softlayer-go
 
 run:
-  path: softlayer-go/bin/ci
+  path: bin/ci
