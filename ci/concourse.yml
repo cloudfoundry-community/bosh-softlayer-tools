@@ -44,22 +44,12 @@ jobs:
       params:
         SL_USERNAME: fake-username
         SL_API_KEY: fake-api-key
-- name: cpi-build
-  plan:
-  - aggregate:
-    - get: bosh-softlayer-stemcells
-    - get: bosh-softlayer-cpi
-      trigger: true
-      passed: [cpi-unit]
-  - task: build
-    file: bosh-softlayer-stemcells/ci/bosh-softlayer-cpi-build.yml
 - name: cpi-integration
   plan:
   - aggregate:
     - get: bosh-softlayer-stemcells
     - get: bosh-softlayer-cpi
       trigger: true
-      passed: [cpi-build]
   - task: build
     file: bosh-softlayer-stemcells/ci/bosh-softlayer-cpi-build.yml
   - task: integration
@@ -68,3 +58,12 @@ jobs:
       params:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
+- name: cpi-build
+  plan:
+  - aggregate:
+    - get: bosh-softlayer-stemcells
+    - get: bosh-softlayer-cpi
+      trigger: true
+      passed: [cpi-unit, cpi-integration]
+  - task: build
+    file: bosh-softlayer-stemcells/ci/bosh-softlayer-cpi-build.yml
