@@ -6,12 +6,14 @@ resources:
     uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
     branch: concourse
     private_key: {{private-repo-key}}
+
 - name: softlayer-go
   type: git
   source:
     uri: git@github.com:maximilien/softlayer-go.git
     branch: concourse
     private_key: {{private-repo-key}}
+
 - name: bosh-softlayer-cpi
   type: git
   source:
@@ -22,49 +24,44 @@ resources:
 jobs:
 - name: sl-go-unit
   plan:
-  - aggregate:
-    - get: bosh-softlayer-stemcells
-    - get: softlayer-go
-      trigger: true
+  - get: softlayer-go
+    trigger: true
   - task: unit
-    file: bosh-softlayer-stemcells/ci/softlayer-go-unit.yml
+    file: softlayer-go/ci/softlayer-go-unit.yml
     config:
       params:
         SL_USERNAME: fake-username
         SL_API_KEY: fake-api-key
+
 - name: cpi-unit
   plan:
-  - aggregate:
-    - get: bosh-softlayer-stemcells
-    - get: bosh-softlayer-cpi
-      trigger: true
+  - get: bosh-softlayer-cpi
+    trigger: true
   - task: unit
-    file: bosh-softlayer-stemcells/ci/bosh-softlayer-cpi-unit.yml
+    file: bosh-softlayer-cpi/ci/bosh-softlayer-cpi-unit.yml
     config:
       params:
         SL_USERNAME: fake-username
         SL_API_KEY: fake-api-key
+
 - name: cpi-integration
   plan:
-  - aggregate:
-    - get: bosh-softlayer-stemcells
-    - get: bosh-softlayer-cpi
-      trigger: true
-      passed: [cpi-unit]
+  - get: bosh-softlayer-cpi
+    trigger: true
+    passed: [sl-go-unit, cpi-unit]
   - task: build
-    file: bosh-softlayer-stemcells/ci/bosh-softlayer-cpi-build.yml
+    file: bosh-softlayer-cpi/ci/bosh-softlayer-cpi-build.yml
   - task: integration
-    file: bosh-softlayer-stemcells/ci/bosh-softlayer-cpi-integration.yml
+    file: bosh-softlayer-cpi/ci/bosh-softlayer-cpi-integration.yml
     config:
       params:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
+
 - name: cpi-build
   plan:
-  - aggregate:
-    - get: bosh-softlayer-stemcells
-    - get: bosh-softlayer-cpi
-      trigger: true
-      passed: [cpi-integration]
+  - get: bosh-softlayer-cpi
+    trigger: true
+    passed: [cpi-integration]
   - task: build
-    file: bosh-softlayer-stemcells/ci/bosh-softlayer-cpi-build.yml
+    file: bosh-softlayer-cpi/ci/bosh-softlayer-cpi-build.yml
