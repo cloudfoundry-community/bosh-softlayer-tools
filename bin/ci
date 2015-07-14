@@ -25,8 +25,11 @@
   echo -e "\n Formatting packages..."
   go fmt ./...
 
+  echo -e "\n Get ginkgo..."
+  go install github.com/onsi/ginkgo/ginkgo
+
   echo -e "\n Unit Testing packages:"
-  go test $base/main $base/common $base/stemcells
+  ginkgo -r -p -v --noisyPendings $base/main $base/common $base/stemcells
 
   echo -e "\n Vetting packages for potential issues..."
   go tool vet $base/main $base/common $base/stemcells
