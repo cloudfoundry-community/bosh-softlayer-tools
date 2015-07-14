@@ -21,6 +21,31 @@ resources:
     branch: concourse
     private_key: {{private-repo-key}}
 
+- name: version
+  type: semver
+  source:
+    bucket: bosh-softlayer-cpi-stemcells
+    key: current-version
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+    initial_version: 1.0.0
+
+- name: bosh-softlayer-stemcells-rc
+  type: s3
+  source:
+    bucket: bosh-softlayer-cpi-stemcells
+    regexp: bosh-softlayer-stemcells-(.*).tgz
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: bosh-softlayer-stemcells-final
+  type: s3
+  source:
+    bucket: bosh-softlayer-cpi
+    regexp: bosh-softlayer-cpi-(.*).tgz
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
 jobs:
 - name: sl-go-unit
   plan:
@@ -48,7 +73,7 @@ jobs:
   plan:
   - get: bosh-softlayer-cpi
     trigger: true
-    passed: [sl-go-unit, cpi-unit]
+    passed: [cpi-unit]
   - task: build
     file: bosh-softlayer-cpi/ci/bosh-softlayer-cpi-build.yml
   - task: integration
@@ -65,3 +90,25 @@ jobs:
     passed: [cpi-integration]
   - task: build
     file: bosh-softlayer-cpi/ci/bosh-softlayer-cpi-build.yml
+
+- name: stemcells-unit
+  plan:
+  - get: bosh-softlayer-stemcells
+    trigger: true
+  - task: unit
+    file: bosh-softlayer-stemcells/ci/unit.yml
+
+- name: build-stemcells-rc
+  serial: true
+  plan:
+  - get: bosh-softlayer-stemcells
+    passed: [stemcells-unit]
+    trigger: true
+  - get: version
+    params: {bump: minor, pre: rc}
+  - task: build
+    file: bosh-softlayer-stemcells/ci/build.yml
+  - put: bosh-softlayer-stemcells-rc
+    params: {from: build/my-product-.*.tgz}
+  - put: version
+    params: {file: version/number}
