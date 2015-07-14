@@ -1,6 +1,6 @@
 FROM golang
 
-RUN go get github.com/onsi/ginkgo
+RUN go get github.com/onsi/ginkgo/ginkgo
 RUN go get github.com/onsi/gomega
 RUN go get golang.org/x/tools/cmd/vet
 

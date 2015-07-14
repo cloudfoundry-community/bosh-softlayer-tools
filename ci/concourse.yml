@@ -1,5 +1,18 @@
 ---
 resources:
+- name: bosh-softlayer-cpi
+  type: git
+  source:
+    uri: git@github.com:maximilien/bosh-softlayer-cpi.git
+    branch: concourse
+    private_key: {{private-repo-key}}
+
+- name: bosh-softlayer-cpi-release
+  type: git
+  source:
+    uri: git@github.com:maximilien/bosh-softlayer-cpi-release.git
+    branch: master
+
 - name: bosh-softlayer-stemcells
   type: git
   source:
@@ -11,13 +24,6 @@ resources:
   type: git
   source:
     uri: git@github.com:maximilien/softlayer-go.git
-    branch: concourse
-    private_key: {{private-repo-key}}
-
-- name: bosh-softlayer-cpi
-  type: git
-  source:
-    uri: git@github.com:maximilien/bosh-softlayer-cpi.git
     branch: concourse
     private_key: {{private-repo-key}}
 
