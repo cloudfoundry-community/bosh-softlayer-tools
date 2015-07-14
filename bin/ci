@@ -26,7 +26,7 @@
   go fmt ./...
 
   echo -e "\n Unit Testing packages:"
-  go test $base/main/... $base/common/... $base/stemcells/...
+  go test $base/main $base/common $base/stemcells
 
   echo -e "\n Vetting packages for potential issues..."
   go tool vet $base/main $base/common $base/stemcells
