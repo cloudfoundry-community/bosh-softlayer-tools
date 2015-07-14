@@ -11,7 +11,7 @@ resources:
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-cpi-release.git
-    branch: master
+    branch: concourse
 
 - name: bosh-softlayer-stemcells
   type: git
@@ -37,29 +37,6 @@ resources:
     initial_version: 1.0.0
 
 jobs:
-- name: sl-go-unit
-  plan:
-  - get: softlayer-go
-    trigger: true
-  - task: unit
-    file: softlayer-go/ci/unit.yml
-    config:
-      params:
-        SL_USERNAME: fake-username
-        SL_API_KEY: fake-api-key
-
-- name: sl-go-integration
-  plan:
-  - get: softlayer-go
-    trigger: true
-    passed: [sl-go-unit]
-  - task: integration
-    file: softlayer-go/ci/integration.yml
-    config:
-      params:
-        SL_USERNAME: {{SL_USERNAME}}
-        SL_API_KEY: {{SL_API_KEY}}
-
 - name: cpi-unit
   plan:
   - get: bosh-softlayer-cpi
@@ -93,6 +70,13 @@ jobs:
   - task: build
     file: bosh-softlayer-cpi/ci/build.yml
 
+- name: stemcells-build
+  plan:
+  - get: bosh-softlayer-cpi-release
+    trigger: true
+  - task: build
+    file: bosh-softlayer-cpi-release/ci/build.yml
+
 - name: stemcells-unit
   plan:
   - get: bosh-softlayer-stemcells
@@ -100,3 +84,25 @@ jobs:
   - task: unit
     file: bosh-softlayer-stemcells/ci/unit.yml
 
+- name: sl-go-unit
+  plan:
+  - get: softlayer-go
+    trigger: true
+  - task: unit
+    file: softlayer-go/ci/unit.yml
+    config:
+      params:
+        SL_USERNAME: fake-username
+        SL_API_KEY: fake-api-key
+
+- name: sl-go-integration
+  plan:
+  - get: softlayer-go
+    trigger: true
+    passed: [sl-go-unit]
+  - task: integration
+    file: softlayer-go/ci/integration.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
