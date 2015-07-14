@@ -55,6 +55,10 @@ jobs:
     passed: [sl-go-unit]
   - task: integration
     file: softlayer-go/ci/integration.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
 
 - name: cpi-unit
   plan:
