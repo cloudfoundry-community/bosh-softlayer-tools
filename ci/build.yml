@@ -1,0 +1,11 @@
+---
+platform: linux
+image: docker:///posijon/slci
+
+inputs:
+  - name: bosh-softlayer-stemcells
+    path: gopath/src/github.com/maximilien/bosh-softlayer-stemcells
+  - name: version
+
+run:
+  path: gopath/src/github.com/maximilien/bosh-softlayer-stemcells/bin/build
