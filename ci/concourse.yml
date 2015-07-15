@@ -12,6 +12,15 @@ resources:
   source:
     uri: git@github.com:maximilien/bosh-softlayer-cpi-release.git
     branch: concourse
+    private_key: {{private-repo-key}}
+
+- name: bosh-softlayer-cpi-release-rc
+  type: s3
+  source:
+    bucket: bosh-softlayer-cpi-stemcells
+    regexp: bosh-softlayer-cpi-release-(.*).tgz
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
 
 - name: bosh-softlayer-stemcells
   type: git
@@ -70,12 +79,15 @@ jobs:
   - task: build
     file: bosh-softlayer-cpi/ci/build.yml
 
-- name: stemcells-build
+- name: cpi-release-build-rc
+  serial: true
   plan:
   - get: bosh-softlayer-cpi-release
     trigger: true
-  - task: build
-    file: bosh-softlayer-cpi-release/ci/build.yml
+  - get: version
+    params: {bump: minor, pre: rc}
+  - task: build-tarball
+    file: bosh-softlayer-cpi-release/ci/build-tarball.yml
 
 - name: stemcells-unit
   plan:
