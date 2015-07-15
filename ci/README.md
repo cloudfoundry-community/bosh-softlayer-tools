@@ -4,7 +4,7 @@ As the title suggests, this is a guide to deploying concourse on a SoftLayer VM.
 
 If you have an existing VM you'd like to use, skip the following section and go directly to the one titled [Linking Vagrant](#link).
 
-<h2 id="createVM">Create SoftLayer Instance</h2>
+<h2 id="createVM">Creating a SoftLayer Instance</h2>
 The [Vagrant SoftLayer Provider](https://github.com/audiolize/vagrant-softlayer) helps you create a SoftLayer VM using Vagrant. Follow the README on their github page to get started. The gist of it is:
 
 * Install the vagrant-softlayer plugin:
@@ -16,7 +16,7 @@ The [Vagrant SoftLayer Provider](https://github.com/audiolize/vagrant-softlayer)
   ```
   $ vagrant init softlayer.box
   ```
-  - You can create your own box file by following the README [here](https://github.com/audiolize/vagrant-softlayer/tree/master/example_box) or use the existing `ci/softlayer.box` in the current project.
+  - You can create your own box file by following the README [here](https://github.com/audiolize/vagrant-softlayer/tree/master/example_box) or use the existing [softlayer.box](softlayer.box)
 
 * Edit the `Vagrantfile` to reflect your specific provider needs:
   ```ruby
@@ -80,7 +80,7 @@ The [Vagrant ManagedServers Provider](https://github.com/tknerr/vagrant-managed-
   $ vagrant up --provider=managed
   ```
 
-## Provision VM
+## Provisioning the VM
 The [BOSH provisioner for Vagrant](https://github.com/cppforlife/vagrant-bosh) lets you provision guest VMs by specifying a regular BOSH deployment manifest.
 
 * Install as before using `vagrant plugin install`:
@@ -184,7 +184,7 @@ The [BOSH provisioner for Vagrant](https://github.com/cppforlife/vagrant-bosh) l
 
 ## Using Concourse
 Concourse docs can be found at http://concourse.ci/  
-View an example pipeline YAML in `ci/concourse.yml` of the current project.
+View an example pipeline YAML in [concourse.yml](concourse.yml)
 
 ## Troubleshooting
 * git resource can't be accessed
