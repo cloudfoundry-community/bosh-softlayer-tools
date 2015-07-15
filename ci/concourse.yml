@@ -88,6 +88,10 @@ jobs:
     params: {bump: minor, pre: rc}
   - task: build-tarball
     file: bosh-softlayer-cpi-release/ci/build-tarball.yml
+  - put: bosh-softlayer-cpi-release-rc
+    params: {from: build-tarball/bosh-softlayer-cpi-release-.*.tgz}
+  - put: version
+    params: {file: version/number}
 
 - name: stemcells-unit
   plan:
