@@ -212,5 +212,5 @@ View an example pipeline YAML in [concourse.yml](concourse.yml)
 ## Troubleshooting
 * git resource can't be accessed
   * Make sure you've passed your private key.
-  * If you have, it may be that the default SoftLayer DNS servers don't allow you to resolve outside domain names, such as `github.com`. If you find this to be the case (such as by `ping`ing, manually edit `etc/resolv.conf` in your SoftLayer instance (`vagrant ssh`) to include another DNS server, such as Google's `8.8.8.8`.
+  * If you have, it may be that the default SoftLayer DNS servers don't allow you to resolve outside domain names, such as `github.com`. If you find this to be the case (such as by `ping`ing), manually edit `etc/resolv.conf` in your SoftLayer instance (`vagrant ssh`) to include another DNS server, such as Google's `8.8.8.8`.
   
