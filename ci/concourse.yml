@@ -1,0 +1,124 @@
+---
+resources:
+- name: bosh-softlayer-cpi
+  type: git
+  source:
+    uri: git@github.com:maximilien/bosh-softlayer-cpi.git
+    branch: concourse
+    private_key: {{private-repo-key}}
+
+- name: bosh-softlayer-cpi-release
+  type: git
+  source:
+    uri: git@github.com:maximilien/bosh-softlayer-cpi-release.git
+    branch: concourse
+    private_key: {{private-repo-key}}
+
+- name: bosh-softlayer-cpi-release-rc
+  type: s3
+  source:
+    bucket: bosh-softlayer-cpi-stemcells
+    regexp: bosh-softlayer-cpi-release-(.*).tgz
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: bosh-softlayer-stemcells
+  type: git
+  source:
+    uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
+    branch: concourse
+    private_key: {{private-repo-key}}
+
+- name: softlayer-go
+  type: git
+  source:
+    uri: git@github.com:maximilien/softlayer-go.git
+    branch: concourse
+    private_key: {{private-repo-key}}
+
+- name: version
+  type: semver
+  source:
+    bucket: bosh-softlayer-cpi-stemcells
+    key: current-version
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+    initial_version: 1.0.0
+
+jobs:
+- name: cpi-unit
+  plan:
+  - get: bosh-softlayer-cpi
+    trigger: true
+  - task: unit
+    file: bosh-softlayer-cpi/ci/unit.yml
+    config:
+      params:
+        SL_USERNAME: fake-username
+        SL_API_KEY: fake-api-key
+
+- name: cpi-integration
+  plan:
+  - get: bosh-softlayer-cpi
+    trigger: true
+    passed: [cpi-unit]
+  - task: build
+    file: bosh-softlayer-cpi/ci/build.yml
+  - task: integration
+    file: bosh-softlayer-cpi/ci/integration.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
+
+- name: cpi-build
+  plan:
+  - get: bosh-softlayer-cpi
+    trigger: true
+    passed: [cpi-integration]
+  - task: build
+    file: bosh-softlayer-cpi/ci/build.yml
+
+- name: cpi-release-build-rc
+  serial: true
+  plan:
+  - get: bosh-softlayer-cpi-release
+    trigger: true
+  - get: version
+    params: {bump: minor, pre: rc}
+  - task: build-tarball
+    file: bosh-softlayer-cpi-release/ci/build-tarball.yml
+  - put: bosh-softlayer-cpi-release-rc
+    params: {from: build-tarball/bosh-softlayer-cpi-release-.*.tgz}
+  - put: version
+    params: {file: version/number}
+
+- name: stemcells-unit
+  plan:
+  - get: bosh-softlayer-stemcells
+    trigger: true
+  - task: unit
+    file: bosh-softlayer-stemcells/ci/unit.yml
+
+- name: sl-go-unit
+  plan:
+  - get: softlayer-go
+    trigger: true
+  - task: unit
+    file: softlayer-go/ci/unit.yml
+    config:
+      params:
+        SL_USERNAME: fake-username
+        SL_API_KEY: fake-api-key
+
+- name: sl-go-integration
+  plan:
+  - get: softlayer-go
+    trigger: true
+    passed: [sl-go-unit]
+  - task: integration
+    file: softlayer-go/ci/integration.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
