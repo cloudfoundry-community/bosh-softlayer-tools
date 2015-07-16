@@ -16,7 +16,8 @@ The [Vagrant SoftLayer Provider](https://github.com/audiolize/vagrant-softlayer)
   ```
   $ vagrant init softlayer.box
   ```
-  - You can create your own box file by following the README [here](https://github.com/audiolize/vagrant-softlayer/tree/master/example_box) or use the existing [softlayer.box](softlayer.box)
+  - You can create your own box file by following the README [here](https://github.com/audiolize/vagrant-softlayer/tree/master/example_box).  
+    Learn more about the box file format [here](http://docs.vagrantup.com/v2/boxes/format.html).
 
 * Edit the `Vagrantfile` to reflect your specific provider needs:
   ```ruby
@@ -42,6 +43,16 @@ The [Vagrant SoftLayer Provider](https://github.com/audiolize/vagrant-softlayer)
 <h2 id="link">Linking Vagrant</h2>
 
 The [Vagrant ManagedServers Provider](https://github.com/tknerr/vagrant-managed-servers) allows you to "link" vagrant with an existing managed server. We're going to use it to link to our existing SoftLayer instance.  
+
+* Why don't we just provision using the existing `softlayer` provider? Well, we get the following error:
+  ```
+  No host IP was given to the Vagrant core NFS helper. This is 
+  an internal error that should be reported as a bug.
+  ```
+  
+  So maybe that's something worth exploring further.  
+  
+Anyway, to continue:
 
 * Install using the standard Vagrant plugin installation method:
   ```
@@ -79,6 +90,18 @@ The [Vagrant ManagedServers Provider](https://github.com/tknerr/vagrant-managed-
   ```
   $ vagrant up --provider=managed
   ```
+  - Unfortunately, we can't just run this command to begin with because Vagrant doesn't currently support multiple providers:
+    ```
+    An active machine was found with a different provider. Vagrant
+    currently allows each machine to be brought up with only a single
+    provider at a time. A future version will remove this limitation.
+    Until then, please destroy the existing machine to up with a new
+    provider.
+
+    Machine name: default
+    Active provider: softlayer
+    Requested provider: managed
+    ```
 
 ## Provisioning the VM
 The [BOSH provisioner for Vagrant](https://github.com/cppforlife/vagrant-bosh) lets you provision guest VMs by specifying a regular BOSH deployment manifest.
