@@ -1,20 +1,26 @@
----
 resources:
 - name: bosh-softlayer-cpi
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-cpi.git
-    branch: concourse
+    branch: master
     private_key: {{private-repo-key}}
 
 - name: bosh-softlayer-cpi-release
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-cpi-release.git
-    branch: concourse
+    branch: master
     private_key: {{private-repo-key}}
 
-- name: bosh-softlayer-cpi-release-rc
+- name: bosh-softlayer-stemcells
+  type: git
+  source:
+    uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
+    branch: master
+    private_key: {{private-repo-key}}
+
+- name: final-release
   type: s3
   source:
     bucket: bosh-softlayer-cpi-stemcells
@@ -22,18 +28,11 @@ resources:
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
-- name: bosh-softlayer-stemcells
-  type: git
-  source:
-    uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
-    branch: concourse
-    private_key: {{private-repo-key}}
-
 - name: softlayer-go
   type: git
   source:
     uri: git@github.com:maximilien/softlayer-go.git
-    branch: concourse
+    branch: master
     private_key: {{private-repo-key}}
 
 - name: version
@@ -47,6 +46,7 @@ resources:
 
 jobs:
 - name: cpi-unit
+  public: true
   plan:
   - get: bosh-softlayer-cpi
     trigger: true
@@ -79,19 +79,32 @@ jobs:
   - task: build
     file: bosh-softlayer-cpi/ci/build.yml
 
-- name: cpi-release-build-rc
+- name: cpi-release-rc
   serial: true
   plan:
   - get: bosh-softlayer-cpi-release
     trigger: true
   - get: version
     params: {bump: minor, pre: rc}
-  - task: build-tarball
-    file: bosh-softlayer-cpi-release/ci/build-tarball.yml
-  - put: bosh-softlayer-cpi-release-rc
-    params: {from: build-tarball/bosh-softlayer-cpi-release-.*.tgz}
   - put: version
     params: {file: version/number}
+
+- name: cpi-release-shipit
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-softlayer-cpi-release
+      passed: [cpi-release-rc]
+    - get: version
+      passed: [cpi-release-rc]
+      params: {bump: final}
+  - task: create-final-release
+    file: bosh-softlayer-cpi-release/ci/shipit.yml
+  - aggregate:  
+    - put: final-release
+      params: {from: create-final-release/bosh-softlayer-cpi-release-.*.tgz}
+    - put: version
+      params: {file: version/number}
 
 - name: stemcells-unit
   plan:
@@ -122,3 +135,24 @@ jobs:
       params:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
+
+groups:
+- name: bosh-softlayer-cpi
+  jobs:
+  - cpi-unit
+  - cpi-integration
+  - cpi-build
+
+- name: bosh-softlayer-cpi-release
+  jobs:
+  - cpi-release-rc
+  - cpi-release-shipit
+
+- name: bosh-softlayer-stemcells
+  jobs:
+  - stemcells-unit
+
+- name: softlayer-go
+  jobs:
+  - sl-go-unit
+  - sl-go-integration
