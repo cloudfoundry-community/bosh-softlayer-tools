@@ -187,7 +187,8 @@ The [BOSH provisioner for Vagrant](https://github.com/cppforlife/vagrant-bosh) l
     update_watch_time: 1000-60000
     max_in_flight: 10
   ```
-
+  - [Here](http://concourse.ci/deploying-and-upgrading-concourse.html#bosh-properties)'s a list of common values you might want to change for your particular implementation.
+  
 * We'll have to edit the `Vagrantfile` again to let the provisioner know where to find the file we just created:
   ```ruby
   Vagrant.configure(2) do |config|
