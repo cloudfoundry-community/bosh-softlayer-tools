@@ -1,24 +1,23 @@
----
 resources:
 - name: bosh-softlayer-cpi
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-cpi.git
-    branch: concourse
+    branch: master
     private_key: {{private-repo-key}}
 
 - name: bosh-softlayer-cpi-release
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-cpi-release.git
-    branch: concourse
+    branch: master
     private_key: {{private-repo-key}}
 
 - name: bosh-softlayer-stemcells
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
-    branch: concourse
+    branch: master
     private_key: {{private-repo-key}}
 
 - name: final-release
@@ -33,7 +32,7 @@ resources:
   type: git
   source:
     uri: git@github.com:maximilien/softlayer-go.git
-    branch: concourse
+    branch: master
     private_key: {{private-repo-key}}
 
 - name: version
@@ -47,6 +46,7 @@ resources:
 
 jobs:
 - name: cpi-unit
+  public: true
   plan:
   - get: bosh-softlayer-cpi
     trigger: true
@@ -95,7 +95,6 @@ jobs:
   - aggregate:
     - get: bosh-softlayer-cpi-release
       passed: [cpi-release-rc]
-      params: {fetch: [master]}
     - get: version
       passed: [cpi-release-rc]
       params: {bump: final}
@@ -136,3 +135,24 @@ jobs:
       params:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
+
+groups:
+- name: bosh-softlayer-cpi
+  jobs:
+  - cpi-unit
+  - cpi-integration
+  - cpi-build
+
+- name: bosh-softlayer-cpi-release
+  jobs:
+  - cpi-release-rc
+  - cpi-release-shipit
+
+- name: bosh-softlayer-stemcells
+  jobs:
+  - stemcells-unit
+
+- name: softlayer-go
+  jobs:
+  - sl-go-unit
+  - sl-go-integration
