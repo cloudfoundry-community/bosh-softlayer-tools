@@ -1,4 +1,10 @@
 resources:
+- name: bosh
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bosh.git
+    branch: master
+
 - name: bosh-softlayer-cpi
   type: git
   source:
@@ -17,7 +23,7 @@ resources:
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
-    branch: master
+    branch: concourse
     private_key: {{private-repo-key}}
 
 - name: final-release
@@ -135,24 +141,3 @@ jobs:
       params:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
-
-groups:
-- name: bosh-softlayer-cpi
-  jobs:
-  - cpi-unit
-  - cpi-integration
-  - cpi-build
-
-- name: bosh-softlayer-cpi-release
-  jobs:
-  - cpi-release-rc
-  - cpi-release-shipit
-
-- name: bosh-softlayer-stemcells
-  jobs:
-  - stemcells-unit
-
-- name: softlayer-go
-  jobs:
-  - sl-go-unit
-  - sl-go-integration
