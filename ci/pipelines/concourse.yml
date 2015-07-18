@@ -4,6 +4,7 @@ resources:
   source:
     uri: git@github.com:cloudfoundry/bosh.git
     branch: master
+    private_key: {{private-repo-key}}
 
 - name: bosh-softlayer-cpi
   type: git
