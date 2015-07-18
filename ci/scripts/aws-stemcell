@@ -1,1 +1,4 @@
-echo WORKS
+#!/bin/bash
+
+echo -e "\n Printing path..."
+ls
