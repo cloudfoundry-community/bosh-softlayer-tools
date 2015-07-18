@@ -51,6 +51,12 @@ resources:
     initial_version: 1.0.0
 
 jobs:
+- name: bosh-stemcell
+  plan:
+  - get: bosh-softlayer-stemcells
+  - task: create-stemcell
+    file: bosh-softlayer-stemcells/ci/create-stemcell.yml
+
 - name: cpi-unit
   public: true
   plan:
