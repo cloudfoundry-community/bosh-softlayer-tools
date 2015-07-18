@@ -1,4 +1,23 @@
 #!/bin/bash
 
-echo -e "\n Printing path..."
-ls
+(
+  set -e
+
+  echo -e "\n Printing path..."
+  ls
+
+  echo -e "\n Going to bosh-stemcell in bosh project..."
+  cd bosh/bosh-stemcell
+
+  echo -e "\n Download and install Chef Development Kit..."
+  wget https://opscode-omnibus-packages.s3.amazonaws.com/ubuntu/12.04/x86_64/chefdk_0.6.2-1_amd64.deb
+  sudo dpkg -i chefdk_0.6.2-1_amd64.deb
+
+  echo -e "\n Install vagrant plugins..."
+  vagrant plugin install vagrant-berkshelf
+  vagrant plugin install vagrant-omnibus
+  vagrant plugin install vagrant-aws --plugin-version 0.5.0
+
+  echo -e "\n Fresh copy of bosh repo, probably unnecessary..."
+  git submodule update --init --recursive
+)
