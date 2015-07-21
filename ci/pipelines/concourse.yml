@@ -27,6 +27,14 @@ resources:
     branch: concourse
     private_key: {{private-repo-key}}
 
+- name: bosh-stemcell-softlayer-image
+  type: s3
+  source:
+    bucket: bosh-softlayer-cpi-stemcells
+    regexp: bosh-stemcell-softlayer.vhd
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
 - name: final-release
   type: s3
   source:
@@ -57,7 +65,7 @@ resources:
     bucket: bosh-softlayer-cpi-stemcells
     regexp: bosh-stemcell-(.*)-vsphere-(.*).tgz
     access_key_id: {{s3-access-key-id}}
-    secret_access_key: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
 
 jobs:
 - name: bosh-stemcell
@@ -70,6 +78,17 @@ jobs:
       params:
         BOSH_AWS_ACCESS_KEY_ID: {{BOSH_AWS_ACCESS_KEY_ID}}
         BOSH_AWS_SECRET_ACCESS_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
+  - put: softlayer-stemcell
+    params: {from: bosh/tmp/bosh-stemcell-(.*)-vsphere-(.*).tgz}
+
+- name: convert-stemcell
+  plan:
+  - get: bosh-softlayer-stemcells
+  - get: softlayer-stemcell
+  - task: convert-stemcell
+    file: bosh-softlayer-stemcells/ci/convert-stemcell.yml
+  - put: bosh-stemcell-softlayer-image
+    params: {from: bosh-stemcell-softlayer.vhd}
 
 - name: cpi-unit
   public: true
@@ -168,6 +187,7 @@ groups:
 - name: all
   jobs:
   - bosh-stemcell
+  - convert-stemcell
   - cpi-unit
   - cpi-integration
   - cpi-build
