@@ -17,5 +17,8 @@ RUN wget https://opscode-omnibus-packages.s3.amazonaws.com/ubuntu/12.04/x86_64/c
 RUN apt-get update && \
 	apt-get -y install vagrant
 
+RUN apt-get update && \
+    apt-get -y install zlib1g-dev
+
 RUN apt-get autoremove
 RUN apt-get clean
