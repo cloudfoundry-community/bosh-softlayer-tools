@@ -7,5 +7,5 @@
   find softlayer-stemcell -name "*.tgz" -exec tar zxf '{}' \;
 
   echo -e "\n Converting vmdk to vhd"
-  VBoxManage clonehd Image --format VHD bosh-stemcell-softlayer.vhd
+  VBoxManage clonehd image --format VHD bosh-stemcell-softlayer.vhd
 )
