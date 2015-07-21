@@ -58,6 +58,10 @@ jobs:
   - get: bosh-softlayer-stemcells
   - task: create-stemcell
     file: bosh-softlayer-stemcells/ci/create-stemcell.yml
+    config:
+      params:
+        BOSH_AWS_ACCESS_KEY_ID: {{BOSH_AWS_ACCESS_KEY_ID}}
+        BOSH_AWS_SECRET_ACCESS_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
 
 - name: cpi-unit
   public: true
@@ -121,6 +125,7 @@ jobs:
       params: {file: version/number}
 
 - name: stemcells-unit
+  public: true
   plan:
   - get: bosh-softlayer-stemcells
     trigger: true
@@ -128,6 +133,7 @@ jobs:
     file: bosh-softlayer-stemcells/ci/unit.yml
 
 - name: sl-go-unit
+  public: true
   plan:
   - get: softlayer-go
     trigger: true
@@ -149,3 +155,37 @@ jobs:
       params:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
+
+groups:
+- name: all
+  jobs:
+  - bosh-stemcell
+  - cpi-unit
+  - cpi-integration
+  - cpi-build
+  - cpi-release-rc
+  - cpi-release-shipit
+  - stemcells-unit
+  - sl-go-unit
+  - sl-go-integration
+
+- name: bosh-softlayer-cpi
+  jobs:
+  - cpi-unit
+  - cpi-integration
+  - cpi-build
+
+- name: bosh-softlayer-cpi-release
+  jobs:
+  - cpi-release-rc
+  - cpi-release-shipit
+
+- name: bosh-softlayer-stemcells
+  jobs:
+  - bosh-stemcell
+  - stemcells-unit
+
+- name: softlayer-go
+  jobs:
+  - sl-go-unit
+  - sl-go-integration
