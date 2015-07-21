@@ -1,0 +1,11 @@
+#!/bin/bash
+
+(
+  set -e
+
+  echo -e "\n Unpacking tgz..."
+  tar zxf softlayer-stemcell/bosh-stemcell-(.*)-vsphere-(.*).tgz
+
+  echo -e "\n Converting vmdk to vhd"
+  VBoxManage clonehd Image --format VHD bosh-stemcell-softlayer.vhd
+)
