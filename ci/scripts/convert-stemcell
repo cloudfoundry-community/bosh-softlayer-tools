@@ -13,9 +13,6 @@
   echo -e "\n Converting vmdk to vhd..."
   VBoxManage clonehd *.vmdk --format VHD bosh-stemcell-softlayer.vhd
 
-  echo -e "\n Installing swift..."
-  pip install python-swiftclient
-
   echo -e "\n Placing object in Softlayer..."
   swift -A https://${SWIFT_DATACENTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_APIKEY upload stemcells bosh-stemcell-softlayer.vhd
 )

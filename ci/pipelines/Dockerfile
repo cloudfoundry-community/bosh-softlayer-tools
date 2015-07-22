@@ -29,7 +29,11 @@ RUN apt-get update && \
 
 RUN apt-get -y install vagrant
 
-RUN apt-get -y install python
+RUN wget https://bootstrap.pypa.io/get-pip.py && \
+	python get-pip.py && \
+	rm get-pip.py
+
+RUN pip install python-swiftclient
 
 RUN apt-get install -f
 RUN apt-get autoremove
