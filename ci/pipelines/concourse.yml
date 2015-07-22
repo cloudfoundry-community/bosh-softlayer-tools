@@ -47,6 +47,7 @@ resources:
   type: git
   source:
     uri: git@gist.github.com:526a7fbc81880e6f2b7e.git
+    private_key: {{private-repo-key}}
 
 - name: softlayer-go
   type: git
