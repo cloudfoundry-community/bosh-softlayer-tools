@@ -13,4 +13,6 @@
   echo -e "\n Converting vmdk to vhd..."
   VBoxManage clonehd *.vmdk --format VHD bosh-stemcell-softlayer.vhd
 
+  echo -e "\n Placing object in Softlayer..."
+  ./ObjectStorageUpload.sh *.vhd 'stemcells/bosh-stemcell-softlayer.vhd' $swift_username $swift_apikey
 )
