@@ -94,6 +94,10 @@ jobs:
   - get: object-storage-uploader
   - task: convert-stemcell
     file: bosh-softlayer-stemcells/ci/convert-stemcell.yml
+    config:
+      params:
+        swift-username: {{swift-username}}
+        swift-apikey: {{swift-apikey}}
 
 - name: cpi-unit
   public: true
