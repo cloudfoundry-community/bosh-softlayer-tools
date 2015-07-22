@@ -2,7 +2,8 @@
 # Deploying a Concourse Pipeline on SoftLayer
 As the title suggests, this is a guide to deploying concourse on a SoftLayer VM. While it isn't the shortest guide, it is relatively straightforward, so hopefully it can be of some help until an easier solution is created.  
 
-If you have an existing VM you'd like to use, skip the following section and go directly to the one titled [Linking Vagrant](#link).
+If you have an existing VM you'd like to use, skip the following section and go directly to the one titled [Linking Vagrant](#link).  
+Whichever way you decide to create a VM, I'd recommend you create a virtual machine with a primary disk larger than the base 25GB. The storage requirements for some of our tasks are surprisingly large, given the amount of dependencies required, and adding on storage after the fact (i.e. on a second physical disk using LVM) can be frustrating. Similarly, it may be prudent to add additional processing capability and memory to the VM.
 
 <h2 id="createVM">Creating a SoftLayer Instance</h2>
 The [Vagrant SoftLayer Provider](https://github.com/audiolize/vagrant-softlayer) helps you create a SoftLayer VM using Vagrant. Follow the README on their github page to get started. The gist of it is:
