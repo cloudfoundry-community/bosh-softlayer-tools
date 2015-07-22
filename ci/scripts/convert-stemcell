@@ -3,10 +3,14 @@
 (
   set -e
 
+  echo -e "\n Printing contents of directory..."
+  ls
+
   echo -e "\n Unpacking tgz..."
   find softlayer-stemcell -name "bosh-stemcell-*-vsphere-*.tgz" -exec tar zxf '{}' \;
   tar zxf image
 
-  echo -e "\n Converting vmdk to vhd"
+  echo -e "\n Converting vmdk to vhd..."
   VBoxManage clonehd *.vmdk --format VHD bosh-stemcell-softlayer.vhd
+
 )
