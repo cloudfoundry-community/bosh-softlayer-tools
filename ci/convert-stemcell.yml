@@ -5,6 +5,8 @@ image: docker:///posijon/slci
 inputs:
   - name: bosh-softlayer-stemcells
   - name: softlayer-stemcell
+  - name: object-storage-uploader
+    path: .
 
 run:
   path: bosh-softlayer-stemcells/ci/scripts/convert-stemcell
