@@ -27,9 +27,9 @@ RUN wget http://download.virtualbox.org/virtualbox/5.0.0/virtualbox-5.0_5.0.0-10
 RUN apt-get update && \
     apt-get -y install dkms
 
-RUN dkms build-essential linux-headers-$(uname -r)
-
 RUN apt-get -y install vagrant
+
+RUN apt-get -y install python
 
 RUN apt-get install -f
 RUN apt-get autoremove

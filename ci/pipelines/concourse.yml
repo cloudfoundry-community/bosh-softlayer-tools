@@ -96,8 +96,9 @@ jobs:
     file: bosh-softlayer-stemcells/ci/convert-stemcell.yml
     config:
       params:
-        swift-username: {{swift-username}}
-        swift-apikey: {{swift-apikey}}
+        SWIFT_USERNAME: {{SWIFT_USERNAME}}
+        SWIFT_APIKEY: {{SL_API_KEY}}
+        SWIFT_DATACENTER: {{SL_DATACENTER}}
 
 - name: cpi-unit
   public: true
