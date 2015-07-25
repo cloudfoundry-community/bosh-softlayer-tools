@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/maximilien/bosh-softlayer-stemcells/stemcells"
+	. "github.com/maximilien/bosh-softlayer-stemcells/cmds/stemcells"
 
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
 

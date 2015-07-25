@@ -9,5 +9,5 @@ import (
 
 func TestImportImage(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "ImportImage Suite")
+	RunSpecs(t, "Import Image Suite")
 }

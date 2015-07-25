@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/maximilien/bosh-softlayer-stemcells/stemcells"
+	. "github.com/maximilien/bosh-softlayer-stemcells/cmds/stemcells"
 )
 
 var _ = Describe("stemcells_helper", func() {
