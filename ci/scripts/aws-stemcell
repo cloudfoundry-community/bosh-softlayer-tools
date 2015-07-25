@@ -3,9 +3,6 @@
 (
   set -e
 
-  echo -e "\n Printing path..."
-  ls
-
   echo -e "\n Install vagrant plugins..."
   vagrant plugin install vagrant-berkshelf
   vagrant plugin install vagrant-omnibus
