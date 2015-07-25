@@ -43,12 +43,6 @@ resources:
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
-- name: object-storage-uploader
-  type: git
-  source:
-    uri: git@gist.github.com:526a7fbc81880e6f2b7e.git
-    private_key: {{private-repo-key}}
-
 - name: softlayer-go
   type: git
   source:
@@ -91,14 +85,14 @@ jobs:
   plan:
   - get: bosh-softlayer-stemcells
   - get: softlayer-stemcell
-  - get: object-storage-uploader
   - task: convert-stemcell
     file: bosh-softlayer-stemcells/ci/convert-stemcell.yml
     config:
       params:
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
-        SWIFT_APIKEY: {{SL_API_KEY}}
-        SWIFT_DATACENTER: {{SL_DATACENTER}}
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
+        SWIFT_CLUSTER: {{SL_CLUSTER}}
 
 - name: cpi-unit
   public: true
