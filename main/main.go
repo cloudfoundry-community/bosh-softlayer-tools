@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -8,6 +9,9 @@ import (
 	"time"
 
 	"runtime/debug"
+
+	slclient "github.com/maximilien/softlayer-go/client"
+	softlayer "github.com/maximilien/softlayer-go/softlayer"
 
 	import_image "github.com/maximilien/bosh-softlayer-stemcells/cmds/import_image"
 	common "github.com/maximilien/bosh-softlayer-stemcells/common"
@@ -39,9 +43,15 @@ func importImageCmd() {
 		return
 	}
 
-	cmd, err := import_image.NewImportImageCmd(options)
+	client, err := createSoftLayerClient()
 	if err != nil {
-		cmd.Println("stemcells: Could not create image image command, err:", err)
+		fmt.Println("stemcells: Could not create the SoftLayer client, err:", err)
+		os.Exit(1)
+	}
+
+	cmd, err := import_image.NewImportImageCmd(options, client)
+	if err != nil {
+		cmd.Println("stemcells: Could not create image command, err:", err)
 		os.Exit(1)
 	}
 
@@ -71,24 +81,24 @@ func init() {
 
 func usage() {
 	usageString := `
-usage: bosh-softlayer-stemcells import-image [-v] [--dry-run]
+  usage: bosh-softlayer-stemcells import-image [-v] [--dry-run]
 
-	-h | --help 		prints the usage
+  -h | --help     prints the usage
 
-	IMPORT-IMAGE:
+  IMPORT-IMAGE:
 
-	import-image 		the import image command
-	--name 				the group name to be applied to the imported template
-	--note 				the note to be applied to the imported template
-	--os-ref-code		the referenceCode of the operating system software 
-						description for the imported VHD 
-						available options: CENTOS_6_32, CENTOS_6_64, CENTOS_7_64, 
-							REDHAT_6_32, REDHAT_6_64, REDHAT_7_64, UBUNTU_10_32, 
-							UBUNTU_10_64, UBUNTU_12_32, UBUNTU_12_64, UBUNTU_14_32, 
-							UBUNTU_14_64, WIN_2003-STD-SP2-5_32, WIN_2003-STD-SP2-5_64, 
-							WIN_2012-STD_64
-	--uri 				the URI for an object storage object (.vhd/.iso file)
-						swift://<ObjectStorageAccountName>@<clusterName>/<containerName>/<fileName.(vhd|iso)>
+  import-image 	  the import image command
+  --name 			the group name to be applied to the imported template
+  --note 			the note to be applied to the imported template
+  --os-ref-code	  the referenceCode of the operating system software 
+				  description for the imported VHD 
+				  available options: CENTOS_6_32, CENTOS_6_64, CENTOS_7_64, 
+					REDHAT_6_32, REDHAT_6_64, REDHAT_7_64, UBUNTU_10_32, 
+					UBUNTU_10_64, UBUNTU_12_32, UBUNTU_12_64, UBUNTU_14_32, 
+					UBUNTU_14_64, WIN_2003-STD-SP2-5_32, WIN_2003-STD-SP2-5_64, 
+					WIN_2012-STD_64
+  --uri 		  the URI for an object storage object (.vhd/.iso file)
+				  swift://<ObjectStorageAccountName>@<clusterName>/<containerName>/<fileName.(vhd|iso)>
 	`
 
 	fmt.Println(fmt.Sprintf("%s\nVersion %s", usageString, VERSION))
@@ -131,4 +141,18 @@ and this stack trace:
 
 	stackTrace := "\t" + strings.Replace(string(debug.Stack()), "\n", "\n\t", -1)
 	println(fmt.Sprintf(formattedString, "bosh-softlayer-stemcells", strings.Join(os.Args, " "), errorMessage, stackTrace))
+}
+
+func createSoftLayerClient() (softlayer.Client, error) {
+	username := os.Getenv("SL_USERNAME")
+	if username == "" {
+		return nil, errors.New("stemcells: cannot create SoftLayer client: SL_USERNAME environment variable must be set")
+	}
+
+	apiKey := os.Getenv("SL_API_KEY")
+	if apiKey == "" {
+		return nil, errors.New("stemcells: cannot create SoftLayer client: SL_API_KEY environment variable must be set")
+	}
+
+	return slclient.NewSoftLayerClient(username, apiKey), nil
 }
