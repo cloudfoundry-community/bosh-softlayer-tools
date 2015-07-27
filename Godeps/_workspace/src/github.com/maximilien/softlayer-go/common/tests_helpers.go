@@ -8,5 +8,5 @@ import (
 
 func ReadJsonTestFixtures(packageName, fileName string) ([]byte, error) {
 	wd, _ := os.Getwd()
-	return ioutil.ReadFile(filepath.Join(wd, "../..", "test_fixtures", packageName, fileName))
+	return ioutil.ReadFile(filepath.Join(wd, "..", "test_fixtures", packageName, fileName))
 }

@@ -69,6 +69,14 @@ var _ = Describe("SoftLayer_Virtual_Guest_Service", func() {
 				HourlyBillingFlag:            true,
 				LocalDiskFlag:                false,
 				DedicatedAccountHostOnlyFlag: false,
+				NetworkComponents: []datatypes.NetworkComponents{datatypes.NetworkComponents{
+					MaxSpeed: 10,
+				}},
+				UserData: []datatypes.UserData{
+					datatypes.UserData{
+						Value: "some user data $_/<| with special characters",
+					},
+				},
 			}
 			virtualGuest, err = virtualGuestService.CreateObject(virtualGuestTemplate)
 			Expect(err).ToNot(HaveOccurred())
@@ -120,9 +128,16 @@ var _ = Describe("SoftLayer_Virtual_Guest_Service", func() {
 			Expect(vg.StatusId).To(Equal(1001))
 			Expect(vg.Uuid).To(Equal("85d444ce-55a0-39c0-e17a-f697f223cd8a"))
 			Expect(vg.GlobalIdentifier).To(Equal("52145e01-97b6-4312-9c15-dac7f24b6c2a"))
+			Expect(vg.UserData[0].Value).To(Equal("some user data $_/<| with special characters"))
 			Expect(vg.PrimaryBackendIpAddress).To(Equal("10.106.192.42"))
 			Expect(vg.PrimaryIpAddress).To(Equal("23.246.234.32"))
 			Expect(vg.Location.Id).To(Equal(1234567))
+			Expect(vg.Location.Name).To(Equal("R5"))
+			Expect(vg.Location.LongName).To(Equal("Room 5"))
+			Expect(vg.Datacenter.Id).To(Equal(456))
+			Expect(vg.Datacenter.Name).To(Equal("bej2"))
+			Expect(vg.Datacenter.LongName).To(Equal("Beijing 2"))
+			Expect(vg.NetworkComponents[0].MaxSpeed).To(Equal(100))
 			Expect(len(vg.OperatingSystem.Passwords)).To(BeNumerically(">=", 1))
 			Expect(vg.OperatingSystem.Passwords[0].Password).To(Equal("test_password"))
 			Expect(vg.OperatingSystem.Passwords[0].Username).To(Equal("test_username"))
@@ -164,6 +179,32 @@ var _ = Describe("SoftLayer_Virtual_Guest_Service", func() {
 			Expect(err).To(HaveOccurred())
 			Expect(deleted).To(BeFalse())
 		})
+	})
+
+	Context("#AttachEphemeralDisk", func() {
+		BeforeEach(func() {
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Product_Order_placeOrder.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("reports error when providing a wrong disk size", func() {
+			err := virtualGuestService.AttachEphemeralDisk(123, -1)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("Ephemeral disk size can not be negative: -1"))
+		})
+
+		It("can attach a local disk without error", func() {
+			err := virtualGuestService.AttachEphemeralDisk(123, 25)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("reports error when providing a disk size that exceeds the biggest capacity disk SL can provide", func() {
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_getUpgradeItemPrices.json")
+			err := virtualGuestService.AttachEphemeralDisk(123, 26)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("No proper local disk for size 26"))
+		})
+
 	})
 
 	Context("#GetPowerState", func() {
@@ -518,6 +559,284 @@ var _ = Describe("SoftLayer_Virtual_Guest_Service", func() {
 			Expect(transaction.TransactionStatus.AverageDuration).To(Equal(".32"))
 			Expect(transaction.TransactionStatus.FriendlyName).To(Equal("Configure Cloud Metadata Disk"))
 			Expect(transaction.TransactionStatus.Name).To(Equal("CLOUD_CONFIGURE_METADATA_DISK"))
+		})
+	})
+
+	Context("#GetUpgradeItemPrices", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_getUpgradeItemPrices.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("sucessfully get the upgrade item prices for a virtual guest", func() {
+			itemPrices, err := virtualGuestService.GetUpgradeItemPrices(virtualGuest.Id)
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(len(itemPrices)).To(Equal(1))
+			Expect(itemPrices[0].Id).To(Equal(12345))
+			Expect(itemPrices[0].Categories[0].CategoryCode).To(Equal("guest_disk1"))
+		})
+	})
+
+	Context("#SetTags", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_setTags.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("sets tags: tag0, tag1, tag2 to virtual guest instance", func() {
+			tags := []string{"tag0", "tag1", "tag2"}
+			tagsWasSet, err := virtualGuestService.SetTags(virtualGuest.Id, tags)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(tagsWasSet).To(BeTrue())
+		})
+	})
+
+	Context("#GetReferenceTags", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_getReferenceTags.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		itVerifiesATagReference := func(tagReference1 datatypes.SoftLayer_Tag_Reference, tagReference2 datatypes.SoftLayer_Tag_Reference) {
+			Expect(tagReference1.EmpRecordId).To(Equal(tagReference2.EmpRecordId))
+			Expect(tagReference1.Id).To(Equal(tagReference2.Id))
+			Expect(tagReference1.ResourceTableId).To(Equal(tagReference2.ResourceTableId))
+
+			Expect(tagReference1.Tag.AccountId).To(Equal(tagReference2.Tag.AccountId))
+			Expect(tagReference1.Tag.Id).To(Equal(tagReference2.Tag.Id))
+			Expect(tagReference1.Tag.Internal).To(Equal(tagReference2.Tag.Internal))
+			Expect(tagReference1.Tag.Name).To(Equal(tagReference2.Tag.Name))
+
+			Expect(tagReference1.TagId).To(Equal(tagReference2.TagId))
+
+			Expect(tagReference1.TagType.Description).To(Equal(tagReference2.TagType.Description))
+			Expect(tagReference1.TagType.KeyName).To(Equal(tagReference2.TagType.KeyName))
+
+			Expect(tagReference1.TagTypeId).To(Equal(tagReference2.TagTypeId))
+			Expect(tagReference1.UsrRecordId).To(Equal(tagReference2.UsrRecordId))
+		}
+
+		It("gets the reference tags: tag0, tag1, tag2 from the virtual guest instance", func() {
+			tagReferences, err := virtualGuestService.GetTagReferences(virtualGuest.Id)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(len(tagReferences)).To(Equal(3))
+
+			expectedTagReferences := []datatypes.SoftLayer_Tag_Reference{
+				datatypes.SoftLayer_Tag_Reference{
+					EmpRecordId:     nil,
+					Id:              1855150,
+					ResourceTableId: 7967498,
+					Tag: datatypes.TagReference{
+						AccountId: 278444,
+						Id:        91128,
+						Internal:  0,
+						Name:      "tag1",
+					},
+					TagId: 91128,
+					TagType: datatypes.TagType{
+						Description: "CCI",
+						KeyName:     "GUEST",
+					},
+					TagTypeId:   2,
+					UsrRecordId: 239954,
+				},
+				datatypes.SoftLayer_Tag_Reference{
+					EmpRecordId:     nil,
+					Id:              1855152,
+					ResourceTableId: 7967498,
+					Tag: datatypes.TagReference{
+						AccountId: 278444,
+						Id:        91130,
+						Internal:  0,
+						Name:      "tag2",
+					},
+					TagId: 91130,
+					TagType: datatypes.TagType{
+						Description: "CCI",
+						KeyName:     "GUEST",
+					},
+					TagTypeId:   2,
+					UsrRecordId: 239954,
+				},
+				datatypes.SoftLayer_Tag_Reference{
+					EmpRecordId:     nil,
+					Id:              1855154,
+					ResourceTableId: 7967498,
+					Tag: datatypes.TagReference{
+						AccountId: 278444,
+						Id:        91132,
+						Internal:  0,
+						Name:      "tag3",
+					},
+					TagId: 91132,
+					TagType: datatypes.TagType{
+						Description: "CCI",
+						KeyName:     "GUEST",
+					},
+					TagTypeId:   2,
+					UsrRecordId: 239954,
+				},
+			}
+			for i, expectedTagReference := range expectedTagReferences {
+				itVerifiesATagReference(tagReferences[i], expectedTagReference)
+			}
+		})
+	})
+
+	Context("#AttachDiskImage", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_attachDiskImage.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("attaches disk image with ID `1234567` to virtual guest instance", func() {
+			imageId := 1234567
+			transaction, err := virtualGuestService.AttachDiskImage(virtualGuest.Id, imageId)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(transaction).ToNot(Equal(datatypes.SoftLayer_Provisioning_Version1_Transaction{}))
+		})
+	})
+
+	Context("#DetachDiskImage", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_detachDiskImage.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("detaches disk image with ID `1234567` to virtual guest instance", func() {
+			imageId := 1234567
+			transaction, err := virtualGuestService.DetachDiskImage(virtualGuest.Id, imageId)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(transaction).ToNot(Equal(datatypes.SoftLayer_Provisioning_Version1_Transaction{}))
+		})
+	})
+
+	Context("#ActivatePrivatePort", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_activatePrivatePort.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("activates private port for virtual guest instance", func() {
+			activated, err := virtualGuestService.ActivatePrivatePort(virtualGuest.Id)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(activated).To(BeTrue())
+		})
+	})
+
+	Context("#ActivatePublicPort", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_activatePublicPort.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("activates public port for virtual guest instance", func() {
+			activated, err := virtualGuestService.ActivatePublicPort(virtualGuest.Id)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(activated).To(BeTrue())
+		})
+	})
+
+	Context("#ShutdownPrivatePort", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_shutdownPrivatePort.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("shutdown private port for virtual guest instance", func() {
+			shutdowned, err := virtualGuestService.ShutdownPrivatePort(virtualGuest.Id)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(shutdowned).To(BeTrue())
+		})
+	})
+
+	Context("#ShutdownPublicPort", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_shutdownPublicPort.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("shuts down public port for virtual guest instance", func() {
+			shutdowned, err := virtualGuestService.ShutdownPublicPort(virtualGuest.Id)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(shutdowned).To(BeTrue())
+		})
+	})
+
+	Context("#GetNetworkVlans", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_getNetworkVlans.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("gets network vlans for virtual guest", func() {
+			networkVlans, err := virtualGuestService.GetNetworkVlans(virtualGuest.Id)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(len(networkVlans)).To(Equal(2))
+			Expect(networkVlans[0].AccountId).To(Equal(278444))
+			Expect(networkVlans[0].Id).To(Equal(293731))
+			Expect(networkVlans[0].ModifyDate).ToNot(BeNil())
+			Expect(networkVlans[0].Name).To(Equal("AMS CLMS Pub"))
+			Expect(networkVlans[0].NetworkVrfId).To(Equal(0))
+			Expect(networkVlans[0].Note).To(Equal(""))
+			Expect(networkVlans[0].PrimarySubnetId).To(Equal(517311))
+			Expect(networkVlans[0].VlanNumber).To(Equal(809))
+		})
+	})
+
+	Context("#CheckHostDiskAvailability", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_checkHostDiskAvailability.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("checks for host disk availability", func() {
+			available, err := virtualGuestService.CheckHostDiskAvailability(virtualGuest.Id, 10*1024)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(available).To(BeTrue())
+		})
+	})
+
+	Context("#CaptureImage", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_captureImage.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("captures the virtual guest as a container disk image template", func() {
+			diskImageTemplate, err := virtualGuestService.CaptureImage(virtualGuest.Id)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(diskImageTemplate.Description).To(Equal("fake-description"))
+			Expect(diskImageTemplate.Name).To(Equal("fake-name"))
+			Expect(diskImageTemplate.Summary).To(Equal("fake-summary"))
+			Expect(len(diskImageTemplate.Volumes)).To(BeNumerically(">=", 1))
+			Expect(diskImageTemplate.Volumes[0].Name).To(Equal("fake-volume-name"))
+			Expect(len(diskImageTemplate.Volumes[0].Partitions)).To(BeNumerically(">=", 1))
+			Expect(diskImageTemplate.Volumes[0].Partitions[0].Name).To(Equal("fake-partition-name"))
 		})
 	})
 })

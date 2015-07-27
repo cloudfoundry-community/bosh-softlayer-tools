@@ -6,15 +6,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	datatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
-	utils "github.com/maximilien/softlayer-go/utils"
 )
 
 const (
-	ROOT_USER_NAME = "root"
+	EPHEMERAL_DISK_CATEGORY_CODE = "guest_disk1"
 )
 
 type softLayer_Virtual_Guest_Service struct {
@@ -90,13 +91,20 @@ func (slvgs *softLayer_Virtual_Guest_Service) GetObject(instanceId int) (datatyp
 		"startCpus",
 		"statusId",
 		"uuid",
+		"userData.value",
 
 		"globalIdentifier",
 		"managedResourceFlag",
 		"primaryBackendIpAddress",
 		"primaryIpAddress",
 
+		"location.name",
+		"location.longName",
 		"location.id",
+		"datacenter.name",
+		"datacenter.longName",
+		"datacenter.id",
+		"networkComponents.maxSpeed",
 		"operatingSystem.passwords.password",
 		"operatingSystem.passwords.username",
 	}
@@ -327,49 +335,6 @@ func (slvgs *softLayer_Virtual_Guest_Service) ConfigureMetadataDisk(instanceId i
 	return transaction, nil
 }
 
-func (slvgs *softLayer_Virtual_Guest_Service) AttachIscsiVolume(instanceId int, volumeId int) (string, error) {
-
-	virtualGuest, err := slvgs.GetObject(instanceId)
-	if err != nil {
-		return "", err
-	}
-
-	networkStorageService, err := slvgs.client.GetSoftLayer_Network_Storage_Service()
-	if err != nil {
-		return "", err
-	}
-
-	volume, err := networkStorageService.GetIscsiVolume(volumeId)
-	if err != nil {
-		return "", err
-	}
-
-	deviceName, err := slvgs.attachVolumeBasedOnShellScript(virtualGuest, volume)
-	if err != nil {
-		return "", err
-	}
-
-	return deviceName, nil
-}
-
-func (slvgs *softLayer_Virtual_Guest_Service) DetachIscsiVolume(instanceId int, volumeId int) error {
-	virtualGuest, err := slvgs.GetObject(instanceId)
-	if err != nil {
-		return err
-	}
-
-	networkStorageService, err := slvgs.client.GetSoftLayer_Network_Storage_Service()
-	if err != nil {
-		return err
-	}
-	volume, err := networkStorageService.GetIscsiVolume(volumeId)
-	if err != nil {
-		return err
-	}
-
-	return slvgs.detachVolumeBasedOnShellScript(virtualGuest, volume)
-}
-
 func (slvgs *softLayer_Virtual_Guest_Service) GetUserData(instanceId int) ([]datatypes.SoftLayer_Virtual_Guest_Attribute, error) {
 	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/getUserData.json", slvgs.GetName(), instanceId), "GET", new(bytes.Buffer))
 	if err != nil {
@@ -404,91 +369,289 @@ func (slvgs *softLayer_Virtual_Guest_Service) IsPingable(instanceId int) (bool, 
 	return false, errors.New(fmt.Sprintf("Failed to checking that virtual guest is pingable for instance with id '%d', got '%s' as response from the API.", instanceId, res))
 }
 
-//Private methods
-
-func (slvgs *softLayer_Virtual_Guest_Service) attachVolumeBasedOnShellScript(virtualGuest datatypes.SoftLayer_Virtual_Guest, volume datatypes.SoftLayer_Network_Storage) (string, error) {
-	command := fmt.Sprintf(`
-		export PATH=/etc/init.d:$PATH
-		cp /etc/iscsi/iscsid.conf{,.save}
-		sed '/^node.startup/s/^.*/node.startup = automatic/' -i /etc/iscsi/iscsid.conf
-		sed '/^#node.session.auth.authmethod/s/#//' -i /etc/iscsi/iscsid.conf
-		sed '/^#node.session.auth.username / {s/#//; s/ username/ %s/}' -i /etc/iscsi/iscsid.conf
-		sed '/^#node.session.auth.password / {s/#//; s/ password/ %s/}' -i /etc/iscsi/iscsid.conf
-		sed '/^#discovery.sendtargets.auth.username / {s/#//; s/ username/ %s/}' -i /etc/iscsi/iscsid.conf
-		sed '/^#discovery.sendtargets.auth.password / {s/#//; s/ password/ %s/}' -i /etc/iscsi/iscsid.conf
-		open-iscsi restart
-		rm -r /etc/iscsi/send_targets
-		open-iscsi stop
-		open-iscsi start
-		iscsiadm -m discovery -t sendtargets -p %s
-		open-iscsi restart`,
-		volume.Username,
-		volume.Password,
-		volume.Username,
-		volume.Password,
-		volume.ServiceResourceBackendIpAddress,
-	)
-
-	client, err := utils.GetSshClient(ROOT_USER_NAME, slvgs.getRootPassword(virtualGuest), virtualGuest.PrimaryIpAddress)
-	if err != nil {
-		return "", err
-	}
-	defer client.Close()
-
-	_, err = client.ExecCommand(command)
-	if err != nil {
-		return "", err
-	}
-
-	_, deviceName, err := slvgs.findIscsiDeviceNameBasedOnShellScript(virtualGuest, volume, client)
-	if err != nil {
-		return "", err
-	}
-
-	return deviceName, nil
-}
-
-func (slvgs *softLayer_Virtual_Guest_Service) detachVolumeBasedOnShellScript(virtualGuest datatypes.SoftLayer_Virtual_Guest, volume datatypes.SoftLayer_Network_Storage) error {
-	client, err := utils.GetSshClient(ROOT_USER_NAME, slvgs.getRootPassword(virtualGuest), virtualGuest.PrimaryIpAddress)
+func (slvgs *softLayer_Virtual_Guest_Service) AttachEphemeralDisk(instanceId int, diskSize int) error {
+	diskItemPrice, err := slvgs.findUpgradeItemPriceForEphemeralDisk(instanceId, diskSize)
 	if err != nil {
 		return err
 	}
-	defer client.Close()
 
-	targetName, _, err := slvgs.findIscsiDeviceNameBasedOnShellScript(virtualGuest, volume, client)
-	command := fmt.Sprintf(`
-		iscsiadm -m node -T %s -u
-		iscsiadm -m node -o delete -T %s`,
-		targetName,
-		targetName,
-	)
+	service, err := slvgs.client.GetSoftLayer_Product_Order_Service()
+	if err != nil {
+		return err
+	}
 
-	_, err = client.ExecCommand(command)
+	order := datatypes.SoftLayer_Product_Order{
+		VirtualGuests: []datatypes.VirtualGuest{
+			datatypes.VirtualGuest{
+				Id: instanceId,
+			},
+		},
+		Prices: []datatypes.SoftLayer_Item_Price{
+			datatypes.SoftLayer_Item_Price{
+				Id: diskItemPrice.Id,
+				Categories: []datatypes.Category{
+					datatypes.Category{
+						CategoryCode: EPHEMERAL_DISK_CATEGORY_CODE,
+					},
+				},
+			},
+		},
+		ComplexType: "SoftLayer_Container_Product_Order_Virtual_Guest_Upgrade",
+		Properties: []datatypes.Property{
+			datatypes.Property{
+				Name:  "MAINTENANCE_WINDOW",
+				Value: time.Now().UTC().Format(time.RFC3339),
+			},
+			datatypes.Property{
+				Name:  "NOTE_GENERAL",
+				Value: "addingdisks",
+			},
+		},
+	}
+
+	_, err = service.PlaceOrder(order)
 
 	return err
 }
 
-func (slvgs *softLayer_Virtual_Guest_Service) findIscsiDeviceNameBasedOnShellScript(virtualGuest datatypes.SoftLayer_Virtual_Guest, volume datatypes.SoftLayer_Network_Storage, client utils.SshClient) (targetName string, deviceName string, err error) {
-	command := `
-		sleep 1
-		iscsiadm -m session -P3 | sed -n  "/Target:/s/Target: //p; /Attached scsi disk /{ s/Attached scsi disk //; s/State:.*//p}"`
-
-	output, err := client.ExecCommand(command)
+func (slvgs *softLayer_Virtual_Guest_Service) GetUpgradeItemPrices(instanceId int) ([]datatypes.SoftLayer_Item_Price, error) {
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/getUpgradeItemPrices.json", slvgs.GetName(), instanceId), "GET", new(bytes.Buffer))
 	if err != nil {
-		return "", "", err
+		return []datatypes.SoftLayer_Item_Price{}, err
 	}
 
-	lines := strings.Split(strings.Trim(output, "\n"), "\n")
+	itemPrices := []datatypes.SoftLayer_Item_Price{}
+	err = json.Unmarshal(response, &itemPrices)
+	if err != nil {
+		return []datatypes.SoftLayer_Item_Price{}, err
+	}
 
-	for i := 0; i < len(lines); i += 2 {
-		if strings.Contains(lines[i], strings.ToLower(volume.Username)) {
-			return strings.Trim(lines[i], "\t"), strings.Trim(lines[i+1], "\t"), nil
+	return itemPrices, nil
+}
+
+func (slvgs *softLayer_Virtual_Guest_Service) SetTags(instanceId int, tags []string) (bool, error) {
+	var tagStringBuffer bytes.Buffer
+	for i, tag := range tags {
+		tagStringBuffer.WriteString(tag)
+		if i != len(tags)-1 {
+			tagStringBuffer.WriteString(", ")
 		}
 	}
 
-	return "", "", errors.New(fmt.Sprintf("Can not find matched iSCSI device for user name: %s", volume.Username))
+	setTagsParameters := datatypes.SoftLayer_Virtual_Guest_SetTags_Parameters{
+		Parameters: []string{tagStringBuffer.String()},
+	}
+
+	requestBody, err := json.Marshal(setTagsParameters)
+	if err != nil {
+		return false, err
+	}
+
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/setTags.json", slvgs.GetName(), instanceId), "POST", bytes.NewBuffer(requestBody))
+	if err != nil {
+		return false, err
+	}
+
+	if res := string(response[:]); res != "true" {
+		return false, errors.New(fmt.Sprintf("Failed to setTags for instance with id '%d', got '%s' as response from the API.", instanceId, res))
+	}
+
+	return true, nil
 }
 
+func (slvgs *softLayer_Virtual_Guest_Service) GetTagReferences(instanceId int) ([]datatypes.SoftLayer_Tag_Reference, error) {
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/getTagReferences.json", slvgs.GetName(), instanceId), "GET", new(bytes.Buffer))
+	if err != nil {
+		return []datatypes.SoftLayer_Tag_Reference{}, err
+	}
+
+	tagReferences := []datatypes.SoftLayer_Tag_Reference{}
+	err = json.Unmarshal(response, &tagReferences)
+	if err != nil {
+		return []datatypes.SoftLayer_Tag_Reference{}, err
+	}
+
+	return tagReferences, nil
+}
+
+func (slvgs *softLayer_Virtual_Guest_Service) AttachDiskImage(instanceId int, imageId int) (datatypes.SoftLayer_Provisioning_Version1_Transaction, error) {
+	parameters := datatypes.SoftLayer_Virtual_GuestInitParameters{
+		Parameters: datatypes.SoftLayer_Virtual_GuestInitParameter{
+			ImageId: imageId,
+		},
+	}
+
+	requestBody, err := json.Marshal(parameters)
+	if err != nil {
+		return datatypes.SoftLayer_Provisioning_Version1_Transaction{}, err
+	}
+
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/attachDiskImage.json", slvgs.GetName(), instanceId), "POST", bytes.NewBuffer(requestBody))
+	if err != nil {
+		return datatypes.SoftLayer_Provisioning_Version1_Transaction{}, err
+	}
+
+	transaction := datatypes.SoftLayer_Provisioning_Version1_Transaction{}
+	err = json.Unmarshal(response, &transaction)
+	if err != nil {
+		return datatypes.SoftLayer_Provisioning_Version1_Transaction{}, err
+	}
+
+	return transaction, nil
+}
+
+func (slvgs *softLayer_Virtual_Guest_Service) DetachDiskImage(instanceId int, imageId int) (datatypes.SoftLayer_Provisioning_Version1_Transaction, error) {
+	parameters := datatypes.SoftLayer_Virtual_GuestInitParameters{
+		Parameters: datatypes.SoftLayer_Virtual_GuestInitParameter{
+			ImageId: imageId,
+		},
+	}
+
+	requestBody, err := json.Marshal(parameters)
+	if err != nil {
+		return datatypes.SoftLayer_Provisioning_Version1_Transaction{}, err
+	}
+
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/detachDiskImage.json", slvgs.GetName(), instanceId), "POST", bytes.NewBuffer(requestBody))
+	if err != nil {
+		return datatypes.SoftLayer_Provisioning_Version1_Transaction{}, err
+	}
+
+	transaction := datatypes.SoftLayer_Provisioning_Version1_Transaction{}
+	err = json.Unmarshal(response, &transaction)
+	if err != nil {
+		return datatypes.SoftLayer_Provisioning_Version1_Transaction{}, err
+	}
+
+	return transaction, nil
+}
+
+func (slvgs *softLayer_Virtual_Guest_Service) ActivatePrivatePort(instanceId int) (bool, error) {
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/activatePrivatePort.json", slvgs.GetName(), instanceId), "GET", new(bytes.Buffer))
+	if err != nil {
+		return false, err
+	}
+
+	res := string(response)
+
+	if res == "true" {
+		return true, nil
+	}
+
+	if res == "false" {
+		return false, nil
+	}
+
+	return false, errors.New(fmt.Sprintf("Failed to activate private port for virtual guest is pingable for instance with id '%d', got '%s' as response from the API.", instanceId, res))
+}
+
+func (slvgs *softLayer_Virtual_Guest_Service) ActivatePublicPort(instanceId int) (bool, error) {
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/activatePublicPort.json", slvgs.GetName(), instanceId), "GET", new(bytes.Buffer))
+	if err != nil {
+		return false, err
+	}
+
+	res := string(response)
+
+	if res == "true" {
+		return true, nil
+	}
+
+	if res == "false" {
+		return false, nil
+	}
+
+	return false, errors.New(fmt.Sprintf("Failed to activate public port for virtual guest is pingable for instance with id '%d', got '%s' as response from the API.", instanceId, res))
+}
+
+func (slvgs *softLayer_Virtual_Guest_Service) ShutdownPrivatePort(instanceId int) (bool, error) {
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/shutdownPrivatePort.json", slvgs.GetName(), instanceId), "GET", new(bytes.Buffer))
+	if err != nil {
+		return false, err
+	}
+
+	res := string(response)
+
+	if res == "true" {
+		return true, nil
+	}
+
+	if res == "false" {
+		return false, nil
+	}
+
+	return false, errors.New(fmt.Sprintf("Failed to shutdown private port for virtual guest is pingable for instance with id '%d', got '%s' as response from the API.", instanceId, res))
+}
+
+func (slvgs *softLayer_Virtual_Guest_Service) ShutdownPublicPort(instanceId int) (bool, error) {
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/shutdownPublicPort.json", slvgs.GetName(), instanceId), "GET", new(bytes.Buffer))
+	if err != nil {
+		return false, err
+	}
+
+	res := string(response)
+
+	if res == "true" {
+		return true, nil
+	}
+
+	if res == "false" {
+		return false, nil
+	}
+
+	return false, errors.New(fmt.Sprintf("Failed to shutdown public port for virtual guest is pingable for instance with id '%d', got '%s' as response from the API.", instanceId, res))
+}
+
+func (slvgs *softLayer_Virtual_Guest_Service) GetNetworkVlans(instanceId int) ([]datatypes.SoftLayer_Network_Vlan, error) {
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/getNetworkVlans.json", slvgs.GetName(), instanceId), "GET", new(bytes.Buffer))
+	if err != nil {
+		return []datatypes.SoftLayer_Network_Vlan{}, err
+	}
+
+	networkVlans := []datatypes.SoftLayer_Network_Vlan{}
+	err = json.Unmarshal(response, &networkVlans)
+	if err != nil {
+		return []datatypes.SoftLayer_Network_Vlan{}, err
+	}
+
+	return networkVlans, nil
+}
+
+func (slvgs *softLayer_Virtual_Guest_Service) CheckHostDiskAvailability(instanceId int, diskCapacity int) (bool, error) {
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/checkHostDiskAvailability/%d", slvgs.GetName(), instanceId, diskCapacity), "GET", new(bytes.Buffer))
+	if err != nil {
+		return false, err
+	}
+
+	res := string(response)
+
+	if res == "true" {
+		return true, nil
+	}
+
+	if res == "false" {
+		return false, nil
+	}
+
+	return false, errors.New(fmt.Sprintf("Failed to check host disk availability for instance '%d', got '%s' as response from the API.", instanceId, res))
+}
+
+func (slvgs *softLayer_Virtual_Guest_Service) CaptureImage(instanceId int) (datatypes.SoftLayer_Container_Disk_Image_Capture_Template, error) {
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/captureImage.json", slvgs.GetName(), instanceId), "GET", new(bytes.Buffer))
+	if err != nil {
+		return datatypes.SoftLayer_Container_Disk_Image_Capture_Template{}, err
+	}
+
+	diskImageTemplate := datatypes.SoftLayer_Container_Disk_Image_Capture_Template{}
+	err = json.Unmarshal(response, &diskImageTemplate)
+	if err != nil {
+		return datatypes.SoftLayer_Container_Disk_Image_Capture_Template{}, err
+	}
+
+	return diskImageTemplate, nil
+}
+
+//Private methods
 func (slvgs *softLayer_Virtual_Guest_Service) checkCreateObjectRequiredValues(template datatypes.SoftLayer_Virtual_Guest_Template) error {
 	var err error
 	errorMessage, errorTemplate := "", "* %s is required and cannot be empty\n"
@@ -509,6 +672,12 @@ func (slvgs *softLayer_Virtual_Guest_Service) checkCreateObjectRequiredValues(te
 		errorMessage += fmt.Sprintf(errorTemplate, "MaxMemory: the amount of memory to allocate in megabytes")
 	}
 
+	for _, device := range template.BlockDevices {
+		if device.DiskImage.Capacity <= 0 {
+			errorMessage += fmt.Sprintf("Disk size must be positive number, the size of block device %s is set to be %dGB.", device.Device, device.DiskImage.Capacity)
+		}
+	}
+
 	if template.Datacenter.Name == "" {
 		errorMessage += fmt.Sprintf(errorTemplate, "Datacenter.Name: specifies which datacenter the instance is to be provisioned in")
 	}
@@ -520,14 +689,45 @@ func (slvgs *softLayer_Virtual_Guest_Service) checkCreateObjectRequiredValues(te
 	return err
 }
 
-func (slvgs *softLayer_Virtual_Guest_Service) getRootPassword(virtualGuest datatypes.SoftLayer_Virtual_Guest) string {
-	passwords := virtualGuest.OperatingSystem.Passwords
+func (slvgs *softLayer_Virtual_Guest_Service) findUpgradeItemPriceForEphemeralDisk(instanceId int, ephemeralDiskSize int) (datatypes.SoftLayer_Item_Price, error) {
+	if ephemeralDiskSize <= 0 {
+		return datatypes.SoftLayer_Item_Price{}, errors.New(fmt.Sprintf("Ephemeral disk size can not be negative: %d", ephemeralDiskSize))
+	}
 
-	for _, password := range passwords {
-		if password.Username == ROOT_USER_NAME {
-			return password.Password
+	itemPrices, err := slvgs.GetUpgradeItemPrices(instanceId)
+	if err != nil {
+		return datatypes.SoftLayer_Item_Price{}, nil
+	}
+
+	var currentDiskCapacity int
+	var currentItemPrice datatypes.SoftLayer_Item_Price
+
+	for _, itemPrice := range itemPrices {
+
+		flag := false
+		for _, category := range itemPrice.Categories {
+			if category.CategoryCode == EPHEMERAL_DISK_CATEGORY_CODE {
+				flag = true
+				break
+			}
+		}
+
+		if flag && strings.Contains(itemPrice.Item.Description, "(LOCAL)") {
+
+			capacity, _ := strconv.Atoi(itemPrice.Item.Capacity)
+
+			if capacity >= ephemeralDiskSize {
+				if currentItemPrice.Id == 0 || currentDiskCapacity >= capacity {
+					currentItemPrice = itemPrice
+					currentDiskCapacity = capacity
+				}
+			}
 		}
 	}
 
-	return ""
+	if currentItemPrice.Id == 0 {
+		return datatypes.SoftLayer_Item_Price{}, errors.New(fmt.Sprintf("No proper local disk for size %d", ephemeralDiskSize))
+	}
+
+	return currentItemPrice, nil
 }
