@@ -155,6 +155,13 @@ jobs:
     - put: version
       params: {file: version/number}
 
+- name: import-stemcell
+  plan:
+  - get: bosh-softlayer-stemcells
+    passed: [convert-stemcell]
+  - task: import-stemcell-image
+    file: bosh-softlayer-stemcells/ci/import-image.yml
+
 - name: stemcells-unit
   public: true
   plan:
@@ -197,6 +204,7 @@ groups:
   - cpi-build
   - cpi-release-rc
   - cpi-release-shipit
+  - import-stemcell
   - stemcells-unit
   - sl-go-unit
   - sl-go-integration

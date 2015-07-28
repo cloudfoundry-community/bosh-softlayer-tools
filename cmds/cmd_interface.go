@@ -12,5 +12,6 @@ type PrinterInterface interface {
 type CommandInterface interface {
 	PrinterInterface
 	Options() common.Options
+	CheckOptions() error
 	Run() error
 }

@@ -51,6 +51,18 @@ func (cmd *ImportImageCmd) Options() common.Options {
 	return cmd.options
 }
 
+func (cmd *ImportImageCmd) CheckOptions() error {
+	if cmd.OsRefCode == "" {
+		return errors.New("stemcells: must pass an OS ref code")
+	}
+
+	if cmd.Uri == "" {
+		return errors.New("stemcells: must pass a URI")
+	}
+
+	return nil
+}
+
 func (cmd *ImportImageCmd) Run() error {
 	vgbdtgService, err := cmd.client.GetSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service()
 	if err != nil {
