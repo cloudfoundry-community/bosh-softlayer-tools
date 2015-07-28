@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 func CreateFile(filePath string, data []byte) error {
@@ -40,6 +41,11 @@ func CreateTarball(tarballFilePath string, filePaths []string) error {
 	}
 
 	return nil
+}
+
+func ReadJsonTestFixtures(packageName, fileName string) ([]byte, error) {
+	wd, _ := os.Getwd()
+	return ioutil.ReadFile(filepath.Join(wd, "../..", "test_fixtures", packageName, fileName))
 }
 
 // Private methods

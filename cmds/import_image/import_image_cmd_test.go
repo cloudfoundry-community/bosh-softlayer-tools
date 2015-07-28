@@ -7,9 +7,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	. "github.com/maximilien/bosh-softlayer-stemcells/cmds/import_image"
+	. "github.com/maximilien/bosh-softlayer-stemcells/common"
 
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
-	slcommon "github.com/maximilien/softlayer-go/common"
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
 
@@ -21,7 +21,8 @@ var _ = Describe("import-image command", func() {
 	var (
 		err error
 
-		fakeClient *slclientfakes.FakeSoftLayerClient
+		fakeClient    *slclientfakes.FakeSoftLayerClient
+		vgbdtgService softlayer.SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service
 
 		cmd     cmds.CommandInterface
 		options common.Options
@@ -37,6 +38,14 @@ var _ = Describe("import-image command", func() {
 		Expect(apiKey).ToNot(Equal(""))
 
 		fakeClient = slclientfakes.NewFakeSoftLayerClient(username, apiKey)
+		Expect(fakeClient).ToNot(BeNil())
+
+		fakeClient.DoRawHttpRequestResponse, err = ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json")
+		Expect(err).ToNot(HaveOccurred())
+
+		vgbdtgService, err = fakeClient.GetSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(vgbdtgService).ToNot(BeNil())
 
 		options = common.Options{
 			NameFlag:      "fake-name",
@@ -63,8 +72,63 @@ var _ = Describe("import-image command", func() {
 		})
 	})
 
+	Describe("#CheckOptions", func() {
+		JustBeforeEach(func() {
+			importImageCmd, err = NewImportImageCmd(options, fakeClient)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(importImageCmd).ToNot(BeNil())
+
+			cmd = importImageCmd
+		})
+
+		Context("when all required options are passed", func() {
+			It("succeeds with no errors", func() {
+				err = cmd.CheckOptions()
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when no required options are passed", func() {
+			BeforeEach(func() {
+				options.OsRefCodeFlag = ""
+				options.UriFlag = ""
+			})
+
+			It("fails with error that operating system reference code is missing", func() {
+				err = cmd.CheckOptions()
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("must pass an OS ref code"))
+			})
+		})
+
+		Context("when one required options is missing", func() {
+			Context("when OsRefCode is missing", func() {
+				BeforeEach(func() {
+					options.OsRefCodeFlag = ""
+				})
+
+				It("fails with error that operating system reference code is missing", func() {
+					err = cmd.CheckOptions()
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("must pass an OS ref code"))
+				})
+			})
+
+			Context("when Uri is missing", func() {
+				BeforeEach(func() {
+					options.UriFlag = ""
+				})
+
+				It("fails with error that the URI is missing", func() {
+					err = cmd.CheckOptions()
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("must pass a URI"))
+				})
+			})
+		})
+	})
+
 	Describe("#Run", func() {
-		var vgbdtgService softlayer.SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service
 		var configuration sldatatypes.SoftLayer_Container_Virtual_Guest_Block_Device_Template_Configuration
 
 		BeforeEach(func() {
@@ -74,7 +138,6 @@ var _ = Describe("import-image command", func() {
 				OperatingSystemReferenceCode: "fake-operating-system-reference-code",
 				Uri: "swift://FakeObjectStorageAccountName>@fake-clusterName/fake-containerName/fake-fileName.vhd",
 			}
-			fakeClient.DoRawHttpRequestResponse, err = slcommon.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json")
 		})
 
 		It("creates a VGDTG with UUID and ID", func() {

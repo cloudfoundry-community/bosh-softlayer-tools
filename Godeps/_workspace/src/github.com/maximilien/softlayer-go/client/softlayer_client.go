@@ -116,7 +116,12 @@ func (slc *softLayerClient) GetSoftLayer_Product_Package_Service() (softlayer.So
 }
 
 func (slc *softLayerClient) GetSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service() (softlayer.SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service, error) {
-	slService, err := slc.GetService("SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service")
+	slService, err := slc.GetService("SoftLayer_Virtual_Guest_Block_Device_Template_Group")
+
+	//DEBUG
+	fmt.Printf("====>service: %#v\n", slService)
+	//DEBUG
+
 	if err != nil {
 		return nil, err
 	}

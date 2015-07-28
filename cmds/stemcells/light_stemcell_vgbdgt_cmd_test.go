@@ -8,10 +8,10 @@ import (
 	. "github.com/onsi/gomega"
 
 	. "github.com/maximilien/bosh-softlayer-stemcells/cmds/stemcells"
+	. "github.com/maximilien/bosh-softlayer-stemcells/common"
 
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
 
-	slgocommon "github.com/maximilien/softlayer-go/common"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
 	testhelpers "github.com/maximilien/softlayer-go/test_helpers"
 )
@@ -64,13 +64,13 @@ var _ = Describe("LightStemcellVGBDGTCmd", func() {
 
 	Context("Light Stemcell Command", func() {
 		BeforeEach(func() {
-			blockDeviceTemplateGroups, err := slgocommon.ReadJsonTestFixtures(".", "SoftLayer_Account_Service_getBlockDeviceTemplateGroups.json")
+			blockDeviceTemplateGroups, err := ReadJsonTestFixtures("services", "SoftLayer_Account_Service_getBlockDeviceTemplateGroups.json")
 			Expect(err).ToNot(HaveOccurred())
 
-			getObject, err := slgocommon.ReadJsonTestFixtures(".", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getObject.json")
+			getObject, err := ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getObject.json")
 			Expect(err).ToNot(HaveOccurred())
 
-			getDatacenters, err := slgocommon.ReadJsonTestFixtures(".", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getDatacenters.json")
+			getDatacenters, err := ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getDatacenters.json")
 			Expect(err).ToNot(HaveOccurred())
 
 			fakeClient.DoRawHttpRequestResponses = [][]byte{blockDeviceTemplateGroups, getObject, getDatacenters}

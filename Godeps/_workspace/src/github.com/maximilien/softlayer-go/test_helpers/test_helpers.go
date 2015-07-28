@@ -343,11 +343,6 @@ func generateSshKeyUsingSshKeyGen() (string, string, error) {
 		"-f", rsaKeyFileName,
 		"-t", "rsa", "-N", "").Output()
 
-	//DEBUG
-	fmt.Println("========= output ")
-	fmt.Println(string(out))
-	//END DEBUG
-
 	if err != nil {
 		return "", "", err
 	}

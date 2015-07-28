@@ -1,0 +1,13 @@
+#!/bin/bash
+
+(
+  set -e
+
+  echo -e "\n Print contents of current dir..."
+  ls
+
+  echo -e "\n Creating stemcell binary..."
+  go build -o out/cpi github.com/maximilien/bosh-softlayer-stemcells/main
+
+  echo - "\n Softlayer create from external source..."
+)
