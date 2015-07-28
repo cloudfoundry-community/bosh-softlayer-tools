@@ -1,0 +1,18 @@
+#!/bin/bash
+
+(
+  set -e
+
+  echo -e "\n Printing contents of directory..."
+  ls
+
+  echo -e "\n Unpacking tgz..."
+  find softlayer-stemcell -name "bosh-stemcell-*-vsphere-*.tgz" -exec tar zxf '{}' \;
+  tar zxf image
+
+  echo -e "\n Converting vmdk to vhd..."
+  VBoxManage clonehd *.vmdk --format VHD bosh-stemcell-softlayer.vhd
+
+  echo -e "\n Placing object in Softlayer..."
+  swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_APIKEY upload stemcells bosh-stemcell-softlayer.vhd
+)

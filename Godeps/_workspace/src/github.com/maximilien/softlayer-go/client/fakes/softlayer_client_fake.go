@@ -24,6 +24,8 @@ type FakeSoftLayerClient struct {
 
 	SoftLayerServices map[string]softlayer.Service
 
+	DoRawHttpRequestResponseCount int
+
 	DoRawHttpRequestResponse       []byte
 	DoRawHttpRequestResponses      [][]byte
 	DoRawHttpRequestResponsesIndex int
@@ -44,6 +46,8 @@ func NewFakeSoftLayerClient(username, apiKey string) *FakeSoftLayerClient {
 		TemplatePath: filepath.Join(pwd, TEMPLATE_ROOT_PATH),
 
 		SoftLayerServices: map[string]softlayer.Service{},
+
+		DoRawHttpRequestResponseCount: 0,
 
 		DoRawHttpRequestResponse:       nil,
 		DoRawHttpRequestResponses:      [][]byte{},
@@ -154,8 +158,49 @@ func (fslc *FakeSoftLayerClient) GetSoftLayer_Virtual_Guest_Block_Device_Templat
 	return slService.(softlayer.SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service), nil
 }
 
+func (fslc *FakeSoftLayerClient) GetSoftLayer_Hardware_Service() (softlayer.SoftLayer_Hardware_Service, error) {
+	slService, err := fslc.GetService("SoftLayer_Hardware")
+	if err != nil {
+		return nil, err
+	}
+
+	return slService.(softlayer.SoftLayer_Hardware_Service), nil
+}
+
 //Public methods
 func (fslc *FakeSoftLayerClient) DoRawHttpRequestWithObjectMask(path string, masks []string, requestType string, requestBody *bytes.Buffer) ([]byte, error) {
+	fslc.DoRawHttpRequestResponseCount += 1
+
+	if fslc.DoRawHttpRequestError != nil {
+		return []byte{}, fslc.DoRawHttpRequestError
+	}
+
+	if fslc.DoRawHttpRequestResponse != nil {
+		return fslc.DoRawHttpRequestResponse, fslc.DoRawHttpRequestError
+	} else {
+		fslc.DoRawHttpRequestResponsesIndex = fslc.DoRawHttpRequestResponsesIndex + 1
+		return fslc.DoRawHttpRequestResponses[fslc.DoRawHttpRequestResponsesIndex-1], fslc.DoRawHttpRequestError
+	}
+}
+
+func (fslc *FakeSoftLayerClient) DoRawHttpRequestWithObjectFilter(path string, filters string, requestType string, requestBody *bytes.Buffer) ([]byte, error) {
+	fslc.DoRawHttpRequestResponseCount += 1
+
+	if fslc.DoRawHttpRequestError != nil {
+		return []byte{}, fslc.DoRawHttpRequestError
+	}
+
+	if fslc.DoRawHttpRequestResponse != nil {
+		return fslc.DoRawHttpRequestResponse, fslc.DoRawHttpRequestError
+	} else {
+		fslc.DoRawHttpRequestResponsesIndex = fslc.DoRawHttpRequestResponsesIndex + 1
+		return fslc.DoRawHttpRequestResponses[fslc.DoRawHttpRequestResponsesIndex-1], fslc.DoRawHttpRequestError
+	}
+}
+
+func (fslc *FakeSoftLayerClient) DoRawHttpRequestWithObjectFilterAndObjectMask(path string, masks []string, filters string, requestType string, requestBody *bytes.Buffer) ([]byte, error) {
+	fslc.DoRawHttpRequestResponseCount += 1
+
 	if fslc.DoRawHttpRequestError != nil {
 		return []byte{}, fslc.DoRawHttpRequestError
 	}
@@ -169,6 +214,8 @@ func (fslc *FakeSoftLayerClient) DoRawHttpRequestWithObjectMask(path string, mas
 }
 
 func (fslc *FakeSoftLayerClient) DoRawHttpRequest(path string, requestType string, requestBody *bytes.Buffer) ([]byte, error) {
+	fslc.DoRawHttpRequestResponseCount += 1
+
 	if fslc.DoRawHttpRequestError != nil {
 		return []byte{}, fslc.DoRawHttpRequestError
 	}
@@ -205,4 +252,5 @@ func (fslc *FakeSoftLayerClient) initSoftLayerServices() {
 	fslc.SoftLayerServices["SoftLayer_Product_Package"] = services.NewSoftLayer_Product_Package_Service(fslc)
 	fslc.SoftLayerServices["SoftLayer_Billing_Item_Cancellation_Request"] = services.NewSoftLayer_Billing_Item_Cancellation_Request_Service(fslc)
 	fslc.SoftLayerServices["SoftLayer_Virtual_Guest_Block_Device_Template_Group"] = services.NewSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service(fslc)
+	fslc.SoftLayerServices["SoftLayer_Hardware"] = services.NewSoftLayer_Hardware_Service(fslc)
 }

@@ -1,63 +1,53 @@
 {
 	"ImportPath": "github.com/maximilien/bosh-softlayer-stemcells",
-	"GoVersion": "go1.3.3",
+	"GoVersion": "go1.4.2",
 	"Packages": [
 		"./..."
 	],
 	"Deps": [
-		{
-			"ImportPath": "code.google.com/p/go.crypto/ssh",
-			"Comment": "null-209",
-			"Rev": "23b39e4e860172e1983ded00a9d2f7e42b7683d0"
-		},
 		{
 			"ImportPath": "github.com/fraenkel/candiedyaml",
 			"Rev": "84842532f8194fe186b48a009251dfaec9924ccd"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/client",
-			"Comment": "v0.1.0-1-gd46f936",
-			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
+			"Comment": "v0.2.0-125-g409a67a",
+			"Rev": "409a67ace35b811aba42b34ae9d2a8f82916d760"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/common",
-			"Comment": "v0.1.0-1-gd46f936",
-			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
+			"Comment": "v0.2.0-125-g409a67a",
+			"Rev": "409a67ace35b811aba42b34ae9d2a8f82916d760"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/data_types",
-			"Comment": "v0.1.0-1-gd46f936",
-			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
+			"Comment": "v0.2.0-125-g409a67a",
+			"Rev": "409a67ace35b811aba42b34ae9d2a8f82916d760"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/services",
-			"Comment": "v0.1.0-1-gd46f936",
-			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
+			"Comment": "v0.2.0-125-g409a67a",
+			"Rev": "409a67ace35b811aba42b34ae9d2a8f82916d760"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/softlayer",
-			"Comment": "v0.1.0-1-gd46f936",
-			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
+			"Comment": "v0.2.0-125-g409a67a",
+			"Rev": "409a67ace35b811aba42b34ae9d2a8f82916d760"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/test_helpers",
-			"Comment": "v0.1.0-1-gd46f936",
-			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
-		},
-		{
-			"ImportPath": "github.com/maximilien/softlayer-go/utils",
-			"Comment": "v0.1.0-1-gd46f936",
-			"Rev": "d46f9367deab6f68f2df8198b715466856676c30"
+			"Comment": "v0.2.0-125-g409a67a",
+			"Rev": "409a67ace35b811aba42b34ae9d2a8f82916d760"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
-			"Comment": "v1.1.0-16-g6bd3137",
-			"Rev": "6bd31378f9b5c099a60ab96b89f8fa9b48678d44"
+			"Comment": "v1.2.0-8-g25380c6",
+			"Rev": "25380c62e61d3f90436be125b8127dbae578fdef"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega",
-			"Comment": "v1.0-17-ga0ee4df",
-			"Rev": "a0ee4df1f2d58a75dd9d74e755615706d68e9ce9"
+			"Comment": "v1.0-50-gd6c945f",
+			"Rev": "d6c945f9fdbf6cad99e85b0feff591caa268e0db"
 		}
 	]
 }

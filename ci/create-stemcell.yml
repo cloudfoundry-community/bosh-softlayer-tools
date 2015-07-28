@@ -1,0 +1,10 @@
+---
+platform: linux
+image: docker:///posijon/slci
+
+inputs:
+  - name: bosh
+  - name: bosh-softlayer-stemcells
+
+run:
+  path: bosh-softlayer-stemcells/ci/scripts/aws-stemcell

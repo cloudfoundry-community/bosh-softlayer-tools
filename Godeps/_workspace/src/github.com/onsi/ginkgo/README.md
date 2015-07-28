@@ -51,11 +51,15 @@ To discuss Ginkgo and get updates, join the [google group](https://groups.google
 
 ## [Gomega](http://github.com/onsi/gomega): Ginkgo's Preferred Matcher Library
 
-Learn more about Gomega [here](http://onsi.github.io/gomega/)
+Ginkgo is best paired with Gomega.  Learn more about Gomega [here](http://onsi.github.io/gomega/)
+
+## [Agouti](http://github.com/sclevine/agouti): A Golang Acceptance Testing Framework
+
+Agouti allows you run WebDriver integration tests.  Learn more about Agouti [here](http://agouti.org)
 
 ## Set Me Up!
 
-You'll need Golang v1.2+ (Ubuntu users: you probably have Golang v1.0 -- you'll need to upgrade!)
+You'll need Golang v1.3+ (Ubuntu users: you probably have Golang v1.0 -- you'll need to upgrade!)
 
 ```bash
 

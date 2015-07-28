@@ -76,20 +76,27 @@ var _ = Describe("SoftLayer_Virtual_Guest_Service", func() {
 	Context("#DeleteObject", func() {
 		BeforeEach(func() {
 			vgbdtGroup.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_deleteObject.json")
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("sucessfully deletes the SoftLayer_Virtual_Guest_Block_Device_Template_Group instance", func() {
-			fakeClient.DoRawHttpRequestResponse = []byte("true")
-			deleted, err := vgbdtgService.DeleteObject(vgbdtGroup.Id)
+			transaction, err := vgbdtgService.DeleteObject(vgbdtGroup.Id)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(deleted).To(BeTrue())
-		})
 
-		It("fails to delete the SoftLayer_Virtual_Guest_Block_Device_Template_Group instance", func() {
-			fakeClient.DoRawHttpRequestResponse = []byte("false")
-			deleted, err := vgbdtgService.DeleteObject(vgbdtGroup.Id)
-			Expect(err).To(HaveOccurred())
-			Expect(deleted).To(BeFalse())
+			Expect(transaction.CreateDate).ToNot(BeNil())
+			Expect(transaction.ElapsedSeconds).To(Equal(1))
+			Expect(transaction.GuestId).To(Equal(1234567))
+			Expect(transaction.HardwareId).To(Equal(0))
+			Expect(transaction.Id).To(Equal(11878004))
+			Expect(transaction.ModifyDate).ToNot(BeNil())
+			Expect(transaction.StatusChangeDate).ToNot(BeNil())
+
+			Expect(transaction.TransactionGroup).To(Equal(datatypes.TransactionGroup{}))
+
+			Expect(transaction.TransactionStatus.AverageDuration).To(Equal(".42"))
+			Expect(transaction.TransactionStatus.FriendlyName).To(Equal("Cloud Reclaim Prep"))
+			Expect(transaction.TransactionStatus.Name).To(Equal("CLOUD_RECLAIM_PREP"))
 		})
 	})
 
@@ -152,6 +159,114 @@ var _ = Describe("SoftLayer_Virtual_Guest_Service", func() {
 			Expect(status.Description).To(Equal("The Guest Block Device Template Group is available to all accounts"))
 			Expect(status.KeyName).To(Equal("ACTIVE"))
 			Expect(status.Name).To(Equal("Active"))
+		})
+	})
+
+	Context("#GetStorageLocations", func() {
+		BeforeEach(func() {
+			vgbdtGroup.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getStorageLocations.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("sucessfully retrieves SoftLayer_Locations for the Virtual_Guest_Block_Device_Template_Group instance", func() {
+			locations, err := vgbdtgService.GetStorageLocations(vgbdtGroup.Id)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(len(locations)).To(Equal(18))
+
+			found := false
+			for _, location := range locations {
+				if location.LongName == "Paris 1" {
+					Expect(location.Id).To(Equal(449500))
+					Expect(location.Name).To(Equal("par01"))
+					found = true
+					break
+				}
+			}
+			Expect(found).To(BeTrue())
+		})
+	})
+
+	Context("#GetImageType", func() {
+		BeforeEach(func() {
+			vgbdtGroup.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getImageType.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("sucessfully retrieves the image type for the instance", func() {
+			imageType, err := vgbdtgService.GetImageType(vgbdtGroup.Id)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(imageType.Description).To(Equal("a disk that may be replaced on upgrade"))
+			Expect(imageType.KeyName).To(Equal("SYSTEM"))
+			Expect(imageType.Name).To(Equal("System"))
+		})
+	})
+
+	Context("#GetImageTypeKeyName", func() {
+		BeforeEach(func() {
+			vgbdtGroup.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getImageTypeKeyName.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("sucessfully retrieves the image type key name for the instance", func() {
+			imageTypeKeyName, err := vgbdtgService.GetImageTypeKeyName(vgbdtGroup.Id)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(imageTypeKeyName).To(Equal("SYSTEM"))
+		})
+	})
+
+	Context("#CreateFromExternalSource", func() {
+		var configuration datatypes.SoftLayer_Container_Virtual_Guest_Block_Device_Template_Configuration
+
+		BeforeEach(func() {
+			configuration = datatypes.SoftLayer_Container_Virtual_Guest_Block_Device_Template_Configuration{
+				Name: "fake-configuration-name",
+				Note: "fake-configuration-note",
+				OperatingSystemReferenceCode: "fake-operating-system-reference-code",
+				Uri: "swift://FakeObjectStorageAccountName>@fake-clusterName/fake-containerName/fake-fileName.vhd",
+			}
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("sucessfully creates a virtual guest device templte group from a configuration from an external VHD image", func() {
+			vgbdtGroup, err := vgbdtgService.CreateFromExternalSource(configuration)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(vgbdtGroup.AccountId).To(Equal(278444))
+			Expect(vgbdtGroup.CreateDate).ToNot(BeNil())
+			Expect(vgbdtGroup.Id).To(Equal(211582))
+			Expect(vgbdtGroup.Name).To(Equal(" ubuntu-10.04-bosh-2168-IEM-itcs104-dea-stemcell"))
+			Expect(vgbdtGroup.Note).To(Equal("fake-note"))
+			Expect(*vgbdtGroup.ParentId).To(Equal(211578))
+			Expect(vgbdtGroup.PublicFlag).To(Equal(0))
+			Expect(vgbdtGroup.StatusId).To(Equal(1))
+			Expect(vgbdtGroup.Summary).To(Equal("fake-summary"))
+			Expect(vgbdtGroup.TransactionId).To(BeNil())
+			Expect(vgbdtGroup.UserRecordId).To(Equal(180816))
+			Expect(vgbdtGroup.GlobalIdentifier).To(Equal("fake-global-identifier"))
+		})
+	})
+
+	Context("#CopyToExternalSource", func() {
+		var configuration datatypes.SoftLayer_Container_Virtual_Guest_Block_Device_Template_Configuration
+
+		BeforeEach(func() {
+			configuration = datatypes.SoftLayer_Container_Virtual_Guest_Block_Device_Template_Configuration{
+				Name: "fake-configuration-name",
+				Note: "fake-configuration-note",
+				OperatingSystemReferenceCode: "fake-operating-system-reference-code",
+				Uri: "swift://FakeObjectStorageAccountName>@fake-clusterName/fake-containerName/fake-fileName.vhd",
+			}
+			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_copyToExternalSource.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("successfully copies the virtual guest device template group to an external source", func() {
+			copied, err := vgbdtgService.CopyToExternalSource(configuration)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(copied).To(BeTrue())
 		})
 	})
 })

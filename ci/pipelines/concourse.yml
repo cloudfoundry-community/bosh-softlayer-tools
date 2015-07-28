@@ -1,4 +1,11 @@
 resources:
+- name: bosh
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bosh.git
+    branch: master
+    private_key: {{private-repo-key}}
+
 - name: bosh-softlayer-cpi
   type: git
   source:
@@ -17,8 +24,16 @@ resources:
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
-    branch: master
+    branch: concourse
     private_key: {{private-repo-key}}
+
+- name: bosh-stemcell-softlayer-image
+  type: s3
+  source:
+    bucket: bosh-softlayer-cpi-stemcells
+    regexp: bosh-stemcell-softlayer.vhd
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
 
 - name: final-release
   type: s3
@@ -44,7 +59,41 @@ resources:
     secret_access_key: {{s3-secret-access-key}}
     initial_version: 1.0.0
 
+- name: softlayer-stemcell
+  type: s3
+  source:
+    bucket: bosh-softlayer-cpi-stemcells
+    regexp: bosh-stemcell-(.*)-vsphere-(.*).tgz
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
 jobs:
+- name: bosh-stemcell
+  plan:
+  - get: bosh
+  - get: bosh-softlayer-stemcells
+  - task: create-stemcell
+    file: bosh-softlayer-stemcells/ci/create-stemcell.yml
+    config:
+      params:
+        BOSH_AWS_ACCESS_KEY_ID: {{BOSH_AWS_ACCESS_KEY_ID}}
+        BOSH_AWS_SECRET_ACCESS_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
+  - put: softlayer-stemcell
+    params: {from: bosh/tmp/bosh-stemcell-(.*)-vsphere-(.*).tgz}
+
+- name: convert-stemcell
+  plan:
+  - get: bosh-softlayer-stemcells
+  - get: softlayer-stemcell
+  - task: convert-stemcell
+    file: bosh-softlayer-stemcells/ci/convert-stemcell.yml
+    config:
+      params:
+        SWIFT_USERNAME: {{SWIFT_USERNAME}}
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
+        SWIFT_CLUSTER: {{SL_CLUSTER}}
+
 - name: cpi-unit
   public: true
   plan:
@@ -107,6 +156,7 @@ jobs:
       params: {file: version/number}
 
 - name: stemcells-unit
+  public: true
   plan:
   - get: bosh-softlayer-stemcells
     trigger: true
@@ -114,6 +164,7 @@ jobs:
     file: bosh-softlayer-stemcells/ci/unit.yml
 
 - name: sl-go-unit
+  public: true
   plan:
   - get: softlayer-go
     trigger: true
@@ -137,6 +188,19 @@ jobs:
         SL_API_KEY: {{SL_API_KEY}}
 
 groups:
+- name: all
+  jobs:
+  - bosh-stemcell
+  - convert-stemcell
+  - cpi-unit
+  - cpi-integration
+  - cpi-build
+  - cpi-release-rc
+  - cpi-release-shipit
+  - stemcells-unit
+  - sl-go-unit
+  - sl-go-integration
+
 - name: bosh-softlayer-cpi
   jobs:
   - cpi-unit
@@ -150,6 +214,7 @@ groups:
 
 - name: bosh-softlayer-stemcells
   jobs:
+  - bosh-stemcell
   - stemcells-unit
 
 - name: softlayer-go
