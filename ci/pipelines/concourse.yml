@@ -170,6 +170,15 @@ jobs:
     - put: version
       params: {file: version/number}
 
+- name: create-lite-stemcell
+  plan:
+  - get: bosh-softlayer-stemcells
+  - get: template-ids
+    trigger: true
+    passed: [import-stemcell]
+  - task: create-lite-stemcell
+    file: bosh-softlayer-stemcells/ci/create-lite-stemcell.yml
+
 - name: import-stemcell
   plan:
   - get: bosh-softlayer-stemcells
@@ -223,6 +232,7 @@ groups:
   jobs:
   - bosh-stemcell
   - convert-stemcell
+  - create-lite-stemcell
   - cpi-unit
   - cpi-integration
   - cpi-build
