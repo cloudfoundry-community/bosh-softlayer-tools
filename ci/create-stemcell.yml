@@ -5,6 +5,7 @@ image: docker:///posijon/slci
 inputs:
   - name: bosh
   - name: bosh-softlayer-stemcells
+  - name: bosh-softlayer-private/id_rsa_bosh
 
 run:
-  path: bosh-softlayer-stemcells/ci/scripts/aws-stemcell
+  path: bosh-softlayer-stemcells/ci/scripts/create-stemcell

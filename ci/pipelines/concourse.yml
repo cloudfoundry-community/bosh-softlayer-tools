@@ -20,6 +20,13 @@ resources:
     branch: master
     private_key: {{private-repo-key}}
 
+- name: bosh-softlayer-private
+  type: git
+  source:
+    uri: git@github.com:maximilien/bosh-softlayer-private.git
+    branch: master
+    private_key: {{private-repo-key}}
+
 - name: bosh-softlayer-stemcells
   type: git
   source:
@@ -71,7 +78,7 @@ resources:
   type: s3
   source:
     bucket: bosh-softlayer-cpi-stemcells
-    regexp: template-ids(.*).json
+    versioned_file: template-ids.json
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
@@ -80,6 +87,7 @@ jobs:
   plan:
   - get: bosh
   - get: bosh-softlayer-stemcells
+  - get: bosh-softlayer-private
   - task: create-stemcell
     file: bosh-softlayer-stemcells/ci/create-stemcell.yml
     config:
