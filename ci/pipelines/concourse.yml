@@ -98,7 +98,8 @@ jobs:
     config:
       params:
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
-        SWIFT_API_KEY: {{SL_API_KEY}}
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
         SWIFT_CLUSTER: {{SL_CLUSTER}}
 
 - name: cpi-unit
