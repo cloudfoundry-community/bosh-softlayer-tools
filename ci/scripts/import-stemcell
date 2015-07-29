@@ -7,7 +7,9 @@
   ls
 
   echo -e "\n Creating stemcell binary..."
-  go build -o out/cpi github.com/maximilien/bosh-softlayer-stemcells/main
+  go build -o out/sl_stemcells github.com/maximilien/bosh-softlayer-stemcells/main
 
   echo - "\n Softlayer create from external source..."
+  URI="swift://IBMOS278444-1@${SWIFT_CLUSTER}/stemcells/bosh-stemcell-softlayer.vhd"
+  out/sl_stemcells --os-ref-code UBUNTU_14_64 --uri  import-image
 )

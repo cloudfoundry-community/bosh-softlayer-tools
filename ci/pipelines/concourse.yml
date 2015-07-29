@@ -67,6 +67,14 @@ resources:
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
+- name: template-ids
+  type: s3
+  source:
+    bucket: bosh-softlayer-cpi-stemcells
+    regexp: template-ids(.*).json
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
 jobs:
 - name: bosh-stemcell
   plan:
@@ -160,6 +168,8 @@ jobs:
     passed: [convert-stemcell]
   - task: import-stemcell-image
     file: bosh-softlayer-stemcells/ci/import-image.yml
+  - put: template-ids
+    params: {from: bosh-softlayer-stemcells/template-ids.*.json}
 
 - name: stemcells-unit
   public: true
