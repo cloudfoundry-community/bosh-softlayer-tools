@@ -7,9 +7,18 @@ import (
 type SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service interface {
 	Service
 
+	DeleteObject(id int) (datatypes.SoftLayer_Provisioning_Version1_Transaction, error)
+
 	GetObject(id int) (datatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group, error)
-	DeleteObject(id int) (bool, error)
 	GetDatacenters(id int) ([]datatypes.SoftLayer_Location, error)
 	GetSshKeys(id int) ([]datatypes.SoftLayer_Security_Ssh_Key, error)
 	GetStatus(id int) (datatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group_Status, error)
+
+	GetStorageLocations(id int) ([]datatypes.SoftLayer_Location, error)
+
+	GetImageType(id int) (datatypes.SoftLayer_Image_Type, error)
+	GetImageTypeKeyName(id int) (string, error)
+
+	CreateFromExternalSource(configuration datatypes.SoftLayer_Container_Virtual_Guest_Block_Device_Template_Configuration) (datatypes.SoftLayer_Virtual_Guest_Block_Device_Template_Group, error)
+	CopyToExternalSource(configuration datatypes.SoftLayer_Container_Virtual_Guest_Block_Device_Template_Configuration) (bool, error)
 }

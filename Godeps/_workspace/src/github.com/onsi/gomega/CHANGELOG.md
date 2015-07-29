@@ -7,6 +7,15 @@ Improvements:
 - `Receive()` no longer errors when passed a closed channel, it's perfectly fine to attempt to read from a closed channel so Ω(c).Should(Receive()) always fails and Ω(c).ShoudlNot(Receive()) always passes with a closed channel.
 - Added `HavePrefix` and `HaveSuffix` matchers.
 - `ghttp` can now handle concurrent requests.
+- Added `Succeed` which allows one to write `Ω(MyFunction()).Should(Succeed())`.
+- Improved `ghttp`'s behavior around failing assertions and panics:
+    - If a registered handler makes a failing assertion `ghttp` will return `500`.
+    - If a registered handler panics, `ghttp` will return `500` *and* fail the test.  This is new behavior that may cause existing code to break.  This code is almost certainly incorrect and creating a false positive.
+- `ghttp` servers can take an `io.Writer`.  `ghttp` will write a line to the writer when each request arrives.
+
+Bug Fixes:
+- gexec: `session.Wait` now uses `EventuallyWithOffset` to get the right line number in the failure.
+- `ContainElement` no longer bails if a passed-in matcher errors.
 
 ## 1.0 (8/2/2014)
 
