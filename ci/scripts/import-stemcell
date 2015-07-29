@@ -3,9 +3,12 @@
 (
   set -e
 
-  base=$( cd "$( dirname "$( dirname "$0" )")" && pwd )
+  base=$( cd "$( dirname "$( dirname "$( dirname "$0" )")")" && pwd )
   base_gopath=$( cd $base/../../../.. && pwd )
   
+  echo -e "\n Print base..."
+  echo $base
+
   export GOPATH=$base/Godeps/_workspace:$base_gopath:$GOPATH
 
   echo -e "\n Print contents of current dir..."
