@@ -173,6 +173,8 @@ jobs:
 - name: import-stemcell
   plan:
   - get: bosh-softlayer-stemcells
+    trigger: true
+    passed: [convert-stemcell]
   - task: import-stemcell-image
     file: bosh-softlayer-stemcells/ci/import-stemcell.yml
     config:

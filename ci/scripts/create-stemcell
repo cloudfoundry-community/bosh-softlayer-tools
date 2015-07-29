@@ -17,7 +17,7 @@
   git submodule update --init --recursive
 
   echo -e "\n Move id_rsa_bosh from bosh-softlayer-private to ~/.ssh/..."
-  mv bosh-softlayer-private/id_rsa_bosh ~/.ssh
+  mv ../bosh-softlayer-private/id_rsa_bosh ~/.ssh
 
   echo -e "\n Bring up vagrant stemcell building VM for AWS EC2-Classic..."
   cd bosh-stemcell
