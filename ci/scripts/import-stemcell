@@ -19,7 +19,7 @@
 
   echo -e "\n Softlayer create from external source..."
   IFS=':' read -ra OBJ_STORAGE_ACC_NAME <<< "$SWIFT_USERNAME"
-  URI="swift://${OBJ_STORAGE_ACC_NAME}@${SL_CLUSTER}/stemcells/bosh-stemcell-softlayer.vhd"
+  URI="swift://${OBJ_STORAGE_ACC_NAME}@${SWIFT_CLUSTER}/stemcells/bosh-stemcell-softlayer.vhd"
   
   out/sl_stemcells --os-ref-code UBUNTU_14_64 --uri ${URI} import-image
 )
