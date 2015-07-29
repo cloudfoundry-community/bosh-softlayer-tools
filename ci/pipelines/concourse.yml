@@ -175,7 +175,7 @@ jobs:
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
         SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
   - put: template-ids
-    params: {from: bosh-softlayer-stemcells/template-ids.*.json}
+    params: {from: bosh-softlayer-stemcells/template-ids.json}
 
 - name: stemcells-unit
   public: true
