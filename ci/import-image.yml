@@ -4,6 +4,7 @@ image: docker:///posijon/slci
 
 inputs:
   - name: bosh-softlayer-stemcells
+    path: gopath/src/github.com/maximilien/bosh-softlayer-stemcells
 
 run:
-  path: bosh-softlayer-stemcells/ci/scripts/import-stemcell
+  path: gopath/src/github.com/maximilien/bosh-softlayer-stemcells/ci/scripts/import-stemcell
