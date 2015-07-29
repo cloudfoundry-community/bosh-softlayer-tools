@@ -99,7 +99,7 @@ jobs:
       params:
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
         SWIFT_API_KEY: {{SL_API_KEY}}
-        SWIFT_CLUSTER: {{SL_CLUSTER}}
+        SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
 
 - name: cpi-unit
   public: true
@@ -167,11 +167,13 @@ jobs:
   - get: bosh-softlayer-stemcells
     trigger: true
   - task: import-stemcell-image
-    file: bosh-softlayer-stemcells/ci/import-image.yml
+    file: bosh-softlayer-stemcells/ci/import-stemcell.yml
     config:
       params:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
+        SWIFT_USERNAME: {{SWIFT_USERNAME}}
+        SWIFT_CLUSTER: {{SwIFT_CLUSTER}}
   - put: template-ids
     params: {from: bosh-softlayer-stemcells/template-ids.*.json}
 
