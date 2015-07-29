@@ -101,7 +101,7 @@ var _ = Describe("import-image command", func() {
 			})
 		})
 
-		Context("when one required options is missing", func() {
+		Context("when one required option is missing", func() {
 			Context("when OsRefCode is missing", func() {
 				BeforeEach(func() {
 					options.OsRefCodeFlag = ""
