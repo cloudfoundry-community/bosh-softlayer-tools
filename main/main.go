@@ -94,6 +94,8 @@ func importImageCmd() {
 }
 
 func init() {
+	flag.StringVar(&options.CommandFlag, "c", "", "the command, one of: import-image")
+
 	flag.BoolVar(&options.HelpFlag, "h", false, "prints the usage")
 	flag.BoolVar(&options.LongHelpFlag, "-help", false, "prints the usage")
 
@@ -105,25 +107,25 @@ func init() {
 
 func usage() {
 	usageString := `
-usage: bosh-softlayer-stemcells [--name <template-name>] [--note <import note>] 
-       --os-ref-code <OsRefCode> --uri <swiftURI> import-image
+usage: bosh-softlayer-stemcells -c import-image [--name <template-name>] [--note <import note>] 
+       --os-ref-code <OsRefCode> --uri <swiftURI>
 
   -h | --help   prints the usage
 
   IMPORT-IMAGE:
 
-  import-image  the import image command
-  --name        the group name to be applied to the imported template
-  --note        the note to be applied to the imported template
-  --os-ref-code the referenceCode of the operating system software 
-                description for the imported VHD 
-                available options: CENTOS_6_32, CENTOS_6_64, CENTOS_7_64, 
-                  REDHAT_6_32, REDHAT_6_64, REDHAT_7_64, UBUNTU_10_32, 
-                  UBUNTU_10_64, UBUNTU_12_32, UBUNTU_12_64, UBUNTU_14_32, 
-                  UBUNTU_14_64, WIN_2003-STD-SP2-5_32, WIN_2003-STD-SP2-5_64, 
-                  WIN_2012-STD_64
-  --uri         the URI for an object storage object (.vhd/.iso file)
-                swift://<ObjectStorageAccountName>@<clusterName>/<containerName>/<fileName.(vhd|iso)>
+  -c import-image  the import image command
+  --name           the group name to be applied to the imported template
+  --note           the note to be applied to the imported template
+  --os-ref-code    the referenceCode of the operating system software 
+                   description for the imported VHD 
+                   available options: CENTOS_6_32, CENTOS_6_64, CENTOS_7_64, 
+                     REDHAT_6_32, REDHAT_6_64, REDHAT_7_64, UBUNTU_10_32, 
+                     UBUNTU_10_64, UBUNTU_12_32, UBUNTU_12_64, UBUNTU_14_32, 
+                     UBUNTU_14_64, WIN_2003-STD-SP2-5_32, WIN_2003-STD-SP2-5_64, 
+                     WIN_2012-STD_64
+  --uri            the URI for an object storage object (.vhd/.iso file)
+                   swift://<ObjectStorageAccountName>@<clusterName>/<containerName>/<fileName.(vhd|iso)>
     `
 
 	fmt.Println(fmt.Sprintf("%s\nVersion %s", usageString, VERSION))

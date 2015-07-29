@@ -24,7 +24,7 @@ resources:
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
-    branch: concourse
+    branch: import_image
     private_key: {{private-repo-key}}
 
 - name: bosh-stemcell-softlayer-image
@@ -90,8 +90,7 @@ jobs:
     config:
       params:
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
-        SL_USERNAME: {{SL_USERNAME}}
-        SL_API_KEY: {{SL_API_KEY}}
+        SWIFT_API_KEY: {{SL_API_KEY}}
         SWIFT_CLUSTER: {{SL_CLUSTER}}
 
 - name: cpi-unit
