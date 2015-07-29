@@ -173,7 +173,7 @@ jobs:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
-        SWIFT_CLUSTER: {{SwIFT_CLUSTER}}
+        SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
   - put: template-ids
     params: {from: bosh-softlayer-stemcells/template-ids.*.json}
 
