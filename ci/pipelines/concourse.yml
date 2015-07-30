@@ -262,6 +262,9 @@ groups:
 - name: bosh-softlayer-stemcells
   jobs:
   - bosh-stemcell
+  - convert-stemcell
+  - create-light-stemcell
+  - import-stemcell
   - stemcells-unit
 
 - name: softlayer-go
