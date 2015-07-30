@@ -8,11 +8,6 @@
 
   export GOPATH=$base/Godeps/_workspace:$base_gopath:$GOPATH
 
-  echo -e "\n Print $base and $base_gopath and $PWD..."
-  echo $base
-  echo $base_gopath
-  echo $PWD
-
   echo -e "\n Creating stemcell binary..."
   go build -o out/sl_stemcells github.com/maximilien/bosh-softlayer-stemcells/main
 

@@ -3,9 +3,6 @@
 (
   set -e
 
-  echo -e "\n Printing contents of directory..."
-  ls
-
   echo -e "\n Unpacking tgz..."
   find softlayer-stemcell -name "bosh-stemcell-*-vsphere-*.tgz" -exec tar zxf '{}' \;
   tar zxf image

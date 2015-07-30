@@ -88,8 +88,8 @@ jobs:
   - get: bosh
   - get: bosh-softlayer-stemcells
   - get: bosh-softlayer-private
-  - task: create-stemcell
-    file: bosh-softlayer-stemcells/ci/create-stemcell.yml
+  - task: bosh-stemcell
+    file: bosh-softlayer-stemcells/ci/bosh-stemcell.yml
     config:
       params:
         BOSH_AWS_ACCESS_KEY_ID: {{BOSH_AWS_ACCESS_KEY_ID}}
@@ -179,11 +179,16 @@ jobs:
     passed: [import-stemcell]
   - task: create-light-stemcell
     file: bosh-softlayer-stemcells/ci/create-light-stemcell.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
 
 - name: import-stemcell
   plan:
   - get: bosh-softlayer-stemcells
     trigger: true
+    passed: [convert-stemcell]
   - task: import-stemcell-image
     file: bosh-softlayer-stemcells/ci/import-stemcell.yml
     config:

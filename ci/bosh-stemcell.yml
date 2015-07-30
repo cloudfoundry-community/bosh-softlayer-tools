@@ -8,4 +8,4 @@ inputs:
   - name: bosh-softlayer-private
 
 run:
-  path: bosh-softlayer-stemcells/ci/scripts/create-stemcell
+  path: bosh-softlayer-stemcells/ci/scripts/bosh-stemcell
