@@ -1,4 +1,4 @@
-package stemcells
+package light_stemcell
 
 import (
 	"encoding/json"

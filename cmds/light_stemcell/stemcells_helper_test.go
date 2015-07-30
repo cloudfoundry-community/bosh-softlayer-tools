@@ -1,4 +1,4 @@
-package stemcells_test
+package light_stemcell_test
 
 import (
 	"fmt"
@@ -8,10 +8,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/maximilien/bosh-softlayer-stemcells/cmds/stemcells"
+	. "github.com/maximilien/bosh-softlayer-stemcells/cmds/light_stemcell"
 )
 
-var _ = Describe("stemcells_helper", func() {
+var _ = Describe("light_stemcell_helper", func() {
 	var (
 		err               error
 		tmpDir            string

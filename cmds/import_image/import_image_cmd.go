@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/maximilien/bosh-softlayer-stemcells/common"
+	common "github.com/maximilien/bosh-softlayer-stemcells/common"
 
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"

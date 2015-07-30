@@ -171,14 +171,14 @@ jobs:
     - put: version
       params: {file: version/number}
 
-- name: create-lite-stemcell
+- name: create-light-stemcell
   plan:
   - get: bosh-softlayer-stemcells
   - get: template-ids
     trigger: true
     passed: [import-stemcell]
-  - task: create-lite-stemcell
-    file: bosh-softlayer-stemcells/ci/create-lite-stemcell.yml
+  - task: create-light-stemcell
+    file: bosh-softlayer-stemcells/ci/create-light-stemcell
 
 - name: import-stemcell
   plan:

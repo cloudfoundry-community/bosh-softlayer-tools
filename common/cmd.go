@@ -12,4 +12,13 @@ type Options struct {
 	NoteFlag      string
 	OsRefCodeFlag string
 	UriFlag       string
+
+	LightStemcellTypeFlag string
+	LightStemcellPathFlag string
+
+	VersionFlag              string
+	StemcellInfoFilenameFlag string
+	InfrastructureFlag       string
+	HypervisorFlag           string
+	OsNameFlag               string
 }

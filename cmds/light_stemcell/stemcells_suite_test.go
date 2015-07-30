@@ -1,4 +1,4 @@
-package stemcells_test
+package light_stemcell_test
 
 import (
 	"os"
@@ -20,5 +20,5 @@ func TestStemcells(t *testing.T) {
 	})
 
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Stemcells Suite")
+	RunSpecs(t, "Light Stemcell Suite")
 }

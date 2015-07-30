@@ -1,4 +1,14 @@
-package stemcells
+package light_stemcell
+
+import (
+	cmds "github.com/maximilien/bosh-softlayer-stemcells/cmds"
+)
+
+type SoftLayerStemcellInfo struct {
+	Id             int    `json:"id"`
+	Uuid           string `json:"uuid"`
+	DatacenterName string `json:"datacenter-name"`
+}
 
 type LightStemcellInfo struct {
 	//Defaulted
@@ -32,7 +42,9 @@ type CloudProperties struct {
 }
 
 type LightStemcellCmd interface {
-	GetStemcellsPath() string
+	cmds.CommandInterface
+
+	GetStemcellPath() string
 	GetLightStemcellInfo() LightStemcellInfo
 	Create(imageId int) (string, error)
 }

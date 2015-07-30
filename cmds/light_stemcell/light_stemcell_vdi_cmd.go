@@ -1,38 +1,112 @@
-package stemcells
+package light_stemcell
 
 import (
 	"crypto/sha1"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+
+	common "github.com/maximilien/bosh-softlayer-stemcells/common"
 
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
 )
 
-type lightStemcellVDICmd struct {
-	lightStemcellsPath string
-	lightStemcellInfo  LightStemcellInfo
-	client             softlayer.Client
+type LightStemcellVDICmd struct {
+	options common.Options
+
+	path    string
+	name    string
+	version string
+
+	stemcellInfoFilename string
+
+	lightStemcellInfo LightStemcellInfo
+
+	infrastructure string
+	hypervisor     string
+	osName         string
+
+	client softlayer.Client
 }
 
-func NewLightStemcellVDICmd(stemcellsPath string, lightStemcellInfo LightStemcellInfo, client softlayer.Client) *lightStemcellVDICmd {
-	return &lightStemcellVDICmd{
-		lightStemcellsPath: stemcellsPath,
-		lightStemcellInfo:  lightStemcellInfo,
-		client:             client,
+func NewLightStemcellVDICmd(options common.Options, client softlayer.Client) *LightStemcellVDICmd {
+	cmd := &LightStemcellVDICmd{
+		options: options,
+
+		path:    options.LightStemcellPathFlag,
+		name:    options.NameFlag,
+		version: options.VersionFlag,
+
+		stemcellInfoFilename: options.StemcellInfoFilenameFlag,
+
+		infrastructure: options.InfrastructureFlag,
+		hypervisor:     options.HypervisorFlag,
+		osName:         options.OsNameFlag,
+
+		client: client,
 	}
+
+	cmd.updateLightStemcellInfo()
+
+	return cmd
 }
 
-func (cmd *lightStemcellVDICmd) GetStemcellsPath() string {
-	return cmd.lightStemcellsPath
+func (cmd *LightStemcellVDICmd) Println(a ...interface{}) (int, error) {
+	fmt.Println(a)
+
+	return 0, nil
 }
 
-func (cmd *lightStemcellVDICmd) GetLightStemcellInfo() LightStemcellInfo {
+func (cmd *LightStemcellVDICmd) Printf(msg string, a ...interface{}) (int, error) {
+	fmt.Printf(msg, a)
+
+	return 0, nil
+}
+
+func (cmd *LightStemcellVDICmd) Options() common.Options {
+	return cmd.options
+}
+
+func (cmd *LightStemcellVDICmd) CheckOptions() error {
+	if cmd.version == "" {
+		return errors.New("light stemcell: must pass a version")
+	}
+
+	if cmd.stemcellInfoFilename == "" {
+		return errors.New("light stemcell: must pass a path to stemcell-info.json")
+	}
+
+	return nil
+}
+
+func (cmd *LightStemcellVDICmd) Run() error {
+	cmd.updateLightStemcellInfo()
+
+	softLayerStemcellInfo, err := cmd.createSoftLayerStemcellInfo()
+	if err != nil {
+		return err
+	}
+
+	cmd.path, err = cmd.Create(softLayerStemcellInfo.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (cmd *LightStemcellVDICmd) GetStemcellPath() string {
+	return cmd.path
+}
+
+func (cmd *LightStemcellVDICmd) GetLightStemcellInfo() LightStemcellInfo {
 	return cmd.lightStemcellInfo
 }
 
-func (cmd *lightStemcellVDICmd) Create(vdImageId int) (string, error) {
+func (cmd *LightStemcellVDICmd) Create(vdImageId int) (string, error) {
 	virtualDiskImageService, err := cmd.client.GetSoftLayer_Virtual_Disk_Image_Service()
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Could not get SoftLayer_Virtual_Disk_Image_Service from softlayer-go client: `%s`", err.Error()))
@@ -62,7 +136,27 @@ func (cmd *lightStemcellVDICmd) Create(vdImageId int) (string, error) {
 
 // Private methods
 
-func (cmd *lightStemcellVDICmd) findInVirtualDiskImages(vdImageId int) (sldatatypes.SoftLayer_Virtual_Disk_Image, bool, error) {
+func (cmd *LightStemcellVDICmd) updateLightStemcellInfo() {
+	cmd.lightStemcellInfo.Version = cmd.version
+	cmd.lightStemcellInfo.Infrastructure = cmd.infrastructure
+	cmd.lightStemcellInfo.Hypervisor = cmd.hypervisor
+	cmd.lightStemcellInfo.OsName = cmd.osName
+}
+
+func (cmd *LightStemcellVDICmd) createSoftLayerStemcellInfo() (SoftLayerStemcellInfo, error) {
+	var softLayerStemcellInfo SoftLayerStemcellInfo
+
+	slInfoFile, err := ioutil.ReadFile(cmd.stemcellInfoFilename)
+	if err != nil {
+		return softLayerStemcellInfo, errors.New(fmt.Sprintf("Could not read from SoftLayer info file: `%s`", err.Error()))
+	}
+
+	json.Unmarshal(slInfoFile, &softLayerStemcellInfo)
+
+	return softLayerStemcellInfo, nil
+}
+
+func (cmd *LightStemcellVDICmd) findInVirtualDiskImages(vdImageId int) (sldatatypes.SoftLayer_Virtual_Disk_Image, bool, error) {
 	accountService, err := cmd.client.GetSoftLayer_Account_Service()
 	if err != nil {
 		return sldatatypes.SoftLayer_Virtual_Disk_Image{}, false, errors.New(fmt.Sprintf("Could not get SoftLayer_Account_Service from softlayer-go client: `%s`", err.Error()))
@@ -82,7 +176,7 @@ func (cmd *lightStemcellVDICmd) findInVirtualDiskImages(vdImageId int) (sldataty
 	return sldatatypes.SoftLayer_Virtual_Disk_Image{}, false, nil
 }
 
-func (cmd *lightStemcellVDICmd) buildLightStemcellWithVirtualDiskImage(virtualDiskImage sldatatypes.SoftLayer_Virtual_Disk_Image) (string, error) {
+func (cmd *LightStemcellVDICmd) buildLightStemcellWithVirtualDiskImage(virtualDiskImage sldatatypes.SoftLayer_Virtual_Disk_Image) (string, error) {
 	datacenterName, err := cmd.findDatacenterFromVirtualDiskImage(virtualDiskImage)
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Getting datacenter name from softlayer-go client: `%s`", err.Error()))
@@ -103,10 +197,10 @@ func (cmd *lightStemcellVDICmd) buildLightStemcellWithVirtualDiskImage(virtualDi
 		},
 	}
 
-	return GenerateLightStemcellTarball(lightStemcellMF, cmd.lightStemcellInfo, cmd.lightStemcellsPath)
+	return GenerateLightStemcellTarball(lightStemcellMF, cmd.lightStemcellInfo, cmd.path)
 }
 
-func (cmd *lightStemcellVDICmd) findDatacenterFromVirtualDiskImage(virtualDiskImage sldatatypes.SoftLayer_Virtual_Disk_Image) (string, error) {
+func (cmd *LightStemcellVDICmd) findDatacenterFromVirtualDiskImage(virtualDiskImage sldatatypes.SoftLayer_Virtual_Disk_Image) (string, error) {
 	accountService, err := cmd.client.GetSoftLayer_Account_Service()
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Could not get SoftLayer_Account_Service from softlayer-go client: `%s`", err.Error()))

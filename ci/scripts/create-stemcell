@@ -26,7 +26,7 @@
   echo -e "\n Update source code on stemcell building VM..."
   vagrant provision remote
 
-  echo -e "\n Build vsphere stemcell..."
+  echo -e "\n Build stemcell..."
   vagrant ssh -c '
     cd /bosh
     CANDIDATE_BUILD_NUMBER=3019 bundle exec rake stemcell:build[vsphere,esxi,ubuntu,trusty,go,bosh-os-images,bosh-ubuntu-trusty-os-image.tgz]
