@@ -94,6 +94,7 @@ jobs:
       params:
         BOSH_AWS_ACCESS_KEY_ID: {{BOSH_AWS_ACCESS_KEY_ID}}
         BOSH_AWS_SECRET_ACCESS_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
+        ID_RSA_BOSH: {{private-bosh-key}}
   - put: softlayer-stemcell
     params: {from: bosh/tmp/bosh-stemcell-(.*)-vsphere-(.*).tgz}
 
