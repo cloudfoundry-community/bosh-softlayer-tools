@@ -74,11 +74,11 @@ resources:
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
-- name: template-ids
+- name: stemcell-info
   type: s3
   source:
     bucket: bosh-softlayer-cpi-stemcells
-    versioned_file: template-ids.json
+    versioned_file: stemcell-info.json
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
@@ -174,17 +174,16 @@ jobs:
 - name: create-light-stemcell
   plan:
   - get: bosh-softlayer-stemcells
-  - get: template-ids
+  - get: stemcell-info
     trigger: true
     passed: [import-stemcell]
   - task: create-light-stemcell
-    file: bosh-softlayer-stemcells/ci/create-light-stemcell
+    file: bosh-softlayer-stemcells/ci/create-light-stemcell.yml
 
 - name: import-stemcell
   plan:
   - get: bosh-softlayer-stemcells
     trigger: true
-    passed: [convert-stemcell]
   - task: import-stemcell-image
     file: bosh-softlayer-stemcells/ci/import-stemcell.yml
     config:
@@ -193,8 +192,8 @@ jobs:
         SL_API_KEY: {{SL_API_KEY}}
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
         SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
-  - put: template-ids
-    params: {from: import-stemcell-image/template-ids.json}
+  - put: stemcell-info
+    params: {from: import-stemcell-image/stemcell-info.json}
 
 - name: stemcells-unit
   public: true
@@ -233,7 +232,7 @@ groups:
   jobs:
   - bosh-stemcell
   - convert-stemcell
-  - create-lite-stemcell
+  - create-light-stemcell
   - cpi-unit
   - cpi-integration
   - cpi-build

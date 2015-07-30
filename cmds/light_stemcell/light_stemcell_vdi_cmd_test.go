@@ -47,7 +47,7 @@ var _ = Describe("LightStemcellVDICmd", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		stemcellInfoFileContent := `{
-			"id": 123456,
+			"id": 1234567,
 			"uuid": "fake-uuid"			
 		}`
 
