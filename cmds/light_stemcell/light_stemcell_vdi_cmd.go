@@ -137,8 +137,11 @@ func (cmd *LightStemcellVDICmd) Create(vdImageId int) (string, error) {
 // Private methods
 
 func (cmd *LightStemcellVDICmd) updateLightStemcellInfo() {
-	cmd.lightStemcellInfo.Version = cmd.version
 	cmd.lightStemcellInfo.Infrastructure = cmd.infrastructure
+	cmd.lightStemcellInfo.Architecture = "x86_64"
+	cmd.lightStemcellInfo.RootDeviceName = "/dev/xvda"
+
+	cmd.lightStemcellInfo.Version = cmd.version
 	cmd.lightStemcellInfo.Hypervisor = cmd.hypervisor
 	cmd.lightStemcellInfo.OsName = cmd.osName
 }
