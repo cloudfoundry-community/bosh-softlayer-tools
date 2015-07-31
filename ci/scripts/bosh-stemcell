@@ -23,7 +23,7 @@
   # mv ../bosh-softlayer-private/id_rsa_bosh bosh-stemcell
 
   echo -e "\n Bring up vagrant stemcell building VM for AWS EC2-Classic..."
-  cd bosh-stemcell
+  cd bosh/bosh-stemcell
   vagrant up remote --provider=aws
 
   # echo -e "\n Update source code on stemcell building VM..."
