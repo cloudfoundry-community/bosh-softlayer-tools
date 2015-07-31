@@ -24,7 +24,7 @@
 
   echo -e "\n Bring up vagrant stemcell building VM for AWS EC2-Classic..."
   cd bosh/bosh-stemcell
-  export VAGRANT_LOG=verbose
+  export VAGRANT_LOG=debug
   vagrant up remote --provider=aws
 
   # echo -e "\n Update source code on stemcell building VM..."
