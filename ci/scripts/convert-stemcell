@@ -7,9 +7,12 @@
   find softlayer-stemcell -name "bosh-stemcell-*-vsphere-*.tgz" -exec tar zxf '{}' \;
   tar zxf image
 
+  echo -e "\n Getting stemcell version..."
+  STEMCELL_VERSION=`grep "version:" stemcell.MF | head -n1 | sed 's/[^0-9]//g'`
+
   echo -e "\n Converting vmdk to vhd..."
-  VBoxManage clonehd *.vmdk --format VHD bosh-stemcell-softlayer.vhd
+  VBoxManage clonehd *.vmdk --format VHD stemcells bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
 
   echo -e "\n Placing object in Softlayer..."
-  swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_API_KEY upload stemcells bosh-stemcell-softlayer.vhd
+  swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_API_KEY upload stemcells bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
 )

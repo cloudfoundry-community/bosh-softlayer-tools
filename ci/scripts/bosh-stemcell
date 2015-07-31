@@ -29,6 +29,7 @@
   echo -e "\n Build stemcell..."
   vagrant ssh -c '
     cd /bosh
-    CANDIDATE_BUILD_NUMBER=3019 bundle exec rake stemcell:build[vsphere,esxi,ubuntu,trusty,go,bosh-os-images,bosh-ubuntu-trusty-os-image.tgz]
+    CANDIDATE_BUILD_NUMBER=`cat ../../vsphere-stemcell/version` bundle exec rake stemcell:build[vsphere,esxi,ubuntu,trusty,go,bosh-os-images,bosh-ubuntu-trusty-os-image.tgz]
+    s3cmd put /tmp/*.tgz s3://bosh-softlayer-cpi-stemcells --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
   ' remote
 )

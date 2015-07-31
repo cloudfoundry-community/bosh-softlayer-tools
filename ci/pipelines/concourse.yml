@@ -82,19 +82,28 @@ resources:
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
+- name: vsphere-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-vsphere-esxi-ubuntu-trusty-go_agent
+
 jobs:
 - name: bosh-stemcell
   plan:
   - get: bosh
   - get: bosh-softlayer-stemcells
   - get: bosh-softlayer-private
+  - get: vsphere-stemcell
+    trigger: true
   - task: bosh-stemcell
     file: bosh-softlayer-stemcells/ci/bosh-stemcell.yml
     config:
       params:
         BOSH_AWS_ACCESS_KEY_ID: {{BOSH_AWS_ACCESS_KEY_ID}}
         BOSH_AWS_SECRET_ACCESS_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
-        BOSH_KEY_PATH: ../../bosh-softlayer-private/id_rsa_bosh
+        BOSH_KEY_PATH: ../../bosh-softlayer-private/bosh.pem
+        S3_ACCESS_KEY: {{s3-access-key-id}}
+        S3_SECRET_KEY: {{s3-secret-access-key}}
   - put: softlayer-stemcell
     params: {from: bosh/tmp/bosh-stemcell-(.*)-vsphere-(.*).tgz}
 
