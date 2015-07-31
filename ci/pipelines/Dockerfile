@@ -29,10 +29,6 @@ RUN apt-get update && \
 
 RUN apt-get -y install vagrant
 
-RUN vagrant plugin install vagrant-berkshelf
-RUN vagrant plugin install vagrant-omnibus
-RUN vagrant plugin install vagrant-aws --plugin-version 0.5.0
-
 RUN wget https://bootstrap.pypa.io/get-pip.py && \
 	python get-pip.py && \
 	rm get-pip.py
