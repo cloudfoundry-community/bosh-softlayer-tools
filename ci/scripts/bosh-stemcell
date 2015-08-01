@@ -3,10 +3,10 @@
 (
   set -e
 
-  echo -e "\n Getting stemcell version..."
+  echo -e "\n Get stemcell version..."
   STEMCELL_VERSION=`cat vsphere-stemcell/version`
 
-  echo -e "\n Installing vagrant plugins..."
+  echo -e "\n Install vagrant plugins..."
   vagrant plugin install vagrant-berkshelf
   vagrant plugin install vagrant-omnibus
   vagrant plugin install vagrant-aws --plugin-version 0.5.0
@@ -15,19 +15,19 @@
   # cd bosh
   # git submodule update --init --recursive
 
-  echo -e "\n Navigating to vagrant directory..."
+  echo -e "\n Navigate to vagrant directory..."
   cd bosh/bosh-stemcell
 
-  echo -e "\n Copying s3cfg to vagrant shared directory..."
+  echo -e "\n Copy s3cfg to vagrant shared directory..."
   cp ../../bosh-softlayer-private/.s3cfg .
 
-  echo -e "\n Bringing up vagrant stemcell building VM for AWS EC2-Classic..."
+  echo -e "\n Bring up vagrant stemcell building VM for AWS EC2-Classic..."
   vagrant up remote --provider=aws
 
-  echo -e "\n Updating source code on stemcell building VM..."
+  echo -e "\n Update source code on stemcell building VM..."
   vagrant provision remote
 
-  echo -e "\n Building stemcell and upload stemcell to S3 bucket..."
+  echo -e "\n Build stemcell, then upload to S3 bucket..."
   vagrant ssh -c "
     cd /bosh
     CANDIDATE_BUILD_NUMBER=${STEMCELL_VERSION} bundle exec rake stemcell:build[vsphere,esxi,ubuntu,trusty,go,bosh-os-images,bosh-ubuntu-trusty-os-image.tgz]
