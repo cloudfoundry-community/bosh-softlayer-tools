@@ -103,12 +103,11 @@ jobs:
         BOSH_AWS_ACCESS_KEY_ID: {{BOSH_AWS_ACCESS_KEY_ID}}
         BOSH_AWS_SECRET_ACCESS_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
         BOSH_KEY_PATH: ../../bosh-softlayer-private/bosh.pem
-  - put: softlayer-stemcell
-    params: {from: bosh/tmp/bosh-stemcell-(.*)-vsphere-(.*).tgz}
 
 - name: convert-stemcell
   plan:
   - get: bosh-softlayer-stemcells
+    passed: [bosh-stemcell]
   - get: softlayer-stemcell
   - task: convert-stemcell
     file: bosh-softlayer-stemcells/ci/convert-stemcell.yml

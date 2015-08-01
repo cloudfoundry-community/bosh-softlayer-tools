@@ -3,42 +3,37 @@
 (
   set -e
 
-  echo -e "\n Print PWD and contents..."
-  echo $PWD
-  ls
-
-  echo -e "\n Get stemcell version..."
+  echo -e "\n Getting stemcell version..."
   STEMCELL_VERSION=`cat vsphere-stemcell/version`
 
-  echo -e "\n Install vagrant plugins..."
+  echo -e "\n Installing vagrant plugins..."
   vagrant plugin install vagrant-berkshelf
   vagrant plugin install vagrant-omnibus
   vagrant plugin install vagrant-aws --plugin-version 0.5.0
 
-  # echo -e "\n Fresh copy of bosh repo, probably unnecessary..."
+  # echo -e "\n Updating with fresh copy of bosh repo, probably unnecessary..."
   # cd bosh
   # git submodule update --init --recursive
 
-  # echo -e "\n Copying $ID_RSA_BOSH /root/.ssh/id_rsa_bosh"
-  # mv ../bosh-softlayer-private/id_rsa_bosh bosh-stemcell
-
-  echo -e "\n Navigate to vagrant directory..."
+  echo -e "\n Navigating to vagrant directory..."
   cd bosh/bosh-stemcell
 
-  echo -e "\n Copy s3cfg to vagrant shared directory..."
+  echo -e "\n Copying s3cfg to vagrant shared directory..."
   cp ../../bosh-softlayer-private/.s3cfg .
 
-  echo -e "\n Bring up vagrant stemcell building VM for AWS EC2-Classic..."
-  # export VAGRANT_LOG=debug
+  echo -e "\n Bringing up vagrant stemcell building VM for AWS EC2-Classic..."
   vagrant up remote --provider=aws
 
-  # echo -e "\n Update source code on stemcell building VM..."
-  # vagrant provision remote
+  echo -e "\n Updating source code on stemcell building VM..."
+  vagrant provision remote
 
-  echo -e "\n Build stemcell..."
+  echo -e "\n Building stemcell and upload stemcell to S3 bucket..."
   vagrant ssh -c "
     cd /bosh
     CANDIDATE_BUILD_NUMBER=${STEMCELL_VERSION} bundle exec rake stemcell:build[vsphere,esxi,ubuntu,trusty,go,bosh-os-images,bosh-ubuntu-trusty-os-image.tgz]
     s3cmd put /tmp/*.tgz s3://bosh-softlayer-cpi-stemcells -c /vagrant/.s3cfg
   " remote
+
+  echo -e "\n Terminating VM"
+  vagrant destroy
 )
