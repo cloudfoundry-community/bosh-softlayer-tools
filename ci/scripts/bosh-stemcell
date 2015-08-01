@@ -22,16 +22,18 @@
   # echo -e "\n Copying $ID_RSA_BOSH /root/.ssh/id_rsa_bosh"
   # mv ../bosh-softlayer-private/id_rsa_bosh bosh-stemcell
 
-  echo -e "\n Bring up vagrant stemcell building VM for AWS EC2-Classic..."
+  echo -e "\n Navigate to vagrant directory..."
   cd bosh/bosh-stemcell
+
+  echo -e "\n Copy s3cfg to vagrant shared directory..."
+  cp ../../bosh-softlayer-private/.s3cfg .
+
+  echo -e "\n Bring up vagrant stemcell building VM for AWS EC2-Classic..."
   # export VAGRANT_LOG=debug
   vagrant up remote --provider=aws
 
   # echo -e "\n Update source code on stemcell building VM..."
   # vagrant provision remote
-  
-  echo -e "\n Copy s3cfg to vagrant shared directory"
-  cp ../../bosh-softlayer-private/.s3cfg .
 
   echo -e "\n Build stemcell..."
   vagrant ssh -c "

@@ -89,6 +89,7 @@ resources:
 
 jobs:
 - name: bosh-stemcell
+  public: true
   plan:
   - get: bosh
   - get: bosh-softlayer-stemcells
