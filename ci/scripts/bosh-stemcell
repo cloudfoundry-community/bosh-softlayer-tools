@@ -29,11 +29,14 @@
 
   # echo -e "\n Update source code on stemcell building VM..."
   # vagrant provision remote
+  
+  echo -e "\n Copy s3cfg to aws instance $HOME"
+  scp ../../bosh-softlayer-private/.s3cfg remote:~
 
   echo -e "\n Build stemcell..."
   vagrant ssh -c "
     cd /bosh
     CANDIDATE_BUILD_NUMBER=${STEMCELL_VERSION} bundle exec rake stemcell:build[vsphere,esxi,ubuntu,trusty,go,bosh-os-images,bosh-ubuntu-trusty-os-image.tgz]
-    s3cmd put /tmp/*.tgz s3://bosh-softlayer-cpi-stemcells -c ../../../bosh-softlayer-private/.s3cfg
+    s3cmd put /tmp/*.tgz s3://bosh-softlayer-cpi-stemcells
   " remote
 )
