@@ -24,7 +24,7 @@
 
   echo -e "\n Bring up vagrant stemcell building VM for AWS EC2-Classic..."
   cd bosh/bosh-stemcell
-  export VAGRANT_LOG=debug
+  # export VAGRANT_LOG=debug
   vagrant up remote --provider=aws
 
   # echo -e "\n Update source code on stemcell building VM..."
@@ -34,6 +34,6 @@
   vagrant ssh -c '
     cd /bosh
     CANDIDATE_BUILD_NUMBER=${STEMCELL_VERSION} bundle exec rake stemcell:build[vsphere,esxi,ubuntu,trusty,go,bosh-os-images,bosh-ubuntu-trusty-os-image.tgz]
-    s3cmd put /tmp/*.tgz s3://bosh-softlayer-cpi-stemcells --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
+    s3cmd put /tmp/*.tgz s3://bosh-softlayer-cpi-stemcells -c ../../../bosh-softlayer-private/.s3cfg
   ' remote
 )
