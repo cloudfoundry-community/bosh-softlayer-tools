@@ -7,6 +7,7 @@ inputs:
   - name: bosh-softlayer-stemcells
   - name: bosh-softlayer-private
   - name: vsphere-stemcell
+  - name: stemcell-version
 
 run:
   path: bosh-softlayer-stemcells/ci/scripts/bosh-stemcell
