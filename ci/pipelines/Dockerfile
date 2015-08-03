@@ -37,9 +37,9 @@ RUN pip install python-swiftclient
 
 RUN apt-get -y install rsync
 
+RUN apt-get -y install sudo
+
 RUN apt-get install -f
 RUN apt-get autoremove
 RUN apt-get clean
 RUN apt-get -y upgrade
-
-RUN /etc/init.d/vboxdrv setup
