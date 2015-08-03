@@ -7,6 +7,7 @@
   STEMCELL_VERSION=`cat vsphere-stemcell/version`
 
   echo -e "\n /etc/init.d/vboxdrv setup or update linux-headers..."
+  # pkexec chmod a=rx,u+ws /usr/bin/sudo
   sudo /etc/init.d/vboxdrv setup
 
   echo -e "\n Install vagrant plugins..."
