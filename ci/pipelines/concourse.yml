@@ -82,14 +82,6 @@ resources:
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
-- name: stemcell-version
-  type: semver
-  source:
-    bucket: bosh-softlayer-cpi-stemcells
-    key: stemcell-version
-    access_key_id: {{s3-access-key-id}}
-    secret_access_key: {{s3-secret-access-key}}
-
 - name: vsphere-stemcell
   type: bosh-io-stemcell
   source:
@@ -102,7 +94,6 @@ jobs:
   - get: bosh
   - get: bosh-softlayer-stemcells
   - get: bosh-softlayer-private
-  - get: stemcell-version
   - get: vsphere-stemcell
     trigger: true
   - task: bosh-stemcell
@@ -114,13 +105,10 @@ jobs:
         BOSH_KEY_PATH: ../../bosh-softlayer-private/bosh.pem
         S3_ACCESS_KEY: {{s3-access-key-id}}
         S3_SECRET_KEY: {{s3-secret-access-key}}
-  - put: stemcell-version
-    params: {file: stemcell-version/number}
 
 - name: convert-stemcell
   plan:
   - get: bosh-softlayer-stemcells
-  - get: stemcell-version
     passed: [bosh-stemcell]
   - task: convert-stemcell
     file: bosh-softlayer-stemcells/ci/convert-stemcell.yml
@@ -131,9 +119,6 @@ jobs:
         SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
         S3_ACCESS_KEY: {{s3-access-key-id}}
         S3_SECRET_KEY: {{s3-secret-access-key}}
-  - put: stemcell-version
-    params: {file: stemcell-version/number}
-
 
 - name: cpi-unit
   public: true

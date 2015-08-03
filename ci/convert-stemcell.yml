@@ -4,7 +4,6 @@ image: docker:///posijon/slci
 
 inputs:
   - name: bosh-softlayer-stemcells
-  - name: stemcell-version
 
 run:
   path: bosh-softlayer-stemcells/ci/scripts/convert-stemcell
