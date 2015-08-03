@@ -3,16 +3,24 @@
 (
   set -e
 
+  echo -e "\n Get stemcell version..."
+  STEMCELL_VER=`cat stemcell-version/version`
+  STEMCELL_VER_ARY=(${STEMCELL_VER//./ }) 
+  echo ${STEMCELL_VER_ARY[1]}
+
+  echo -e "\n Get stemcell..."
+  s3cmd get s3://bosh-softlayer-cpi-stemcells/bosh-stemcell-${STEMCELL_VER_ARY[1]}-vsphere-esxi-ubuntu-trusty-go_agent.tgz bosh-stemcell-${STEMCELL_VER_ARY[1]}-vsphere-esxi-ubuntu-trusty-go_agent.tgz --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
+
   echo -e "\n Unpacking tgz..."
-  find softlayer-stemcell -name "bosh-stemcell-*-vsphere-*.tgz" -exec tar zxf '{}' \;
+  tar zxf bosh-stemcell-${STEMCELL_VER_ARY[1]}-vsphere-*.tgz
   tar zxf image
 
-  echo -e "\n Getting stemcell version..."
-  STEMCELL_VERSION=`grep "version:" stemcell.MF | head -n1 | sed 's/[^0-9]//g'`
+  # echo -e "\n Getting stemcell version..."
+  # grep "version:" stemcell.MF | head -n1 | sed 's/[^0-9]//g' > stemcell-version
 
   echo -e "\n Converting vmdk to vhd..."
-  VBoxManage clonehd *.vmdk --format VHD stemcells bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
+  VBoxManage clonehd *.vmdk --format VHD stemcells bosh-stemcell-${STEMCELL_VERSION_ARY[1]}-softlayer.vhd
 
   echo -e "\n Placing object in Softlayer..."
-  swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_API_KEY upload stemcells bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
+  swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_API_KEY upload stemcells bosh-stemcell-softlayer.vhd
 )

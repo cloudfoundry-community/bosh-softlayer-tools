@@ -5,7 +5,8 @@
 
   echo -e "\n Get stemcell version..."
   STEMCELL_VERSION=`cat vsphere-stemcell/version`
-  echo "0.${STEMCELL_VERSION}.0" > vsphere-stemcell/stemcell_version
+  cat stemcell-version/number
+  echo "0.${STEMCELL_VERSION}.0"
 
   # echo -e "\n /etc/init.d/vboxdrv setup or update linux-headers..."
   # pkexec chmod a=rx,u+ws /usr/bin/sudo
@@ -36,7 +37,7 @@
   vagrant ssh -c "
     cd /bosh
     CANDIDATE_BUILD_NUMBER=${STEMCELL_VERSION} bundle exec rake stemcell:build[vsphere,esxi,ubuntu,trusty,go,bosh-os-images,bosh-ubuntu-trusty-os-image.tgz]
-    s3cmd put /tmp/*.tgz s3://bosh-softlayer-cpi-stemcells -c /vagrant/.s3cfg
+    s3cmd put /bosh/tmp/*.tgz s3://bosh-softlayer-cpi-stemcells -c /vagrant/.s3cfg
   " remote
 
   # echo -e "\n Terminating VM"

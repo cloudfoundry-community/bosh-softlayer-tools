@@ -113,13 +113,13 @@ jobs:
         BOSH_AWS_SECRET_ACCESS_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
         BOSH_KEY_PATH: ../../bosh-softlayer-private/bosh.pem
   - put: stemcell-version
-    params: {file: vsphere-stemcell/version}
+    params: {file: vsphere-stemcell/stemcell_version}
 
 - name: convert-stemcell
   plan:
   - get: bosh-softlayer-stemcells
+  - get: stemcell-version
     passed: [bosh-stemcell]
-  - get: softlayer-stemcell
   - task: convert-stemcell
     file: bosh-softlayer-stemcells/ci/convert-stemcell.yml
     config:
@@ -127,6 +127,11 @@ jobs:
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
         SWIFT_API_KEY: {{SL_API_KEY}}
         SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
+        S3_ACCESS_KEY: {{s3-access-key-id}}
+        S3_SECRET_KEY: {{s3-secret-access-key}}
+  - put: stemcell-version
+    params: {file: stemcell-version/number}
+
 
 - name: cpi-unit
   public: true
@@ -193,7 +198,6 @@ jobs:
   plan:
   - get: bosh-softlayer-stemcells
   - get: stemcell-info
-    trigger: true
     passed: [import-stemcell]
   - task: create-light-stemcell
     file: bosh-softlayer-stemcells/ci/create-light-stemcell.yml
@@ -207,7 +211,6 @@ jobs:
 - name: import-stemcell
   plan:
   - get: bosh-softlayer-stemcells
-    trigger: true
     passed: [convert-stemcell]
   - task: import-stemcell-image
     file: bosh-softlayer-stemcells/ci/import-stemcell.yml
