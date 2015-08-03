@@ -6,9 +6,9 @@
   echo -e "\n Get stemcell version..."
   STEMCELL_VERSION=`cat vsphere-stemcell/version`
 
-  echo -e "\n /etc/init.d/vboxdrv setup or update linux-headers..."
-  pkexec chmod a=rx,u+ws /usr/bin/sudo
-  sudo /etc/init.d/vboxdrv setup
+  # echo -e "\n /etc/init.d/vboxdrv setup or update linux-headers..."
+  # pkexec chmod a=rx,u+ws /usr/bin/sudo
+  # sudo /etc/init.d/vboxdrv setup
 
   echo -e "\n Install vagrant plugins..."
   vagrant plugin install vagrant-berkshelf
@@ -38,6 +38,6 @@
     s3cmd put /tmp/*.tgz s3://bosh-softlayer-cpi-stemcells -c /vagrant/.s3cfg
   " remote
 
-  echo -e "\n Terminating VM"
-  vagrant destroy
+  # echo -e "\n Terminating VM"
+  # vagrant destroy
 )
