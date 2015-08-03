@@ -113,7 +113,7 @@ jobs:
         BOSH_AWS_SECRET_ACCESS_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
         BOSH_KEY_PATH: ../../bosh-softlayer-private/bosh.pem
   - put: stemcell-version
-    params: {file: vsphere-stemcell/stemcell_version}
+    params: {file: stemcell-version/number}
 
 - name: convert-stemcell
   plan:

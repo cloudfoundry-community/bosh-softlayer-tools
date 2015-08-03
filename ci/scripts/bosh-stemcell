@@ -5,8 +5,7 @@
 
   echo -e "\n Get stemcell version..."
   STEMCELL_VERSION=`cat vsphere-stemcell/version`
-  cat stemcell-version/number
-  echo "0.${STEMCELL_VERSION}.0"
+  echo "0.${STEMCELL_VERSION}.0" > stemcell-version/number
 
   # echo -e "\n /etc/init.d/vboxdrv setup or update linux-headers..."
   # pkexec chmod a=rx,u+ws /usr/bin/sudo
@@ -28,6 +27,7 @@
   cp ../../bosh-softlayer-private/.s3cfg .
 
   echo -e "\n Bring up vagrant stemcell building VM for AWS EC2-Classic..."
+  export VAGRANT_LOG=debug
   vagrant up remote --provider=aws
 
   # echo -e "\n Update source code on stemcell building VM..."
