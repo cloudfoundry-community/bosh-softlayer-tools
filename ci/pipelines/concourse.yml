@@ -112,6 +112,8 @@ jobs:
         BOSH_AWS_ACCESS_KEY_ID: {{BOSH_AWS_ACCESS_KEY_ID}}
         BOSH_AWS_SECRET_ACCESS_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
         BOSH_KEY_PATH: ../../bosh-softlayer-private/bosh.pem
+        S3_ACCESS_KEY: {{s3-access-key-id}}
+        S3_SECRET_KEY: {{s3-secret-access-key}}
   - put: stemcell-version
     params: {file: stemcell-version/number}
 
