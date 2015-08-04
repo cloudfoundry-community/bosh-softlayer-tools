@@ -5,7 +5,8 @@
   
   echo -e "\n Manually set kernel directory and install kernel module..."
   # export KERN_DIR=/lib/modules/3.13.0-53-generic
-  export KERN_DIR=/usr/src/linux-headers-3.16.0-4-amd64
+  # export KERN_DIR=/usr/src/linux-headers-3.16.0-4-amd64
+  apt-get install linux-headers-$(uname -r)
   /etc/init.d/vboxdrv setup
 
   echo -e "\n Get stemcell version..."
