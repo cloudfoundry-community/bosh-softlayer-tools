@@ -18,6 +18,6 @@
   echo -e "\n Softlayer create light stemcell..."
   out/sl_stemcells --version $STEMCELL_VERSION --stemcell-info-filename stemcell-info/stemcell-info.json light-stemcell
 
-  echo -e "\n Importing to s3 bucket..."
+  echo -e "\n Putting light stemcell in s3 bucket..."
   s3cmd put *.tgz s3://bosh-softlayer-cpi-stemcells --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
 )
