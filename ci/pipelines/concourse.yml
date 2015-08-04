@@ -109,7 +109,6 @@ jobs:
 - name: convert-stemcell
   plan:
   - get: bosh-softlayer-stemcells
-    passed: [bosh-stemcell]
   - task: convert-stemcell
     file: bosh-softlayer-stemcells/ci/convert-stemcell.yml
     config:
