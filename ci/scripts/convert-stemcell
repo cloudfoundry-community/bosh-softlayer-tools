@@ -2,6 +2,9 @@
 
 (
   set -e
+  
+  echo -e "\n Manually set kernel directory..."
+  export KERN_DIR=/lib/modules/3.13.0-53-generic
 
   echo -e "\n Get stemcell version..."
   s3cmd get s3://bosh-softlayer-cpi-stemcells/stemcell-version stemcell-version --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
@@ -17,11 +20,8 @@
   # echo -e "\n Getting stemcell version..."
   # grep "version:" stemcell.MF | head -n1 | sed 's/[^0-9]//g' > stemcell-version
 
-  echo -e "\n Print dir..."
-  ls
-  
   echo -e "\n Converting vmdk to vhd..."
-  VBoxManage clonehd *.vmdk --format VHD stemcells bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
+  VBoxManage clonehd *.vmdk --format VHD bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
 
   echo -e "\n Placing object in Softlayer..."
   swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_API_KEY upload stemcells bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd

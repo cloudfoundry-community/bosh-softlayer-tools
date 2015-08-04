@@ -3,6 +3,9 @@
 (
   set -e
 
+  echo -e "\n Manually set kernel directory..."
+  export KERN_DIR=/lib/modules/3.13.0-53-generic
+  
   echo -e "\n Get stemcell version..."
   STEMCELL_VERSION=`cat vsphere-stemcell/version`
   echo $STEMCELL_VERSION > stemcell-version
