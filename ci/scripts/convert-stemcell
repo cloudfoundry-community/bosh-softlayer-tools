@@ -4,9 +4,10 @@
   set -e
   
   echo -e "\n Manually set kernel directory and install kernel module..."
-  export KERN_DIR=/lib/modules/3.13.0-53-generic
-  /etc/init.d/vboxdrv setup
-  
+  # export KERN_DIR=/lib/modules/3.13.0-53-generic
+  export KERN_DIR=/usr/src/linux-headers-3.16.0-4-amd64
+  sudo /etc/init.d/vboxdrv setup
+
   echo -e "\n Get stemcell version..."
   s3cmd get s3://bosh-softlayer-cpi-stemcells/stemcell-version stemcell-version --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
   STEMCELL_VERSION=`cat stemcell-version`
