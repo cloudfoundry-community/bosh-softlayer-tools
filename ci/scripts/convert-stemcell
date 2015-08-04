@@ -12,6 +12,7 @@
   echo -e "\n Get stemcell version..."
   s3cmd get s3://bosh-softlayer-cpi-stemcells/stemcell-version stemcell-version --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
   STEMCELL_VERSION=`cat stemcell-version`
+  STEMCELL_VERSION=3031
 
   echo -e "\n Get stemcell..."
   s3cmd get s3://bosh-softlayer-cpi-stemcells/bosh-stemcell-${STEMCELL_VERSION}-vsphere-esxi-ubuntu-trusty-go_agent.tgz bosh-stemcell-${STEMCELL_VERSION}-vsphere-esxi-ubuntu-trusty-go_agent.tgz --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
