@@ -17,6 +17,9 @@
   # echo -e "\n Getting stemcell version..."
   # grep "version:" stemcell.MF | head -n1 | sed 's/[^0-9]//g' > stemcell-version
 
+  echo -e "\n Print dir..."
+  ls
+  
   echo -e "\n Converting vmdk to vhd..."
   VBoxManage clonehd *.vmdk --format VHD stemcells bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
 
