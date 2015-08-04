@@ -91,11 +91,12 @@ jobs:
 - name: bosh-stemcell
   public: true
   plan:
-  - get: bosh
-  - get: bosh-softlayer-stemcells
-  - get: bosh-softlayer-private
-  - get: vsphere-stemcell
-    trigger: true
+  - aggregate:
+    - get: bosh
+    - get: bosh-softlayer-stemcells
+    - get: bosh-softlayer-private
+    - get: vsphere-stemcell
+      trigger: true
   - task: bosh-stemcell
     file: bosh-softlayer-stemcells/ci/bosh-stemcell.yml
     config:
@@ -182,9 +183,12 @@ jobs:
 
 - name: create-light-stemcell
   plan:
-  - get: bosh-softlayer-stemcells
-  - get: stemcell-info
-    passed: [import-stemcell]
+  - aggregate:
+    - get: bosh-softlayer-stemcells
+      passed: [import-stemcell]
+    - get: stemcell-info
+      trigger: true
+      passed: [import-stemcell]
   - task: create-light-stemcell
     file: bosh-softlayer-stemcells/ci/create-light-stemcell.yml
     config:
@@ -197,6 +201,7 @@ jobs:
 - name: import-stemcell
   plan:
   - get: bosh-softlayer-stemcells
+    trigger: true
     passed: [convert-stemcell]
   - task: import-stemcell-image
     file: bosh-softlayer-stemcells/ci/import-stemcell.yml

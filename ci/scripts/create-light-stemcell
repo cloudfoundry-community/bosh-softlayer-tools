@@ -8,11 +8,15 @@
 
   export GOPATH=$base/Godeps/_workspace:$base_gopath:$GOPATH
 
+  echo -e "\n Get stemcell version..."
+  s3cmd get s3://bosh-softlayer-cpi-stemcells/stemcell-version stemcell-version --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
+  STEMCELL_VERSION=`cat stemcell-version`
+
   echo -e "\n Creating stemcell binary..."
   go build -o out/sl_stemcells github.com/maximilien/bosh-softlayer-stemcells/main
 
   echo -e "\n Softlayer create light stemcell..."
-  out/sl_stemcells --version 3030 --stemcell-info-filename stemcell-info/stemcell-info.json light-stemcell
+  out/sl_stemcells --version $STEMCELL_VERSION --stemcell-info-filename stemcell-info/stemcell-info.json light-stemcell
 
   echo -e "\n Importing to s3 bucket..."
   s3cmd put *.tgz s3://bosh-softlayer-cpi-stemcells --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
