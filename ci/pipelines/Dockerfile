@@ -1,26 +1,6 @@
-FROM buildpack-deps:trusty-scm
+FROM golang
 
 ENV DEBIAN_FRONTEND noninteractive
-
-# gcc for cgo
-RUN apt-get update && apt-get install -y \
-		gcc libc6-dev make \
-		--no-install-recommends \
-	&& rm -rf /var/lib/apt/lists/*
-
-ENV GOLANG_VERSION 1.4.2
-
-RUN curl -sSL https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
-		| tar -v -C /usr/src -xz
-
-RUN cd /usr/src/go/src && ./make.bash --no-clean 2>&1
-
-ENV PATH /usr/src/go/bin:$PATH
-
-RUN mkdir -p /go/src /go/bin && chmod -R 777 /go
-ENV GOPATH /go
-ENV PATH /go/bin:$PATH
-WORKDIR /go
 
 RUN go get github.com/onsi/ginkgo/ginkgo
 RUN go get github.com/onsi/gomega
@@ -44,9 +24,7 @@ RUN wget http://download.virtualbox.org/virtualbox/5.0.0/virtualbox-5.0_5.0.0-10
 
 RUN apt-get -y install ruby-dev
 
-RUN wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4_x86_64.deb && \
-    dpkg -i vagrant_1.7.4_x86_64.deb && \
-    rm vagrant_1.7.4_x86_64.deb
+RUN apt-get -y install vagrant
 
 RUN apt-get -y install python-pip
 RUN pip install s3cmd
@@ -64,7 +42,7 @@ RUN wget http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip && \
 
 RUN apt-get -y install openjdk-7-jre
 
-ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
+ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/jre
 ENV EC2_HOME /usr/local/ec2/ec2-api-tools-1.7.5.0
 ENV PATH $PATH:$EC2_HOME/bin
 

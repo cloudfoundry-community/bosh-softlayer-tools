@@ -6,6 +6,7 @@
   echo -e "\n Get stemcell version..."
   STEMCELL_VERSION=`cat vsphere-stemcell/version`
   echo $STEMCELL_VERSION > stemcell-version
+  STEMCELL_VERSION=0000
   s3cmd put stemcell-version s3://bosh-softlayer-cpi-stemcells --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
 
   echo -e "\n Install vagrant plugins..."
