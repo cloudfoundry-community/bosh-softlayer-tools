@@ -41,7 +41,7 @@ export BAT_DEPLOYMENT_SPEC="${PWD}/${base_os}-${BAT_NETWORKING}-bats-config.yml"
 
 cat > $BAT_DEPLOYMENT_SPEC <<EOF
 ---
-cpi: vcloud
+cpi: softlayer
 properties:
   uuid: $(bosh status --uuid)
   second_static_ip: ${BATS_IP2}
