@@ -1,4 +1,10 @@
 resources:
+- name: bats
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bosh.git
+    branch: master
+
 - name: bosh
   type: git
   source:
@@ -118,10 +124,10 @@ jobs:
     config:
       params:
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
-        SWIFT_API_KEY: {{SL_API_KEY}}
-        SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
-        S3_ACCESS_KEY: {{s3-access-key-id}}
-        S3_SECRET_KEY: {{s3-secret-access-key}}
+        SWIFT_API_KEY:  {{SL_API_KEY}}
+        SWIFT_CLUSTER:  {{SWIFT_CLUSTER}}
+        S3_ACCESS_KEY:  {{s3-access-key-id}}
+        S3_SECRET_KEY:  {{s3-secret-access-key}}
 
 - name: cpi-unit
   public: true
@@ -210,14 +216,36 @@ jobs:
     file: bosh-softlayer-stemcells/ci/import-stemcell.yml
     config:
       params:
-        SL_USERNAME: {{SL_USERNAME}}
-        SL_API_KEY: {{SL_API_KEY}}
+        SL_USERNAME:    {{SL_USERNAME}}
+        SL_API_KEY:     {{SL_API_KEY}}
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
-        SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
-        S3_ACCESS_KEY: {{s3-access-key-id}}
-        S3_SECRET_KEY: {{s3-secret-access-key}}
+        SWIFT_CLUSTER:  {{SWIFT_CLUSTER}}
+        S3_ACCESS_KEY:  {{s3-access-key-id}}
+        S3_SECRET_KEY:  {{s3-secret-access-key}}
   - put: stemcell-info
     params: {from: import-stemcell-image/stemcell-info.json}
+
+- name: lifecycle
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-softlayer-cpi
+    - get: bosh-softlayer-cpi-release
+    - get: bosh-softlayer-stemcells
+    - task: test
+      file: bosh-cpi-release/ci/tasks/run-lifecycle.yml
+      config:
+        params:
+          SL_HOST:         {{SL_HOST_V5_6}}
+          SL_USER:         {{SL_USERNAME}}
+          SL_PASSWORD:     {{SL_PASSWORD_V5_6}}
+          SL_VLAN:         {{SL_VLAN}}
+          SL_VDC:          {{SL_VDC_V5_6}}
+          NETWORK_NETMASK: {{NETWORK_NETMASK}}
+          NETWORK_DNS:     {{NETWORK_DNS}}
+          NETWORK_GATEWAY: {{NETWORK_GATEWAY}}
+          LIFECYCLE_IP1:   {{LIFECYCLE_IP1}}
+          LIFECYCLE_IP2:   {{LIFECYCLE_IP2}}
 
 - name: stemcells-unit
   public: true
@@ -263,6 +291,7 @@ groups:
   - cpi-release-rc
   - cpi-release-shipit
   - import-stemcell
+  - lifecycle
   - stemcells-unit
   - sl-go-unit
   - sl-go-integration
