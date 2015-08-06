@@ -5,6 +5,7 @@ image: docker:///bosh/vcloud-cpi-release
 inputs:
   - name: bats
   - name: bosh
+  - name: bosh-softlayer-cpi-release
   - name: bosh-softlayer-stemcells
   - name: bosh-softlayer-private
 

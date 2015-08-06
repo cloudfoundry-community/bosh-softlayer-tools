@@ -4,7 +4,7 @@ set -e
 
 source bosh-softlayer-stemcells/ci/scripts/utils.sh
 
-print_git_state bosh-cpi-release
+print_git_state bosh-softlayer-cpi-release
 
 check_param base_os
 check_param BAT_NETWORKING
