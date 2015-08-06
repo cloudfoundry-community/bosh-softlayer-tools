@@ -3,12 +3,13 @@ platform: linux
 image: docker:///bosh/vcloud-cpi-release
 
 inputs:
+  - name: bats
   - name: bosh
   - name: bosh-softlayer-stemcells
   - name: bosh-softlayer-private
 
 run:
-  path: bosh-softlayer-stemcells/ci/scripts/bosh-stemcell
+  path: bosh-softlayer-stemcells/ci/scripts/bats
 params:
   VCLOUD_HOST:     replace-me
   VCLOUD_USER:     replace-me

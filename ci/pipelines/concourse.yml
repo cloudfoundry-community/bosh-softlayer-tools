@@ -37,7 +37,7 @@ resources:
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
-    branch: import_image
+    branch: lifecycle
     private_key: {{private-repo-key}}
 
 - name: bosh-stemcell-softlayer-image
@@ -94,6 +94,17 @@ resources:
     name: bosh-vsphere-esxi-ubuntu-trusty-go_agent
 
 jobs:
+- name: bats
+  serial: true
+  plan:
+  - aggregate:
+    - get: bats
+    - get: bosh-softlayer-cpi
+    - get: bosh-softlayer-cpi-release
+    - get: bosh-softlayer-stemcells
+    - task: test
+      file: bosh-cpi-release/ci/tasks/run-bats.yml
+
 - name: bosh-stemcell
   plan:
   - aggregate:
@@ -282,6 +293,7 @@ jobs:
 groups:
 - name: all
   jobs:
+  - bats
   - bosh-stemcell
   - convert-stemcell
   - create-light-stemcell

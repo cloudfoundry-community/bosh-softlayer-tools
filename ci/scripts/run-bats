@@ -2,13 +2,13 @@
 
 set -e
 
-source bosh-cpi-release/ci/tasks/utils.sh
+source bosh-softlayer-stemcells/ci/scripts/utils.sh
 
 print_git_state bosh-cpi-release
 
 check_param base_os
 check_param BAT_NETWORKING
-check_param VCLOUD_VLAN
+check_param SL_VLAN
 check_param NETWORK_CIDR
 check_param NETWORK_GATEWAY
 check_param BATS_DIRECTOR_IP
@@ -25,11 +25,18 @@ echo "using bosh CLI version..."
 bosh version
 bosh -n target $BATS_DIRECTOR_IP
 
-export BAT_INFRASTRUCTURE=vcloud
+echo -e "\n Get stemcell version..."
+s3cmd get s3://bosh-softlayer-cpi-stemcells/stemcell-version stemcell-version --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
+STEMCELL_VERSION=`cat stemcell-version`
+
+echo -e "\n Get stemcell..."
+s3cmd get s3://bosh-softlayer-cpi-stemcells/light-bosh-stemcell-${STEMCELL_VERSION}-vsphere-esxi-ubuntu-trusty-go_agent.tgz stemcell.tgz --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
+
+export BAT_INFRASTRUCTURE=softlayer
 export BAT_VCAP_PASSWORD=c1oudc0w
 export BAT_DNS_HOST=$BATS_DIRECTOR_IP
 export BAT_DIRECTOR=$BATS_DIRECTOR_IP
-export BAT_STEMCELL="${PWD}/stemcell/stemcell.tgz"
+export BAT_STEMCELL="${PWD}/stemcell.tgz"
 export BAT_DEPLOYMENT_SPEC="${PWD}/${base_os}-${BAT_NETWORKING}-bats-config.yml"
 
 cat > $BAT_DEPLOYMENT_SPEC <<EOF
@@ -53,7 +60,7 @@ properties:
         - ${BATS_RESERVED_RANGE2}
       static: [${BATS_STATIC_RANGE}]
       gateway: ${NETWORK_GATEWAY}
-      vlan: ${VCLOUD_VLAN}
+      vlan: ${SL_VLAN}
   vapp_name: bats-concourse-${base_os}-vapp
 EOF
 

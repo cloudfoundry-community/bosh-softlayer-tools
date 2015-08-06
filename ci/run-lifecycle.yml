@@ -8,7 +8,7 @@ inputs:
   - name: bosh-softlayer-private
 
 run:
-  path: bosh-softlayer-stemcells/ci/scripts/bosh-stemcell
+  path: bosh-softlayer-stemcells/ci/scripts/run-lifecycle
 params:
   VCLOUD_HOST:     replace-me
   VCLOUD_USER:     replace-me
