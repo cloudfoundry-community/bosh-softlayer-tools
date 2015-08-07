@@ -8,7 +8,7 @@ inputs:
   - name: bosh-softlayer-stemcells
 
 run:
-  path: bosh-softlayer-stemcells/ci/scripts/bats
+  path: bosh-softlayer-stemcells/ci/scripts/run-bats
 params:
   VCLOUD_HOST:     replace-me
   VCLOUD_USER:     replace-me
