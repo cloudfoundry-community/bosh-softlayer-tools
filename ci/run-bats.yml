@@ -10,11 +10,11 @@ inputs:
 run:
   path: bosh-softlayer-stemcells/ci/scripts/run-bats
 params:
-  VCLOUD_HOST:     replace-me
-  VCLOUD_USER:     replace-me
-  VCLOUD_PASSWORD: replace-me
-  VCLOUD_VLAN:     replace-me
-  VCLOUD_VDC:      replace-me
+  SL_HOST:         replace-me
+  SL_USER:         replace-me
+  SL_PASSWORD:     replace-me
+  SL_VLAN:         replace-me
+  SL_VDC:          replace-me
   NETWORK_NETMASK: replace-me
   NETWORK_DNS:     replace-me
   NETWORK_GATEWAY: replace-me
