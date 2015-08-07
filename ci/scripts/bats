@@ -5,18 +5,13 @@
 
   echo -e "\n Set env vars..."
   INFRASTRUCTURE=softlayer
-  HYPERVISOR=xen
+  HYPERVISOR=esxi
   OS_NAME=ubuntu
   OS_VERSION=trusty
   NETWORK_TYPE=dynamic
   AGENT_TYPE=go
   LIGHT_STEMCELL_FLAG=true
   DISK_FORMAT=raw
-
-  echo -e "\n Get stemcell version..."
-  STEMCELL_VERSION=`cat vsphere-stemcell/version`
-  echo $STEMCELL_VERSION > stemcell-version
-  s3cmd put stemcell-version s3://bosh-softlayer-cpi-stemcells --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
 
   echo -e "\n Install vagrant plugins..."
   vagrant plugin install vagrant-berkshelf
@@ -35,9 +30,8 @@
   echo -e "\n Build stemcell, then upload to S3 bucket..."
   vagrant ssh -c "
     cd /bosh
-    CANDIDATE_BUILD_NUMBER=${STEMCELL_VERSION} bundle exec rake stemcell:build[vsphere,esxi,ubuntu,trusty,go,bosh-os-images,bosh-ubuntu-trusty-os-image.tgz]
-    s3cmd put /bosh/tmp/*.tgz s3://bosh-softlayer-cpi-stemcells -c /vagrant/.s3cfg
-    bundle exec rake spec:system:micro[<infrastructure>,<hypervisor>,<os_name>,<os_version>,<network_type>,<agent_type>,<light_stemcell_flag>,<disk_format>]
+    s3cmd get s3://bosh-softlayer-cpi-stemcells/light-bosh-stemcell-0000-softlayer-esxi-ubuntu-trusty-go_agent.tgz /bosh/tmp/light-bosh-stemcell-0000-softlayer-esxi-ubuntu-trusty-go_agent.tgz -c /vagrant/.s3cfg
+    bundle exec rake spec:system:micro[${INFRASTRUCTURE},${HYPERVISOR},${OS_NAME},${OS_VERSION},${NETWORK_TYPE},${AGENT_TYPE},${LIGHT_STEMCELL_FLAG},${DISK_FORMAT}]
   " remote
 
   echo -e "\n Terminating VM"
