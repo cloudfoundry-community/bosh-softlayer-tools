@@ -1,0 +1,22 @@
+#!/bin/bash
+
+(
+  set -e
+
+  echo -e "\n Get stemcell version..."
+  s3cmd get s3://bosh-softlayer-cpi-stemcells/stemcell-version stemcell-version --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
+  STEMCELL_VERSION=`cat stemcell-version`
+
+  echo -e "\n Get stemcell..."
+  s3cmd get s3://bosh-softlayer-cpi-stemcells/bosh-stemcell-${STEMCELL_VERSION}-vsphere-esxi-ubuntu-trusty-go_agent.tgz bosh-stemcell-${STEMCELL_VERSION}-vsphere-esxi-ubuntu-trusty-go_agent.tgz --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
+
+  echo -e "\n Unpacking tgz..."
+  tar zxf bosh-stemcell-${STEMCELL_VERSION}-vsphere-*.tgz
+  tar zxf image
+
+  echo -e "\n Converting vmdk to vhd..."
+  VBoxManage clonehd *.vmdk --format VHD bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
+
+  echo -e "\n Placing object in Softlayer..."
+  swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_API_KEY upload stemcells bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
+)

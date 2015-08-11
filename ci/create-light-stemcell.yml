@@ -1,0 +1,11 @@
+---
+platform: linux
+image: docker:///posijon/slci
+
+inputs:
+  - name: bosh-softlayer-stemcells
+    path: gopath/src/github.com/maximilien/bosh-softlayer-stemcells
+  - name: stemcell-info
+
+run:
+  path: gopath/src/github.com/maximilien/bosh-softlayer-stemcells/ci/scripts/create-light-stemcell
