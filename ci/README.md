@@ -215,4 +215,18 @@ View an example pipeline YAML in [concourse.yml](concourse.yml)
 * git resource can't be accessed
   * Make sure you've passed your private key.
   * If you have, it may be that the default SoftLayer DNS servers don't allow you to resolve outside domain names, such as `github.com`. If you find this to be the case (such as by `ping`ing), manually edit `etc/resolv.conf` in your SoftLayer instance (`vagrant ssh`) to include another DNS server, such as Google's `8.8.8.8`.
+
+* no space left on the device (whether you checked this in the vm itself or saw an error on a concourse job)
+  * Check the space left on your vm with `df -h`
+  * If there is no space left on `/dev/xvda2`:
+    * `monit stop garden`
+    * `rm -rf /var/vcap/data/garden`
+      * wait until process finishes
+    * `monit start garden`
+
+* general troubleshooting
+  * Use `monit status` in the concourse vm to monitor the status of individual process
+    * Use something like `watch monit status` if you want to automatically refresh it on an interval (such as if you're waiting for the processes to initialize) 
+  * You can view logs in the concourse vm at `/var/vcap/data/sys/log`
+    * If you get an error involving workers not being available, try the `groundcrew` or `postgres` logs.
   
