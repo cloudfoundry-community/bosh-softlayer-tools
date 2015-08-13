@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
 
 	common "github.com/maximilien/bosh-softlayer-stemcells/common"
-
-	yaml "github.com/fraenkel/candiedyaml"
 )
 
 func GenerateStemcellName(info LightStemcellInfo) string {
