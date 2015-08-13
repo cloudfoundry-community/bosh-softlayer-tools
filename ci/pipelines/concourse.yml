@@ -96,25 +96,6 @@ resources:
 
 jobs:
 - name: bats
-  plan:
-  - aggregate:
-    - get: bosh
-    - get: bosh-softlayer-private
-    - get: bosh-softlayer-stemcells
-      trigger: true
-  - task: test
-    file: bosh-softlayer-stemcells/ci/bats.yml
-    config:
-      params:
-        BOSH_AWS_ACCESS_KEY_ID: {{BOSH_AWS_ACCESS_KEY_ID}}
-        BOSH_AWS_SECRET_ACCESS_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
-        BOSH_KEY_PATH: ../../bosh-softlayer-private/bosh.pem
-        AWS_ACCESS_KEY: {{BOSH_AWS_ACCESS_KEY_ID}}
-        AWS_SECRET_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
-        S3_ACCESS_KEY: {{s3-access-key-id}}
-        S3_SECRET_KEY: {{s3-secret-access-key}}
-
-- name: run-bats
   serial: true
   plan:
   - aggregate:
@@ -123,7 +104,7 @@ jobs:
     - get: bosh-softlayer-cpi-release
     - get: bosh-softlayer-stemcells
   - task: test
-    file: bosh-softlayer-stemcells/ci/run-bats.yml
+    file: bosh-softlayer-stemcells/ci/bats.yml
     config:
       params:
         NETWORK_GATEWAY: {{NETWORK_GATEWAY}}
@@ -328,7 +309,6 @@ groups:
   - cpi-release-shipit
   - import-stemcell
   - lifecycle
-  - run-bats
   - stemcells-unit
   - sl-go-unit
   - sl-go-integration

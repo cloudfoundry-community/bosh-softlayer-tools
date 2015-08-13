@@ -1,39 +1,73 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-(
-  set -e
+set -e
 
-  echo -e "\n Set env vars..."
-  INFRASTRUCTURE=softlayer
-  HYPERVISOR=esxi
-  OS_NAME=ubuntu
-  OS_VERSION=trusty
-  NETWORK_TYPE=dynamic
-  AGENT_TYPE=go
-  LIGHT_STEMCELL_FLAG=true
-  DISK_FORMAT=raw
+source bosh-softlayer-stemcells/ci/scripts/utils.sh
 
-  echo -e "\n Install vagrant plugins..."
-  vagrant plugin install vagrant-berkshelf
-  vagrant plugin install vagrant-omnibus
-  vagrant plugin install vagrant-aws --plugin-version 0.5.0
+print_git_state bosh-softlayer-cpi-release
 
-  echo -e "\n Navigate to vagrant directory..."
-  cd bosh/bosh-stemcell
+check_param base_os
+check_param BAT_NETWORKING
+check_param SL_VLAN
+check_param NETWORK_CIDR
+check_param NETWORK_GATEWAY
+check_param BATS_DIRECTOR_IP
+check_param BATS_STEMCELL_NAME
+check_param BATS_IP1
+check_param BATS_IP2
+check_param BATS_RESERVED_RANGE1
+check_param BATS_RESERVED_RANGE2
+check_param BATS_STATIC_RANGE
 
-  echo -e "\n Copy s3cfg to vagrant shared directory..."
-  cp ../../bosh-softlayer-private/.s3cfg .
+source /etc/profile.d/chruby-with-ruby-2.1.2.sh
 
-  echo -e "\n Bring up vagrant stemcell building VM for AWS EC2-Classic..."
-  vagrant up remote --provider=aws
+echo "using bosh CLI version..."
+bosh version
+bosh -n target $BATS_DIRECTOR_IP
 
-  echo -e "\n Build stemcell, then upload to S3 bucket..."
-  vagrant ssh -c "
-    cd /bosh
-    s3cmd get s3://bosh-softlayer-cpi-stemcells/light-bosh-stemcell-0000-softlayer-esxi-ubuntu-trusty-go_agent.tgz /bosh/tmp/light-bosh-stemcell-0000-softlayer-esxi-ubuntu-trusty-go_agent.tgz -c /vagrant/.s3cfg
-    bundle exec rake spec:system:micro[${INFRASTRUCTURE},${HYPERVISOR},${OS_NAME},${OS_VERSION},${NETWORK_TYPE},${AGENT_TYPE},${LIGHT_STEMCELL_FLAG},${DISK_FORMAT}]
-  " remote
+echo -e "\n Get stemcell version..."
+s3cmd get s3://bosh-softlayer-cpi-stemcells/stemcell-version stemcell-version --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
+STEMCELL_VERSION=`cat stemcell-version`
 
-  echo -e "\n Terminating VM"
-  ec2-describe-instances --filter "key-name=bosh" | grep instance | awk '{print $3}' | xargs ec2-terminate-instances
-)
+echo -e "\n Get stemcell..."
+s3cmd get s3://bosh-softlayer-cpi-stemcells/light-bosh-stemcell-${STEMCELL_VERSION}-vsphere-esxi-ubuntu-trusty-go_agent.tgz stemcell.tgz --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
+
+export BAT_INFRASTRUCTURE=softlayer
+export BAT_VCAP_PASSWORD=c1oudc0w
+export BAT_DNS_HOST=$BATS_DIRECTOR_IP
+export BAT_DIRECTOR=$BATS_DIRECTOR_IP
+export BAT_STEMCELL="${PWD}/stemcell.tgz"
+export BAT_DEPLOYMENT_SPEC="${PWD}/${base_os}-${BAT_NETWORKING}-bats-config.yml"
+
+cat > $BAT_DEPLOYMENT_SPEC <<EOF
+---
+cpi: softlayer
+properties:
+  uuid: $(bosh status --uuid)
+  second_static_ip: ${BATS_IP2}
+  pool_size: 1
+  stemcell:
+    name: ${BATS_STEMCELL_NAME}
+    version: latest
+  instances: 1
+  networks:
+    - name: static
+      static_ip: ${BATS_IP1}
+      type: manual
+      cidr: ${NETWORK_CIDR}
+      reserved:
+        - ${BATS_RESERVED_RANGE1}
+        - ${BATS_RESERVED_RANGE2}
+      static: [${BATS_STATIC_RANGE}]
+      gateway: ${NETWORK_GATEWAY}
+      vlan: ${SL_VLAN}
+  vapp_name: bats-concourse-${base_os}-vapp
+EOF
+
+ssh-keygen -f ~/.ssh/id_rsa -t rsa -N ''
+eval $(ssh-agent)
+ssh-add ~/.ssh/id_rsa
+
+cd bats
+bundle install
+bundle exec rspec spec
