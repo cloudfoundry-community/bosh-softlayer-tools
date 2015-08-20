@@ -135,6 +135,8 @@ jobs:
   - get: bosh-softlayer-stemcells
     trigger: true
     passed: [bosh-stemcell]
+  - get: bosh-softlayer-stemcells
+    trigger: true
   - task: convert-stemcell
     file: bosh-softlayer-stemcells/ci/convert-stemcell.yml
     config:
@@ -241,28 +243,6 @@ jobs:
   - put: stemcell-info
     params: {from: import-stemcell-image/stemcell-info.json}
 
-- name: lifecycle
-  serial: true
-  plan:
-  - aggregate:
-    - get: bosh-softlayer-cpi
-    - get: bosh-softlayer-cpi-release
-    - get: bosh-softlayer-stemcells
-  - task: test
-    file: bosh-softlayer-stemcells/ci/run-lifecycle.yml
-    config:
-      params:
-        SL_HOST:         {{SL_HOST_V5_6}}
-        SL_USER:         {{SL_USERNAME}}
-        SL_PASSWORD:     {{SL_PASSWORD_V5_6}}
-        SL_VLAN:         {{SL_VLAN}}
-        SL_VDC:          {{SL_VDC_V5_6}}
-        NETWORK_NETMASK: {{NETWORK_NETMASK}}
-        NETWORK_DNS:     {{NETWORK_DNS}}
-        NETWORK_GATEWAY: {{NETWORK_GATEWAY}}
-        LIFECYCLE_IP1:   {{LIFECYCLE_IP1}}
-        LIFECYCLE_IP2:   {{LIFECYCLE_IP2}}
-
 - name: stemcells-unit
   public: true
   plan:
@@ -308,7 +288,6 @@ groups:
   - cpi-release-rc
   - cpi-release-shipit
   - import-stemcell
-  - lifecycle
   - stemcells-unit
   - sl-go-unit
   - sl-go-integration
