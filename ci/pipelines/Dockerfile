@@ -51,11 +51,3 @@ RUN apt-get autoremove
 RUN apt-get clean
 RUN apt-get -y upgrade
 RUN apt-get -y update
-
-#Install ruby and gems to install bosh CLI
-RUN apt-get -y install zlib1g-dev
-RUN apt-get -y install ruby ruby-dev
-RUN apt-get -y install rubygems
-RUN apt-get -y install build-essential
-RUN apt-get -y install sqlite3 libsqlite3-dev
-RUN gem install bosh_cli bosh_cli_plugin_micro --no-ri --no-rdoc
