@@ -1,4 +1,11 @@
 resources:
+- name: bats
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bosh.git
+    branch: master
+    private_key: {{private-repo-key}}
+
 - name: bosh
   type: git
   source:
@@ -88,6 +95,21 @@ resources:
     name: bosh-vsphere-esxi-ubuntu-trusty-go_agent
 
 jobs:
+- name: bats
+  serial: true
+  plan:
+  - aggregate:
+    - get: bats
+    - get: bosh-softlayer-cpi
+    - get: bosh-softlayer-cpi-release
+    - get: bosh-softlayer-stemcells
+  - task: test
+    file: bosh-softlayer-stemcells/ci/bats.yml
+    config:
+      params:
+        NETWORK_GATEWAY: {{NETWORK_GATEWAY}}
+        SL_VLAN: {{SL_VLAN}}
+
 - name: bosh-stemcell
   plan:
   - aggregate:
@@ -120,10 +142,10 @@ jobs:
     config:
       params:
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
-        SWIFT_API_KEY: {{SL_API_KEY}}
-        SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
-        S3_ACCESS_KEY: {{s3-access-key-id}}
-        S3_SECRET_KEY: {{s3-secret-access-key}}
+        SWIFT_API_KEY:  {{SL_API_KEY}}
+        SWIFT_CLUSTER:  {{SWIFT_CLUSTER}}
+        S3_ACCESS_KEY:  {{s3-access-key-id}}
+        S3_SECRET_KEY:  {{s3-secret-access-key}}
 
 - name: cpi-unit
   public: true
@@ -212,12 +234,12 @@ jobs:
     file: bosh-softlayer-stemcells/ci/import-stemcell.yml
     config:
       params:
-        SL_USERNAME: {{SL_USERNAME}}
-        SL_API_KEY: {{SL_API_KEY}}
+        SL_USERNAME:    {{SL_USERNAME}}
+        SL_API_KEY:     {{SL_API_KEY}}
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
-        SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
-        S3_ACCESS_KEY: {{s3-access-key-id}}
-        S3_SECRET_KEY: {{s3-secret-access-key}}
+        SWIFT_CLUSTER:  {{SWIFT_CLUSTER}}
+        S3_ACCESS_KEY:  {{s3-access-key-id}}
+        S3_SECRET_KEY:  {{s3-secret-access-key}}
   - put: stemcell-info
     params: {from: import-stemcell-image/stemcell-info.json}
 
@@ -256,6 +278,7 @@ jobs:
 groups:
 - name: all
   jobs:
+  - bats
   - bosh-stemcell
   - convert-stemcell
   - create-light-stemcell
