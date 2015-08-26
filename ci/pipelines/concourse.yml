@@ -38,7 +38,7 @@ resources:
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
-    branch: lifecycle
+    branch: bosh-cli-docker
     private_key: {{private-repo-key}}
 
 - name: bosh-stemcell-softlayer-image
