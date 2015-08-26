@@ -17,7 +17,7 @@ resources:
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-cpi-release.git
-    branch: bosh-create-release
+    branch: master
     private_key: {{private-repo-key}}
 
 - name: bosh-softlayer-private
