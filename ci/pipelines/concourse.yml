@@ -195,6 +195,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
+    - get: bosh-softlayer-private
     - get: bosh-softlayer-cpi-release
       passed: [cpi-release-rc]
     - get: version
@@ -202,6 +203,10 @@ jobs:
       params: {bump: final}
   - task: create-final-release
     file: bosh-softlayer-cpi-release/ci/shipit.yml
+    config:
+      params:
+        S3_ACCESS_KEY: {{s3-access-key-id}}
+        S3_SECRET_KEY: {{s3-secret-access-key}}
   - aggregate:  
     - put: final-release
       params: {from: create-final-release/bosh-softlayer-cpi-release-.*.tgz}

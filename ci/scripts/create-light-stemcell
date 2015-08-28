@@ -3,6 +3,7 @@
 (
   set -e
 
+  echo -e "USING THE UPDATED SCRIPT"
   base=$( cd "$( dirname "$( dirname "$( dirname "$0" )")")" && pwd )
   base_gopath=$( cd $base/../../../.. && pwd )
 
