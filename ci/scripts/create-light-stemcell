@@ -3,7 +3,6 @@
 (
   set -e
 
-  echo -e "TEST: TESING TO SEE WHICH REPO RUNS"
   base=$( cd "$( dirname "$( dirname "$( dirname "$0" )")")" && pwd )
   base_gopath=$( cd $base/../../../.. && pwd )
 
