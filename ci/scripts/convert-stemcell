@@ -16,8 +16,8 @@
   tar zxf image
 
   echo -e "\n Converting vmdk to vhd..."
-  VBoxManage clonehd *.vmdk --format VHD bosh-stemcell-test-${STEMCELL_VERSION}-softlayer.vhd
+  VBoxManage clonehd *.vmdk --format VHD bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
 
   echo -e "\n Placing object in Softlayer..."
-  swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_API_KEY upload stemcells bosh-stemcell-test-${STEMCELL_VERSION}-softlayer.vhd
+  swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_API_KEY upload stemcells bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
 )
