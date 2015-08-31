@@ -2,7 +2,7 @@
 
 (
   set -e
-
+  echo -e "TESTING VERSION OF REPO USED"
   base=$( cd "$( dirname "$( dirname "$( dirname "$0" )")")" && pwd )
   base_gopath=$( cd $base/../../../.. && pwd )
 
