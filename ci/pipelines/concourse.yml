@@ -134,9 +134,9 @@ jobs:
   plan:
   - get: bosh-softlayer-stemcells
     trigger: true
-    passed: [bosh-stemcell]
   - get: bosh-softlayer-stemcells
     trigger: true
+    passed: [bosh-stemcell]
   - task: convert-stemcell
     file: bosh-softlayer-stemcells/ci/convert-stemcell.yml
     config:

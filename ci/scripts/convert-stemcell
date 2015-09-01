@@ -3,7 +3,7 @@
 (
   set -e
 
-  echo -e "TEST: TESING TO SEE WHICH REPO RUNS"
+  echo -e "TEST 2: TESING TO SEE WHICH REPO RUNS"
   echo -e "\n Get stemcell version..."
   s3cmd get s3://bosh-softlayer-cpi-stemcells/stemcell-version stemcell-version --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
   STEMCELL_VERSION=`cat stemcell-version`
