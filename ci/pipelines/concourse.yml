@@ -235,6 +235,8 @@ jobs:
   - get: stemcell-info
     trigger: true
     passed: [create-light-stemcell]
+  - get: bosh-softlayer-stemcells
+    passed: [create-light-stemcell]
   - task: remove-expiration-tag-vhd
     file: bosh-softlayer-stemcells/ci/remove-expiration.yml
     config:
