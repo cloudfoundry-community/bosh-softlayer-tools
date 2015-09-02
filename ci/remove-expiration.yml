@@ -1,0 +1,9 @@
+---
+platform: linux
+image: docker:///swayr/slci
+
+inputs:
+  - name: bosh-softlayer-stemcells
+
+run:
+  path: bosh-softlayer-stemcells/ci/scripts/remove-expiration
