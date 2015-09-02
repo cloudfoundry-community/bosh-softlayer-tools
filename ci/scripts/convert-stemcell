@@ -2,8 +2,7 @@
 
 (
   set -e
-
-  echo -e "TEST 2: TESING TO SEE WHICH REPO RUNS"
+  
   echo -e "\n Get stemcell version..."
   s3cmd get s3://bosh-softlayer-cpi-stemcells/stemcell-version stemcell-version --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
   STEMCELL_VERSION=`cat stemcell-version`
@@ -20,4 +19,15 @@
 
   echo -e "\n Placing object in Softlayer..."
   swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_API_KEY upload stemcells bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
+
+  echo -e "\n Setting the Expiration Tag two weeks from now."
+  AUTH_TOKEN=`curl -i -H "X-Auth-User: $SWIFT_USERNAME " -H "X-Auth-Key: $SWIFT_API_KEY" https://$SWIFT_CLUSTER.objectstorage.softlayer.net/auth/v1.0/ | grep X-Auth-Token  | cut -d ":" -f2`
+  AUTH_URL=`curl -i -H "X-Auth-User: $SWIFT_USERNAME " -H "X-Auth-Key: $SWIFT_API_KEY " https://$SWIFT_CLUSTER.objectstorage.softlayer.net/auth/v1.0/ | grep X-Storage-Url:  | cut -d ":" -f3`
+  AUTH_URL=$(echo $AUTH_URL|tr -d '\r')
+  AUTH_TOKEN=`echo $AUTH_TOKEN | tr -d '\r'| cut -d ' ' -f2`
+
+  curl -i https:$AUTH_URL/stemcells/bosh-stemcell-3062-softlayer.vhd -X POST -H "X-Delete-After: 1209600" -H "X-Auth-Token: $AUTH_TOKEN"
+
+  echo -e "To change the Expiration date, please change the value of the X-Delete-After or X-Delete-At option for the object, or change through the customer portal for Softlayer"
+
 )
