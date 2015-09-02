@@ -234,7 +234,7 @@ jobs:
   plan:
   - get: stemcell-info
     trigger: true
-    passed: import-stemcell
+    passed: [create-light-stemcell]
   - task: remove-expiration-tag-vhd
     file: bosh-softlayer-stemcells/ci/remove-expiration.yml
     config:
@@ -312,6 +312,7 @@ groups:
   - stemcells-unit
   - sl-go-unit
   - sl-go-integration
+  - remove-expiration-tag
 
 - name: bosh-softlayer-cpi
   jobs:
@@ -331,6 +332,7 @@ groups:
   - create-light-stemcell
   - import-stemcell
   - stemcells-unit
+  - remove-expiration-tag
 
 - name: softlayer-go
   jobs:

@@ -3,6 +3,11 @@
 (
   set -e
   
+  base=$( cd "$( dirname "$( dirname "$( dirname "$0" )")")" && pwd )
+  base_gopath=$( cd $base/../../../.. && pwd )
+
+  export GOPATH=$base/Godeps/_workspace:$base_gopath:$GOPATH
+
   echo -e "\n Get stemcell version..."
   s3cmd get s3://bosh-softlayer-cpi-stemcells/stemcell-version stemcell-version --access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY
   STEMCELL_VERSION=`cat stemcell-version`
