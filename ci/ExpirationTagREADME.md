@@ -26,4 +26,4 @@ For more information about the different requests possible and to change other m
 
 ##Setting the Tag through SoftLayer Customer Portal:
 
-Another way to see the value of the tag, or to set it is to go to the SoftLayer Customer Portal. After navigating to the corresponding container, click on the object of the expiration tag to be edited. In the properties for the object seen on the right hand side of the screen, look for an `Expires At:` label with a box next to it which may or may not have a date in it. In there pick the date in which the object should be deleted to set or remove the expiration date by clearing the box. 
+Another way to see the value of the tag, or to set it is to go to the SoftLayer Customer Portal. After navigating to the corresponding container, click on the object of the expiration tag to be edited. In the properties for the object seen on the right hand side of the screen, look for an `Expires At:` label with a box next to it which may or may not have a date in it. In there pick the date in which the object should be deleted or remove the expiration date by clearing the box. 
