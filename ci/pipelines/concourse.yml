@@ -38,7 +38,7 @@ resources:
   type: git
   source:
     uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
-    branch: master
+    branch: bosh-cli-docker
     private_key: {{private-repo-key}}
 
 - name: bosh-stemcell-softlayer-image
@@ -230,6 +230,21 @@ jobs:
         S3_ACCESS_KEY: {{s3-access-key-id}}
         S3_SECRET_KEY: {{s3-secret-access-key}}
 
+- name: remove-expiration-tag
+  plan:
+  - get: stemcell-info
+    trigger: true
+    passed: import-stemcell
+  - task: remove-expiration-tag-vhd
+    file: bosh-softlayer-stemcells/ci/remove-expiration.yml
+    config:
+      params:
+        SWIFT_USERNAME: {{SWIFT_USERNAME}}
+        SWIFT_API_KEY:  {{SL_API_KEY}}
+        SWIFT_CLUSTER:  {{SWIFT_CLUSTER}}
+        S3_ACCESS_KEY:  {{s3-access-key-id}}
+        S3_SECRET_KEY:  {{s3-secret-access-key}}
+
 - name: import-stemcell
   plan:
   - get: bosh-softlayer-stemcells
@@ -279,6 +294,7 @@ jobs:
       params:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
+
 
 groups:
 - name: all

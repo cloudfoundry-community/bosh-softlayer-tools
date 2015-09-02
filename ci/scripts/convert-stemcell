@@ -28,6 +28,6 @@
 
   curl -i https:$AUTH_URL/stemcells/bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd -X POST -H "X-Delete-After: 1209600" -H "X-Auth-Token: $AUTH_TOKEN"
 
-  echo -e "To change the Expiration date, please change the value of the X-Delete-After or X-Delete-At option for the object, or change through the customer portal for Softlayer"
+  echo -e "\nTo change the Expiration date, please change the value of the X-Delete-After or X-Delete-At option for the object, or change through the customer portal for Softlayer"
 
 )

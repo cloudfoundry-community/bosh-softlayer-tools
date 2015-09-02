@@ -1,0 +1,9 @@
+---
+platform: linux
+image: docker:///swayr/slci
+
+inputs:
+  - name: stemcell-info
+
+run:
+  path: gopath/src/github.com/maximilien/bosh-softlayer-stemcells/ci/scripts/remove-expiration
