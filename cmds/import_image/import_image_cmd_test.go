@@ -32,10 +32,10 @@ var _ = Describe("import-image command", func() {
 
 	BeforeEach(func() {
 		username := os.Getenv("SL_USERNAME")
-		Expect(username).ToNot(Equal(""))
+		Expect(username).ToNot(Equal(""), "Missing SL_USERNAME environment variables")
 
 		apiKey := os.Getenv("SL_API_KEY")
-		Expect(apiKey).ToNot(Equal(""))
+		Expect(apiKey).ToNot(Equal(""), "Missing SL_API_KEY environment variables")
 
 		fakeClient = slclientfakes.NewFakeSoftLayerClient(username, apiKey)
 		Expect(fakeClient).ToNot(BeNil())
