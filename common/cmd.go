@@ -21,4 +21,8 @@ type Options struct {
 	InfrastructureFlag       string
 	HypervisorFlag           string
 	OsNameFlag               string
+
+	NamePatternFlag   string
+	LastValidDateFlag string
+	ShipItTagFlag     string
 }

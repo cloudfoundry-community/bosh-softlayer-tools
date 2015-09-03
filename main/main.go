@@ -14,8 +14,10 @@ import (
 	slclient "github.com/maximilien/softlayer-go/client"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
 
+	cleanup_stemcells "github.com/maximilien/bosh-softlayer-stemcells/cmds/cleanup_stemcells"
 	import_image "github.com/maximilien/bosh-softlayer-stemcells/cmds/import_image"
 	light_stemcell "github.com/maximilien/bosh-softlayer-stemcells/cmds/light_stemcell"
+
 	common "github.com/maximilien/bosh-softlayer-stemcells/common"
 )
 
@@ -43,6 +45,8 @@ func main() {
 		importImageCmd()
 	case "light-stemcell":
 		lightStemcellCmd()
+	case "clean-stemcells":
+		cleanupStemcellsCmd()
 	default:
 		fmt.Println("SoftLayer BOSH Stemcells Utility")
 	}
@@ -119,7 +123,7 @@ func lightStemcellCmd() {
 
 	err = cmd.CheckOptions()
 	if err != nil {
-		cmd.Println("stemcells: Could not light stemcell command, err:", err)
+		cmd.Println("stemcells: Could not create light stemcell command, err:", err)
 		os.Exit(1)
 	}
 
@@ -127,7 +131,7 @@ func lightStemcellCmd() {
 
 	err = cmd.Run()
 	if err != nil {
-		cmd.Println("stemcells: Could not light stemcell, err:", err)
+		cmd.Println("stemcells: Could not run light stemcell, err:", err)
 		os.Exit(1)
 	}
 
@@ -137,8 +141,40 @@ func lightStemcellCmd() {
 	fmt.Println(cmd.GetStemcellPath())
 }
 
+func cleanupStemcellsCmd() {
+	if options.HelpFlag {
+		usage()
+		return
+	}
+
+	client, err := createSoftLayerClient()
+	if err != nil {
+		fmt.Println("stemcells: Could not create the SoftLayer client, err:", err)
+		os.Exit(1)
+	}
+
+	cmd := cleanup_stemcells.NewCleanupStemcellsCmd(options, client)
+
+	err = cmd.CheckOptions()
+	if err != nil {
+		cmd.Println("stemcells: Could not create cleanup stemcells command, err:", err)
+		os.Exit(1)
+	}
+
+	startTime := time.Now()
+
+	err = cmd.Run()
+	if err != nil {
+		cmd.Println("stemcells: Could not run cleanup stemcells, err:", err)
+		os.Exit(1)
+	}
+
+	duration := time.Now().Sub(startTime)
+	cmd.Println("Total time: ", duration)
+}
+
 func init() {
-	flag.StringVar(&options.CommandFlag, "c", "", "the command, one of: import-image")
+	flag.StringVar(&options.CommandFlag, "c", "", "the command, one of: import-image, light-stemcell, or cleanup-stemcells")
 
 	flag.BoolVar(&options.HelpFlag, "h", false, "prints the usage")
 	flag.BoolVar(&options.LongHelpFlag, "-help", false, "prints the usage")
@@ -155,6 +191,10 @@ func init() {
 	flag.StringVar(&options.InfrastructureFlag, "infrastructure", "softlayer", "the light stemcell infrastructure, defaults to softlayer")
 	flag.StringVar(&options.HypervisorFlag, "hypervisor", "esxi", "the light stemcell version")
 	flag.StringVar(&options.OsNameFlag, "os-name", "ubuntu-trusty", "the name of the operating system")
+
+	flag.StringVar(&options.NamePatternFlag, "name-pattern", "", "the pattern (regex) for the name of the stemcell")
+	flag.StringVar(&options.LastValidDateFlag, "last-valid-date", "", "the last valid date at which anything older will be deleted")
+	flag.StringVar(&options.ShipItTagFlag, "shipit-tag", "SHIPIT", "the tag to differentiate shipped and unshipped stemcells")
 }
 
 func usage() {
