@@ -120,11 +120,11 @@ The [BOSH provisioner for Vagrant](https://github.com/cppforlife/vagrant-bosh) l
 
   releases: # you may have to update these attributes as new releases become available
     - name: concourse
-      url: https://github.com/concourse/concourse/releases/download/v0.56.0/concourse-0.56.0.tgz
-      version: 0.56.0
+      url: https://github.com/concourse/concourse/releases/download/v0.65.1/concourse-0.65.1.tgz
+      version: 0.65.1
     - name: garden-linux
-      url: https://github.com/concourse/concourse/releases/download/v0.56.0/garden-linux-0.205.0.tgz
-      version: 0.205.0
+      url: https://github.com/concourse/concourse/releases/download/v0.65.1/garden-linux-0.307.0.tgz
+      version: 0.307.0
 
   networks:
     - name: concourse
