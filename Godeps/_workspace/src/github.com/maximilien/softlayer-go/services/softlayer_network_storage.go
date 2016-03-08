@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 const (
 	NETWORK_PERFORMANCE_STORAGE_PACKAGE_ID = 222
 	BLOCK_ITEM_PRICE_ID                    = 40678 // file or block item price id
-	CREATE_ISCSI_VOLUME_MAX_RETRY_TIME     = 12
+	CREATE_ISCSI_VOLUME_MAX_RETRY_TIME     = 60
 	CREATE_ISCSI_VOLUME_CHECK_INTERVAL     = 5 // seconds
 )
 
@@ -52,14 +53,14 @@ func (slns *softLayer_Network_Storage_Service) CreateIscsiVolume(size int, locat
 			Id:      12,
 			KeyName: "LINUX",
 		},
-		Prices: []datatypes.SoftLayer_Item_Price{
-			datatypes.SoftLayer_Item_Price{
+		Prices: []datatypes.SoftLayer_Product_Item_Price{
+			datatypes.SoftLayer_Product_Item_Price{
 				Id: sizeItemPriceId,
 			},
-			datatypes.SoftLayer_Item_Price{
+			datatypes.SoftLayer_Product_Item_Price{
 				Id: iopsItemPriceId,
 			},
-			datatypes.SoftLayer_Item_Price{
+			datatypes.SoftLayer_Product_Item_Price{
 				Id: BLOCK_ITEM_PRICE_ID,
 			},
 		},
@@ -93,6 +94,16 @@ func (slns *softLayer_Network_Storage_Service) CreateIscsiVolume(size int, locat
 	return iscsiStorage, nil
 }
 
+func (slvgs *softLayer_Network_Storage_Service) DeleteObject(volumeId int) (bool, error) {
+	response, err := slvgs.client.DoRawHttpRequest(fmt.Sprintf("%s/%d.json", slvgs.GetName(), volumeId), "DELETE", new(bytes.Buffer))
+
+	if res := string(response[:]); res != "true" {
+		return false, errors.New(fmt.Sprintf("Failed to delete volume with id '%d', got '%s' as response from the API.", volumeId, res))
+	}
+
+	return true, err
+}
+
 func (slns *softLayer_Network_Storage_Service) DeleteIscsiVolume(volumeId int, immediateCancellationFlag bool) error {
 	ObjectFilter := string(`{"iscsiNetworkStorage":{"id":{"operation":` + strconv.Itoa(volumeId) + `}}}`)
 
@@ -111,8 +122,20 @@ func (slns *softLayer_Network_Storage_Service) DeleteIscsiVolume(volumeId int, i
 	for i := 0; i < len(iscsiStorages); i++ {
 		if iscsiStorages[i].Id == volumeId {
 			accountId = iscsiStorages[i].AccountId
-			billingItemId = iscsiStorages[i].BillingItem.Id
-			break
+			if reflect.ValueOf(iscsiStorages[i].BillingItem).IsNil() {
+				deleted, err := slns.DeleteObject(volumeId)
+				if err != nil {
+					return err
+				}
+				if deleted {
+					return nil
+				} else {
+					return errors.New(fmt.Sprintf("Cannot delete volume %d from client at present", volumeId))
+				}
+			} else {
+				billingItemId = iscsiStorages[i].BillingItem.Id
+				break
+			}
 		}
 	}
 
@@ -141,7 +164,28 @@ func (slns *softLayer_Network_Storage_Service) DeleteIscsiVolume(volumeId int, i
 }
 
 func (slns *softLayer_Network_Storage_Service) GetIscsiVolume(volumeId int) (datatypes.SoftLayer_Network_Storage, error) {
-	response, err := slns.client.DoRawHttpRequestWithObjectMask(fmt.Sprintf("%s/%d/getObject.json", slns.GetName(), volumeId), []string{"serviceResourceBackendIpAddress", "lunId"}, "GET", new(bytes.Buffer))
+	objectMask := []string{
+		"accountId",
+		"capacityGb",
+		"createDate",
+		"guestId",
+		"hardwareId",
+		"hostId",
+		"id",
+		"nasType",
+		"notes",
+		"Password",
+		"serviceProviderId",
+		"upgradableFlag",
+		"username",
+		"billingItem.id",
+		"billingItem.orderItem.order.id",
+		"lunId",
+		"serviceResourceBackendIpAddress",
+	}
+
+	response, err := slns.client.DoRawHttpRequestWithObjectMask(fmt.Sprintf("%s/%d/getObject.json", slns.GetName(), volumeId), objectMask, "GET", new(bytes.Buffer))
+
 	if err != nil {
 		return datatypes.SoftLayer_Network_Storage{}, err
 	}
@@ -160,7 +204,7 @@ func (slns *softLayer_Network_Storage_Service) HasAllowedVirtualGuest(volumeId i
 	response, err := slns.client.DoRawHttpRequestWithObjectFilterAndObjectMask(fmt.Sprintf("%s/%d/getAllowedVirtualGuests.json", slns.GetName(), volumeId), []string{"id"}, fmt.Sprintf(string(filter)), "GET", new(bytes.Buffer))
 
 	if err != nil {
-		return false, errors.New(fmt.Sprintf("Can not check authentication for volume %d in vm %d", volumeId, vmId))
+		return false, errors.New(fmt.Sprintf("Cannot check authentication for volume %d in vm %d", volumeId, vmId))
 	}
 
 	virtualGuest := []datatypes.SoftLayer_Virtual_Guest{}
@@ -176,7 +220,7 @@ func (slns *softLayer_Network_Storage_Service) HasAllowedVirtualGuest(volumeId i
 	return false, nil
 }
 
-func (slns *softLayer_Network_Storage_Service) AttachIscsiVolume(virtualGuest datatypes.SoftLayer_Virtual_Guest, volumeId int) error {
+func (slns *softLayer_Network_Storage_Service) AttachIscsiVolume(virtualGuest datatypes.SoftLayer_Virtual_Guest, volumeId int) (bool, error) {
 	parameters := datatypes.SoftLayer_Virtual_Guest_Parameters{
 		Parameters: []datatypes.SoftLayer_Virtual_Guest{
 			virtualGuest,
@@ -184,15 +228,17 @@ func (slns *softLayer_Network_Storage_Service) AttachIscsiVolume(virtualGuest da
 	}
 	requestBody, err := json.Marshal(parameters)
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	_, err = slns.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/allowAccessFromVirtualGuest.json", slns.GetName(), volumeId), "PUT", bytes.NewBuffer(requestBody))
+	resp, err := slns.client.DoRawHttpRequest(fmt.Sprintf("%s/%d/allowAccessFromVirtualGuest.json", slns.GetName(), volumeId), "PUT", bytes.NewBuffer(requestBody))
+
+	allowable, err := strconv.ParseBool(string(resp[:]))
 	if err != nil {
-		return err
+		return false, nil
 	}
 
-	return nil
+	return allowable, nil
 }
 
 func (slns *softLayer_Network_Storage_Service) DetachIscsiVolume(virtualGuest datatypes.SoftLayer_Virtual_Guest, volumeId int) error {
@@ -233,7 +279,7 @@ func (slns *softLayer_Network_Storage_Service) findIscsiVolumeId(orderId int) (d
 		return iscsiStorages[0], nil
 	}
 
-	return datatypes.SoftLayer_Network_Storage{}, errors.New(fmt.Sprintf("Can not find an performance storage (iSCSI volume) with order id %d", orderId))
+	return datatypes.SoftLayer_Network_Storage{}, errors.New(fmt.Sprintf("Cannot find an performance storage (iSCSI volume) with order id %d", orderId))
 }
 
 func (slns *softLayer_Network_Storage_Service) getIscsiVolumeItemIdBasedOnSize(size int) (int, error) {
