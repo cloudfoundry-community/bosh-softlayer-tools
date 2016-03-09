@@ -29,8 +29,13 @@ var (
 )
 
 const (
-	TEST_NOTES_PREFIX = "TEST:softlayer-go"
-	TEST_LABEL_PREFIX = "TEST:softlayer-go"
+	TEST_NOTES_PREFIX  = "TEST:softlayer-go"
+	TEST_LABEL_PREFIX  = "TEST:softlayer-go"
+	DEFAULT_DATACENTER = "dal09"
+
+	TEST_EMAIL = "testemail@sl.com"
+	TEST_HOST  = "test.example.com"
+	TEST_TTL   = 900
 
 	MAX_WAIT_RETRIES = 10
 	WAIT_TIME        = 5
@@ -139,6 +144,14 @@ func GetUsernameAndApiKey() (string, string, error) {
 	return username, apiKey, nil
 }
 
+func GetDatacenter() string {
+	datacenter := os.Getenv("SL_DATACENTER")
+	if datacenter == "" {
+		datacenter = DEFAULT_DATACENTER
+	}
+	return datacenter
+}
+
 func CreateAccountService() (softlayer.SoftLayer_Account_Service, error) {
 	username, apiKey, err := GetUsernameAndApiKey()
 	if err != nil {
@@ -167,6 +180,21 @@ func CreateVirtualGuestService() (softlayer.SoftLayer_Virtual_Guest_Service, err
 	}
 
 	return virtualGuestService, nil
+}
+
+func CreateVirtualGuestBlockDeviceTemplateGroupService() (softlayer.SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service, error) {
+	username, apiKey, err := GetUsernameAndApiKey()
+	if err != nil {
+		return nil, err
+	}
+
+	client := slclient.NewSoftLayerClient(username, apiKey)
+	vgbdtgService, err := client.GetSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service()
+	if err != nil {
+		return nil, err
+	}
+
+	return vgbdtgService, nil
 }
 
 func CreateSecuritySshKeyService() (softlayer.SoftLayer_Security_Ssh_Key_Service, error) {
@@ -328,6 +356,18 @@ func CreateTestSshKey() (datatypes.SoftLayer_Security_Ssh_Key, string) {
 	return createdSshKey, string(testSshKeyValue)
 }
 
+func CreateDisk(size int, location string) datatypes.SoftLayer_Network_Storage {
+	networkStorageService, err := CreateNetworkStorageService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> creating new disk\n")
+	disk, err := networkStorageService.CreateIscsiVolume(size, location)
+	Expect(err).ToNot(HaveOccurred())
+	fmt.Printf("----> created disk: %d\n", disk.Id)
+
+	return disk
+}
+
 func CreateVirtualGuestAndMarkItTest(securitySshKeys []datatypes.SoftLayer_Security_Ssh_Key) datatypes.SoftLayer_Virtual_Guest {
 	sshKeys := make([]datatypes.SshKey, len(securitySshKeys))
 	for i, securitySshKey := range securitySshKeys {
@@ -340,7 +380,7 @@ func CreateVirtualGuestAndMarkItTest(securitySshKeys []datatypes.SoftLayer_Secur
 		StartCpus: 1,
 		MaxMemory: 1024,
 		Datacenter: datatypes.Datacenter{
-			Name: "ams01",
+			Name: GetDatacenter(),
 		},
 		SshKeys:                      sshKeys,
 		HourlyBillingFlag:            true,
@@ -379,16 +419,34 @@ func DeleteVirtualGuest(virtualGuestId int) {
 	WaitForVirtualGuestToHaveNoActiveTransactions(virtualGuestId)
 }
 
+func CleanUpVirtualGuest(virtualGuestId int) {
+	WaitForVirtualGuestToHaveNoActiveTransactions(virtualGuestId)
+	DeleteVirtualGuest(virtualGuestId)
+}
+
 func DeleteSshKey(sshKeyId int) {
 	sshKeyService, err := CreateSecuritySshKeyService()
 	Expect(err).ToNot(HaveOccurred())
 
-	fmt.Printf("----> deleting ssh key: %d\n", sshKeyId)
-	deleted, err := sshKeyService.DeleteObject(sshKeyId)
-	Expect(err).ToNot(HaveOccurred())
-	Expect(deleted).To(BeTrue(), "could not delete ssh key")
+	if SshKeyPresent(sshKeyId) {
+		fmt.Printf("----> deleting ssh key: %d\n", sshKeyId)
+		deleted, err := sshKeyService.DeleteObject(sshKeyId)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(deleted).To(BeTrue(), "could not delete ssh key")
+	} else {
+		fmt.Printf("----> ssh key %d already not present\n", sshKeyId)
+	}
 
 	WaitForDeletedSshKeyToNoLongerBePresent(sshKeyId)
+}
+
+func DeleteDisk(diskId int) {
+	networkStorageService, err := CreateNetworkStorageService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> deleting disk: %d\n", diskId)
+	err = networkStorageService.DeleteIscsiVolume(diskId, true)
+	Expect(err).ToNot(HaveOccurred())
 }
 
 func WaitForVirtualGuest(virtualGuestId int, targetState string, timeout time.Duration) {
@@ -408,6 +466,24 @@ func WaitForVirtualGuestToBeRunning(virtualGuestId int) {
 	WaitForVirtualGuest(virtualGuestId, "RUNNING", TIMEOUT)
 }
 
+func WaitForVirtualGuestTransactionWithStatus(virtualGuestId int, status string) {
+	virtualGuestService, err := CreateVirtualGuestService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> waiting for virtual guest %d to have ugrade transactions with status '%s'\n", virtualGuestId, status)
+	Eventually(func() bool {
+		activeTransactions, err := virtualGuestService.GetActiveTransactions(virtualGuestId)
+		Expect(err).ToNot(HaveOccurred())
+		for _, transaction := range activeTransactions {
+			if strings.Contains(transaction.TransactionStatus.Name, status) {
+				return true
+			}
+		}
+		fmt.Printf("----> virtual guest: %d, doesn't have transactions with status '%s' yet\n", virtualGuestId, status)
+		return false
+	}, TIMEOUT, POLLING_INTERVAL).Should(BeTrue(), "failed waiting for virtual guest to have transactions with specifc status")
+}
+
 func WaitForVirtualGuestToHaveNoActiveTransactions(virtualGuestId int) {
 	virtualGuestService, err := CreateVirtualGuestService()
 	Expect(err).ToNot(HaveOccurred())
@@ -421,6 +497,37 @@ func WaitForVirtualGuestToHaveNoActiveTransactions(virtualGuestId int) {
 	}, TIMEOUT, POLLING_INTERVAL).Should(Equal(0), "failed waiting for virtual guest to have no active transactions")
 }
 
+func WaitForVirtualGuestToHaveNoActiveTransactionsOrToErr(virtualGuestId int) {
+	virtualGuestService, err := CreateVirtualGuestService()
+	if err != nil {
+		return
+	}
+
+	fmt.Printf("----> waiting for virtual guest to have no active transactions pending\n")
+	Eventually(func() int {
+		activeTransactions, err := virtualGuestService.GetActiveTransactions(virtualGuestId)
+		if err != nil {
+			return 0
+		}
+		fmt.Printf("----> virtual guest: %d, has %d active transactions\n", virtualGuestId, len(activeTransactions))
+		return len(activeTransactions)
+	}, TIMEOUT, POLLING_INTERVAL).Should(Equal(0), "failed waiting for virtual guest to have no active transactions")
+}
+
+func SshKeyPresent(sshKeyId int) bool {
+	accountService, err := CreateAccountService()
+	Expect(err).ToNot(HaveOccurred())
+	sshKeys, err := accountService.GetSshKeys()
+	Expect(err).ToNot(HaveOccurred())
+
+	for _, sshKey := range sshKeys {
+		if sshKey.Id == sshKeyId {
+			return true
+		}
+	}
+	return false
+}
+
 func WaitForDeletedSshKeyToNoLongerBePresent(sshKeyId int) {
 	accountService, err := CreateAccountService()
 	Expect(err).ToNot(HaveOccurred())
@@ -430,13 +537,12 @@ func WaitForDeletedSshKeyToNoLongerBePresent(sshKeyId int) {
 		sshKeys, err := accountService.GetSshKeys()
 		Expect(err).ToNot(HaveOccurred())
 
-		deleted := true
 		for _, sshKey := range sshKeys {
 			if sshKey.Id == sshKeyId {
-				deleted = false
+				return false
 			}
 		}
-		return deleted
+		return true
 	}, TIMEOUT, POLLING_INTERVAL).Should(BeTrue(), "failed waiting for deleted ssh key to be removed from list of ssh keys")
 }
 
@@ -449,14 +555,32 @@ func WaitForCreatedSshKeyToBePresent(sshKeyId int) {
 		sshKeys, err := accountService.GetSshKeys()
 		Expect(err).ToNot(HaveOccurred())
 
-		keyPresent := false
 		for _, sshKey := range sshKeys {
 			if sshKey.Id == sshKeyId {
-				keyPresent = true
+				return true
 			}
 		}
-		return keyPresent
+		return false
 	}, TIMEOUT, POLLING_INTERVAL).Should(BeTrue(), "created ssh key but not in the list of ssh keys")
+}
+
+func WaitForVirtualGuestBlockTemplateGroupToHaveNoActiveTransactions(virtualGuestBlockTemplateGroupId int) {
+	vgbdtgService, err := CreateVirtualGuestBlockDeviceTemplateGroupService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> waiting for virtual guest block template group to have no active transactions pending\n")
+	Eventually(func() bool {
+		activeTransaction, err := vgbdtgService.GetTransaction(virtualGuestBlockTemplateGroupId)
+		Expect(err).ToNot(HaveOccurred())
+
+		transactionTrue := false
+		emptyTransaction := datatypes.SoftLayer_Provisioning_Version1_Transaction{}
+		if activeTransaction != emptyTransaction {
+			fmt.Printf("----> virtual guest template group: %d, has %#v pending\n", virtualGuestBlockTemplateGroupId, activeTransaction)
+			transactionTrue = true
+		}
+		return transactionTrue
+	}, TIMEOUT, POLLING_INTERVAL).Should(BeFalse(), "failed waiting for virtual guest block template group to have no active transactions")
 }
 
 func SetUserDataToVirtualGuest(virtualGuestId int, metadata string) {
@@ -565,6 +689,145 @@ func GetVirtualGuestPrimaryIpAddress(virtualGuestId int) string {
 	Expect(err).ToNot(HaveOccurred())
 
 	return vgIpAddress
+}
+
+func CreateDnsDomainService() (softlayer.SoftLayer_Dns_Domain_Service, error) {
+	username, apiKey, err := GetUsernameAndApiKey()
+	if err != nil {
+		return nil, err
+	}
+
+	client := slclient.NewSoftLayerClient(username, apiKey)
+	dnsDomainService, err := client.GetSoftLayer_Dns_Domain_Service()
+	if err != nil {
+		return nil, err
+	}
+
+	return dnsDomainService, nil
+}
+
+func CreateDnsDomainResourceRecordService() (softlayer.SoftLayer_Dns_Domain_ResourceRecord_Service, error) {
+	username, apiKey, err := GetUsernameAndApiKey()
+	if err != nil {
+		return nil, err
+	}
+
+	client := slclient.NewSoftLayerClient(username, apiKey)
+	dnsDomainResourceRecordService, err := client.GetSoftLayer_Dns_Domain_ResourceRecord_Service()
+	if err != nil {
+		return nil, err
+	}
+
+	return dnsDomainResourceRecordService, nil
+}
+
+func CreateTestDnsDomain(name string) datatypes.SoftLayer_Dns_Domain {
+	template := datatypes.SoftLayer_Dns_Domain_Template{
+		Name: name,
+	}
+
+	dnsDomainService, err := CreateDnsDomainService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> creating dns domain in SL\n")
+	createdDnsDomain, err := dnsDomainService.CreateObject(template)
+	Expect(err).ToNot(HaveOccurred())
+
+	Expect(createdDnsDomain.Name).To(Equal(template.Name))
+	fmt.Printf("----> created dns domain : %d\n in SL", createdDnsDomain.Id)
+
+	return createdDnsDomain
+}
+
+func WaitForCreatedDnsDomainToBePresent(dnsDomainId int) {
+	dnsDomainService, err := CreateDnsDomainService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> waiting for created dns domain to be present\n")
+	Eventually(func() bool {
+		dnsDomain, err := dnsDomainService.GetObject(dnsDomainId)
+		Expect(err).ToNot(HaveOccurred())
+
+		if dnsDomain.Id == dnsDomainId {
+			return true
+		}
+		return false
+	}, TIMEOUT, POLLING_INTERVAL).Should(BeTrue(), "created dns domain but not found")
+}
+
+func WaitForDeletedDnsDomainToNoLongerBePresent(dnsDomainId int) {
+	dnsDomainService, err := CreateDnsDomainService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> waiting for deleted dns domain to no longer be present\n")
+	Eventually(func() bool {
+		dnsDomain, err := dnsDomainService.GetObject(dnsDomainId)
+		Expect(err).ToNot(HaveOccurred())
+
+		if dnsDomain.Id == dnsDomainId {
+			return false
+		}
+		return true
+	}, TIMEOUT, POLLING_INTERVAL).Should(BeTrue(), "failed waiting for deleted dns domain to be removed")
+}
+
+func CreateTestDnsDomainResourceRecord(domainId int) datatypes.SoftLayer_Dns_Domain_ResourceRecord {
+	template := datatypes.SoftLayer_Dns_Domain_ResourceRecord_Template{
+		Data:              "127.0.0.1",
+		DomainId:          domainId,
+		Host:              TEST_HOST,
+		ResponsiblePerson: TEST_EMAIL,
+		Ttl:               TEST_TTL,
+		Type:              "A",
+	}
+
+	dnsDomainResourceRecordService, err := CreateDnsDomainResourceRecordService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> creating dns domain resource record in SL\n")
+	createdDnsDomainResourceRecord, err := dnsDomainResourceRecordService.CreateObject(template)
+	Expect(err).ToNot(HaveOccurred())
+
+	Expect(createdDnsDomainResourceRecord.Data).To(Equal(template.Data), "127.0.0.1")
+	Expect(createdDnsDomainResourceRecord.Host).To(Equal(template.Host), TEST_HOST)
+	Expect(createdDnsDomainResourceRecord.ResponsiblePerson).To(Equal(template.ResponsiblePerson), TEST_EMAIL)
+	Expect(createdDnsDomainResourceRecord.Ttl).To(Equal(template.Ttl), "900")
+	Expect(createdDnsDomainResourceRecord.Type).To(Equal(template.Type), "A")
+	fmt.Printf("----> created dns domain resource record: %d\n in SL", createdDnsDomainResourceRecord.Id)
+
+	return createdDnsDomainResourceRecord
+}
+
+func WaitForCreatedDnsDomainResourceRecordToBePresent(dnsDomainResourceRecordId int) {
+	dnsDomainResourceRecordService, err := CreateDnsDomainResourceRecordService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> waiting for created dns domain resource record to be present\n")
+	Eventually(func() bool {
+		dnsDomainResourceRecord, err := dnsDomainResourceRecordService.GetObject(dnsDomainResourceRecordId)
+		Expect(err).ToNot(HaveOccurred())
+
+		if dnsDomainResourceRecord.Id == dnsDomainResourceRecordId {
+			return true
+		}
+		return false
+	}, TIMEOUT, POLLING_INTERVAL).Should(BeTrue(), "created dns domain resource record but not found")
+}
+
+func WaitForDeletedDnsDomainResourceRecordToNoLongerBePresent(dnsDomainResourceRecordId int) {
+	dnsDomainResourceRecordService, err := CreateDnsDomainResourceRecordService()
+	Expect(err).ToNot(HaveOccurred())
+
+	fmt.Printf("----> waiting for deleted dns domain resource record to no longer be present\n")
+	Eventually(func() bool {
+		dnsDomainResourceRecord, err := dnsDomainResourceRecordService.GetObject(dnsDomainResourceRecordId)
+		Expect(err).ToNot(HaveOccurred())
+
+		if dnsDomainResourceRecord.Id == dnsDomainResourceRecordId {
+			return false
+		}
+		return true
+	}, TIMEOUT, POLLING_INTERVAL).Should(BeTrue(), "failed waiting for deleted dns domain resource record to be removed")
 }
 
 // Private functions

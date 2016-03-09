@@ -14,6 +14,7 @@ import (
 )
 
 var _ = Describe("SoftLayer_Virtual_Guest_Service", func() {
+
 	var (
 		username, apiKey string
 		err              error
@@ -36,6 +37,8 @@ var _ = Describe("SoftLayer_Virtual_Guest_Service", func() {
 
 		fakeClient = slclientfakes.NewFakeSoftLayerClient(username, apiKey)
 		Expect(fakeClient).ToNot(BeNil())
+
+		fakeClient.SoftLayerServices["SoftLayer_Product_Package"] = &testhelpers.MockProductPackageService{}
 
 		virtualGuestService, err = fakeClient.GetSoftLayer_Virtual_Guest_Service()
 		Expect(err).ToNot(HaveOccurred())
@@ -212,23 +215,58 @@ var _ = Describe("SoftLayer_Virtual_Guest_Service", func() {
 		})
 
 		It("reports error when providing a wrong disk size", func() {
-			err := virtualGuestService.AttachEphemeralDisk(123, -1)
+			_, err := virtualGuestService.AttachEphemeralDisk(123, -1)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("Ephemeral disk size can not be negative: -1"))
 		})
 
 		It("can attach a local disk without error", func() {
-			err := virtualGuestService.AttachEphemeralDisk(123, 25)
+			receipt, err := virtualGuestService.AttachEphemeralDisk(123, 25)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(receipt.OrderId).NotTo(Equal(0))
+		})
+
+	})
+
+	Context("#UpgradeObject", func() {
+		BeforeEach(func() {
+			fakeClient.DoRawHttpRequestResponse, err = testhelpers.ReadJsonTestFixtures("services", "SoftLayer_Product_Order_placeOrder.json")
 			Expect(err).ToNot(HaveOccurred())
 		})
 
-		It("reports error when providing a disk size that exceeds the biggest capacity disk SL can provide", func() {
-			fakeClient.DoRawHttpRequestResponse, err = testhelpers.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_getUpgradeItemPrices.json")
-			err := virtualGuestService.AttachEphemeralDisk(123, 26)
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(Equal("No proper local disk for size 26"))
+		It("can upgrade object without any error", func() {
+			_, err := virtualGuestService.UpgradeObject(123, &softlayer.UpgradeOptions{
+				Cpus:       2,
+				MemoryInGB: 2,
+				NicSpeed:   1000,
+			})
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+
+	Context("#GetAvailableUpgradeItemPrices", func() {
+		BeforeEach(func() {
+			fakeClient.DoRawHttpRequestResponse, err = testhelpers.ReadJsonTestFixtures("services", "SoftLayer_Product_Order_placeOrder.json")
+			Expect(err).ToNot(HaveOccurred())
 		})
 
+		It("reports error when pricing item for provided CPUs is not available", func() {
+			_, err := virtualGuestService.GetAvailableUpgradeItemPrices(&softlayer.UpgradeOptions{Cpus: 3})
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("Failed to find price for 'cpus' (of size 3)"))
+		})
+
+		It("reports error when pricing item for provided RAM is not available", func() {
+			_, err := virtualGuestService.GetAvailableUpgradeItemPrices(&softlayer.UpgradeOptions{MemoryInGB: 1500})
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("Failed to find price for 'memory' (of size 1500)"))
+		})
+
+		It("reports error when pricing item for provided network speed is not available", func() {
+			_, err := virtualGuestService.GetAvailableUpgradeItemPrices(&softlayer.UpgradeOptions{NicSpeed: 999})
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("Failed to find price for 'nic_speed' (of size 999)"))
+		})
 	})
 
 	Context("#GetPowerState", func() {
@@ -273,6 +311,23 @@ var _ = Describe("SoftLayer_Virtual_Guest_Service", func() {
 			Expect(activeTransaction.ElapsedSeconds).To(BeNumerically(">", 0))
 			Expect(activeTransaction.GuestId).To(Equal(virtualGuest.Id))
 			Expect(activeTransaction.Id).To(BeNumerically(">", 0))
+		})
+	})
+
+	Context("#GetLastTransaction", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+			fakeClient.DoRawHttpRequestResponse, err = testhelpers.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Service_getLastTransaction.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("sucessfully retrieves last SoftLayer_Provisioning_Version1_Transaction for virtual guest", func() {
+			lastTransaction, err := virtualGuestService.GetLastTransaction(virtualGuest.Id)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(lastTransaction.CreateDate).ToNot(BeNil())
+			Expect(lastTransaction.ElapsedSeconds).To(BeNumerically(">", 0))
+			Expect(lastTransaction.GuestId).To(Equal(virtualGuest.Id))
+			Expect(lastTransaction.Id).To(BeNumerically(">", 0))
 		})
 	})
 
@@ -553,6 +608,51 @@ var _ = Describe("SoftLayer_Virtual_Guest_Service", func() {
 				pingable, err := virtualGuestService.IsPingable(virtualGuest.Id)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("Failed to checking that virtual guest is pingable"))
+				Expect(pingable).To(BeFalse())
+			})
+		})
+	})
+
+	Context("#IsBackendPingeable", func() {
+		BeforeEach(func() {
+			virtualGuest.Id = 1234567
+		})
+
+		Context("when there are no API errors", func() {
+			It("checks that the virtual guest instance backend is pigable", func() {
+				fakeClient.DoRawHttpRequestResponse = []byte("true")
+
+				pingable, err := virtualGuestService.IsBackendPingable(virtualGuest.Id)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(pingable).To(BeTrue())
+			})
+
+			It("checks that the virtual guest instance backend is NOT pigable", func() {
+				fakeClient.DoRawHttpRequestResponse = []byte("false")
+
+				pingable, err := virtualGuestService.IsBackendPingable(virtualGuest.Id)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(pingable).To(BeFalse())
+			})
+		})
+
+		Context("when there are API errors", func() {
+			It("returns false and error", func() {
+				fakeClient.DoRawHttpRequestError = errors.New("fake-error")
+
+				pingable, err := virtualGuestService.IsBackendPingable(virtualGuest.Id)
+				Expect(err).To(HaveOccurred())
+				Expect(pingable).To(BeFalse())
+			})
+		})
+
+		Context("when the API returns invalid or empty result", func() {
+			It("returns false and error", func() {
+				fakeClient.DoRawHttpRequestResponse = []byte("fake")
+
+				pingable, err := virtualGuestService.IsBackendPingable(virtualGuest.Id)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("Failed to checking that virtual guest backend is pingable"))
 				Expect(pingable).To(BeFalse())
 			})
 		})
