@@ -9,6 +9,7 @@ _test
 out
 tmp
 credentials
+.idea
 
 # Architecture specific extensions/prefixes
 *.[568vq]
