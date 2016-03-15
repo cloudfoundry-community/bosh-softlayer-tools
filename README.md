@@ -1,7 +1,7 @@
-bosh-softlayer-stemcells [![Build Status](https://travis-ci.org/maximilien/bosh-softlayer-stemcells.svg?branch=master)](https://travis-ci.org/maximilien/bosh-softlayer-stemcells#)
+bosh-softlayer-stemcells [![Build Status](https://travis-ci.org/cloudfoundry-community/bosh-softlayer-tools.svg?branch=master)](https://travis-ci.org/cloudfoundry-community/bosh-softlayer-tools#)
 ========================
 
-Simple utility to create [BOSH](https://github.com/cloudfoundry/bosh) stemcells (light) for SoftLayer and [bosh-softlayer-cpi](https://github.com/maximilien/bosh-softlayer-cpi) project
+Simple utility to create [BOSH](https://github.com/cloudfoundry/bosh) stemcells (light) for SoftLayer and [bosh-softlayer-cpi](https://github.com/cloudfoundry/bosh-softlayer-cpi) project
 
 ## Getting Started (*)
 ------------------
@@ -19,11 +19,11 @@ TBD
 Clone this repo and build it. Using the following commands on a Linux or Mac OS X system:
 
 ```
-$ mkdir -p bosh-softlayer-stemcells/src/github.com/maximilien
-$ export GOPATH=$(pwd)/bosh-softlayer-stemcells:$GOPATH
-$ cd bosh-softlayer-stemcells/src/github.com/maximilien
-$ git clone https://github.com/maximilien/bosh-softlayer-stemcells.git
-$ cd bosh-softlayer-stemcells
+$ mkdir -p bosh-softlayer-tools/src/cloudfoundry-community/bosh-softlayer-tools
+$ export GOPATH=$(pwd)/bosh-softlayer-tools:$GOPATH
+$ cd bosh-softlayer-tools/src/cloudfoundry-community/bosh-softlayer-tools
+$ git clone https://cloudfoundry-community/bosh-softlayer-tools/bosh-softlayer-tools.git
+$ cd bosh-softlayer-tools
 $ ./bin/build
 $ ./bin/test-unit
 $ export SL_USERNAME=your-username@your-org.com
@@ -33,7 +33,7 @@ $ ./bin/test-integration
 
 NOTE: if you get any dependency errors, then use `go get path/to/dependency` to get it, e.g., `go get github.com/onsi/ginkgo` and `go get github.com/onsi/gomega`
 
-The executable output should now be located in: `out/sl-stemcells`.
+The executable output should now be located in: `out/stemcells`.
 
 ### Running Tests
 -----------------
@@ -84,7 +84,7 @@ SWEET SUITE SUCCESS
 ## Contributing
 ---------------
 
-* We gratefully acknowledge and thank the [current contributors](https://github.com/maximilien/bosh-softlayer-stemcells/graphs/contributors)
+* We gratefully acknowledge and thank the [current contributors](https://hithub.com/cloudfoundry-community/bosh-softlayer-tools/graphs/contributors)
 * We welcome any and all contributions as Pull Requests (PR)
 * We also welcome issues and bug report and new feature request. We will address as time permits
 * Follow the steps above in Developing to get your system setup correctly
@@ -95,7 +95,7 @@ SWEET SUITE SUCCESS
 ### Managing dependencies
 -------------------------
 
-* All dependencies managed via [Godep](https://github.com/tools/godep). See [Godeps/_workspace](https://github.com/maximilien/bosh-softlayer-cpi/tree/master/Godeps/_workspace) directory on master
+* All dependencies managed via [Godep](https://github.com/tools/godep). See [Godeps/_workspace](https://github.com/cloudfoundry-community/bosh-softlayer-tools/tree/master/Godeps/_workspace) directory on master
 
 #### Short `godep` Guide
 * If you ever import a new package `foo/bar` (after you `go get foo/bar`, so that foo/bar is in `$GOPATH`), you can type `godep save ./...` to add it to the `Godeps` directory.
@@ -113,4 +113,4 @@ SWEET SUITE SUCCESS
 
 (*) these items are in the works, we will remove the * once the section is complete.
 
-**NOTE**: this BOSH light stemcell project is used to support the [bosh-softlayer-cpi](https://github.com/maximilien/bosh-softlayer-cpi) project. Like the CPI project, consider this code as prototype code.
+**NOTE**: this BOSH light stemcell project is used to support the [bosh-softlayer-cpi](https://github.com/cloudfoundry/bosh-softlayer-cpi) project. Like the CPI project, consider this code as prototype code.
