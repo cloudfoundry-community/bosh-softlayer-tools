@@ -8,9 +8,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/maximilien/bosh-softlayer-stemcells/cmds/light_stemcell"
+	. "github.com/cloudfoundry-incubator/bosh-softlayer-tools/cmds/light_stemcell"
 
-	common "github.com/maximilien/bosh-softlayer-stemcells/common"
+	common "github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
 
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
 
@@ -142,7 +142,7 @@ var _ = Describe("LightStemcellVDICmd", func() {
 
 		Context("running command", func() {
 			BeforeEach(func() {
-				fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Disk_Image_getObject.json")
+				fakeClient.FakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Disk_Image_getObject.json")
 				Expect(err).ToNot(HaveOccurred())
 			})
 
@@ -157,7 +157,7 @@ var _ = Describe("LightStemcellVDICmd", func() {
 
 	Context("Light Stemcell Command interface", func() {
 		BeforeEach(func() {
-			fakeClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Disk_Image_getObject.json")
+			fakeClient.FakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Disk_Image_getObject.json")
 			Expect(err).ToNot(HaveOccurred())
 		})
 

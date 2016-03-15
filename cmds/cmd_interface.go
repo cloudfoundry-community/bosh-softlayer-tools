@@ -1,7 +1,7 @@
 package cmds
 
 import (
-	"github.com/maximilien/bosh-softlayer-stemcells/common"
+	"github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
 )
 
 type PrinterInterface interface {

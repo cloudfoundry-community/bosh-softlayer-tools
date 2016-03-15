@@ -14,9 +14,9 @@ import (
 	slclient "github.com/maximilien/softlayer-go/client"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
 
-	import_image "github.com/maximilien/bosh-softlayer-stemcells/cmds/import_image"
-	light_stemcell "github.com/maximilien/bosh-softlayer-stemcells/cmds/light_stemcell"
-	common "github.com/maximilien/bosh-softlayer-stemcells/common"
+	import_image "github.com/cloudfoundry-incubator/bosh-softlayer-tools/cmds/import_image"
+	light_stemcell "github.com/cloudfoundry-incubator/bosh-softlayer-tools/cmds/light_stemcell"
+	common "github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
 )
 
 const VERSION = "v0.0.1"
@@ -204,7 +204,7 @@ func handlePanic() {
 func displayCrashDialog(errorMessage string) {
 	formattedString := `
 Something completely unexpected happened. This is a bug in %s.
-Please file this bug : https://github.com/maximilien/bosh-softlayer-stemcells/issues
+Please file this bug : https://github.com/cloudfoundry-incubator/bosh-softlayer-tools/issues
 Tell us that you ran this command:
 
     %s

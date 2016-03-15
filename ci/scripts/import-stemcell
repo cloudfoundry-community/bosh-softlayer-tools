@@ -13,7 +13,7 @@
   STEMCELL_VERSION=`cat stemcell-version`
 
   echo -e "\n Creating stemcell binary..."
-  go build -o out/sl_stemcells github.com/maximilien/bosh-softlayer-stemcells/main
+  go build -o out/sl_stemcells github.com/cloudfoundry-incubator/bosh-softlayer-tools/main
 
   echo -e "\n Softlayer create from external source..."
   IFS=':' read -ra OBJ_STORAGE_ACC_NAME <<< "$SWIFT_USERNAME"

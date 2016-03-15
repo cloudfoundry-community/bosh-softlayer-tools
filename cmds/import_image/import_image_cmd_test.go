@@ -6,15 +6,15 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/maximilien/bosh-softlayer-stemcells/cmds/import_image"
-	. "github.com/maximilien/bosh-softlayer-stemcells/common"
+	. "github.com/cloudfoundry-incubator/bosh-softlayer-tools/cmds/import_image"
+	. "github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
 
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
 
-	cmds "github.com/maximilien/bosh-softlayer-stemcells/cmds"
-	common "github.com/maximilien/bosh-softlayer-stemcells/common"
+	cmds "github.com/cloudfoundry-incubator/bosh-softlayer-tools/cmds"
+	common "github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
 )
 
 var _ = Describe("import-image command", func() {
@@ -40,7 +40,7 @@ var _ = Describe("import-image command", func() {
 		fakeClient = slclientfakes.NewFakeSoftLayerClient(username, apiKey)
 		Expect(fakeClient).ToNot(BeNil())
 
-		fakeClient.DoRawHttpRequestResponse, err = ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json")
+		fakeClient.FakeHttpClient.DoRawHttpRequestResponse, err = ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json")
 		Expect(err).ToNot(HaveOccurred())
 
 		vgbdtgService, err = fakeClient.GetSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service()

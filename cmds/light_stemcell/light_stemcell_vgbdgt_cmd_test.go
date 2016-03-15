@@ -8,9 +8,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/maximilien/bosh-softlayer-stemcells/cmds/light_stemcell"
+	. "github.com/cloudfoundry-incubator/bosh-softlayer-tools/cmds/light_stemcell"
 
-	common "github.com/maximilien/bosh-softlayer-stemcells/common"
+	common "github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
 
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
 
@@ -208,5 +208,5 @@ func readJsonTestFixtures(fakeClient *slclientfakes.FakeSoftLayerClient) {
 	getDatacenters, err := common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getDatacenters.json")
 	Expect(err).ToNot(HaveOccurred())
 
-	fakeClient.DoRawHttpRequestResponses = [][]byte{blockDeviceTemplateGroups, getObject, getDatacenters}
+	fakeClient.FakeHttpClient.DoRawHttpRequestResponses = [][]byte{blockDeviceTemplateGroups, getObject, getDatacenters}
 }
