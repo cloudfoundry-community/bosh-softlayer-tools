@@ -8,9 +8,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/cloudfoundry-incubator/bosh-softlayer-tools/cmds/light_stemcell"
+	. "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/light_stemcell"
 
-	common "github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
+	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
 

@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	common "github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
+	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
 
 func GenerateStemcellName(info LightStemcellInfo) string {

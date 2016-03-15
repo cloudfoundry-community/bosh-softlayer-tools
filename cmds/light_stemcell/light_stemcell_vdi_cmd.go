@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	common "github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
+	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"

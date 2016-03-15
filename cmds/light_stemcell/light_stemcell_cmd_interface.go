@@ -1,7 +1,7 @@
 package light_stemcell
 
 import (
-	cmds "github.com/cloudfoundry-incubator/bosh-softlayer-tools/cmds"
+	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 )
 
 type SoftLayerStemcellInfo struct {

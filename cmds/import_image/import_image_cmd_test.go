@@ -6,15 +6,15 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/cloudfoundry-incubator/bosh-softlayer-tools/cmds/import_image"
-	. "github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
+	. "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/import_image"
+	. "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
 
-	cmds "github.com/cloudfoundry-incubator/bosh-softlayer-tools/cmds"
-	common "github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
+	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
+	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
 
 var _ = Describe("import-image command", func() {

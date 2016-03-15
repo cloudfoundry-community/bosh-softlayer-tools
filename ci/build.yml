@@ -4,8 +4,8 @@ image: docker:///cloudfoundry/bosh-lite-ci
 
 inputs:
   - name: bosh-softlayer-stemcells
-    path: gopath/src/github.com/cloudfoundry-incubator/bosh-softlayer-tools
+    path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
   - name: version
 
 run:
-  path: gopath/src/github.com/cloudfoundry-incubator/bosh-softlayer-tools/bin/build
+  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/bin/build

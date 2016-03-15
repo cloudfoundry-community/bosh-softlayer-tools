@@ -1,7 +1,7 @@
 package cmds
 
 import (
-	"github.com/cloudfoundry-incubator/bosh-softlayer-tools/common"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
 
 type PrinterInterface interface {
