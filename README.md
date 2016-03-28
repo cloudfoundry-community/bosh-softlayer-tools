@@ -1,7 +1,7 @@
-bosh-softlayer-stemcells [![Build Status](https://travis-ci.org/cloudfoundry-community/bosh-softlayer-tools.svg?branch=master)](https://travis-ci.org/cloudfoundry-community/bosh-softlayer-tools#)
+bosh-softlayer-tools [![Build Status](https://travis-ci.org/cloudfoundry-community/bosh-softlayer-tools.svg?branch=master)](https://travis-ci.org/cloudfoundry-community/bosh-softlayer-tools#)
 ========================
 
-Simple utility to create [BOSH](https://github.com/cloudfoundry/bosh) stemcells (light) for SoftLayer and [bosh-softlayer-cpi](https://github.com/cloudfoundry/bosh-softlayer-cpi) project
+CLIs and tools to ease in creating [BOSH](https://github.com/cloudfoundry/bosh) stemcells (light) for SoftLayer as well as manage pools of SoftLayer bare metal VM pools. All designed to work with the [bosh-softlayer-cpi](https://github.com/cloudfoundry/bosh-softlayer-cpi) project
 
 ## Getting Started (*)
 ------------------
