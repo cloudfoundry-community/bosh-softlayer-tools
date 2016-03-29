@@ -33,7 +33,7 @@ $ ./bin/test-integration
 
 NOTE: if you get any dependency errors, then use `go get path/to/dependency` to get it, e.g., `go get github.com/onsi/ginkgo` and `go get github.com/onsi/gomega`
 
-The executable output should now be located in: `out/stemcells`.
+The executables output should now be located in: `out/stemcells` and `out\bmp`.
 
 ### Running Tests
 -----------------
