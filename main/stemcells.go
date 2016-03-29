@@ -6,10 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
 	"time"
-
-	"runtime/debug"
 
 	slclient "github.com/maximilien/softlayer-go/client"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
@@ -29,8 +26,6 @@ type ImportImageCmdResponse struct {
 }
 
 func main() {
-	defer handlePanic()
-
 	flag.Parse()
 
 	if options.HelpFlag || options.LongHelpFlag || len(flag.Args()) == 0 {
@@ -181,45 +176,6 @@ usage: bosh-softlayer-stemcells -c import-image [--name <template-name>] [--note
     `
 
 	fmt.Println(fmt.Sprintf("%s\nVersion %s", usageString, VERSION))
-}
-
-func handlePanic() {
-	err := recover()
-	if err != nil {
-		switch err := err.(type) {
-		case error:
-			displayCrashDialog(err.Error())
-		case string:
-			displayCrashDialog(err)
-		default:
-			displayCrashDialog("An unexpected type of error")
-		}
-	}
-
-	if err != nil {
-		os.Exit(1)
-	}
-}
-
-func displayCrashDialog(errorMessage string) {
-	formattedString := `
-Something completely unexpected happened. This is a bug in %s.
-Please file this bug : https://github.com/cloudfoundry-community/bosh-softlayer-tools/issues
-Tell us that you ran this command:
-
-    %s
-
-this error occurred:
-
-    %s
-
-and this stack trace:
-
-%s
-    `
-
-	stackTrace := "\t" + strings.Replace(string(debug.Stack()), "\n", "\n\t", -1)
-	println(fmt.Sprintf(formattedString, "bosh-softlayer-stemcells", strings.Join(os.Args, " "), errorMessage, stackTrace))
 }
 
 func createSoftLayerClient() (softlayer.Client, error) {

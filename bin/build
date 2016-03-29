@@ -7,7 +7,7 @@ echo -e "\n Formatting packages..."
   go fmt ./...
 
 echo -e "\nGenerating Binary: sl_stemcells..."
-go build -o $(dirname $0)/../out/sl_stemcells ./main/sl_stemcells.go
+go build -o $(dirname $0)/../out/sl_stemcells ./main/stemcells.go
 
 echo -e "\nGenerating Binary: bmp..."
 go build -o $(dirname $0)/../out/bmp ./main/bmp.go

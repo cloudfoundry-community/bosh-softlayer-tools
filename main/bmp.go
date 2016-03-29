@@ -4,9 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
-
-	"runtime/debug"
 
 	flags "github.com/jessevdk/go-flags"
 
@@ -20,30 +17,30 @@ var parser = flags.NewParser(&options, flags.Default)
 func main() {
 	args, err := parser.ParseArgs(os.Args)
 	if err != nil {
-		handlePanic()
+		fmt.Println("bmp: could not parse command args, err:", err)
 		os.Exit(1)
 	}
 
 	command, err := createCommand(args, options)
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println("bmp: could not create command, err:", err)
 		os.Exit(1)
 	}
 
 	validated, err := command.Validate()
 	if err != nil {
-		handlePanic()
+		fmt.Println("bmp: could not validate command, err:", err)
 		os.Exit(1)
 	}
 
 	if !validated {
-		fmt.Println("Invalid options for command: ", err.Error())
+		fmt.Println("bmp: invalid options for command: ", err.Error())
 		os.Exit(1)
 	}
 
 	rc, err := command.Execute(args)
 	if err != nil {
-		handlePanic()
+		fmt.Println("bmp: could not execute command, err:", err)
 		os.Exit(rc)
 	}
 
@@ -76,44 +73,4 @@ func createCommands(options cmds.Options) map[string]cmds.Command {
 		"tasks":             bmp.NewTasksCommand(options),
 		"update-state":      bmp.NewUpdateStateCommand(options),
 	}
-}
-
-func handlePanic() {
-	err := recover()
-
-	if err != nil {
-		switch err := err.(type) {
-		case error:
-			displayCrashDialog(err.Error())
-		case string:
-			displayCrashDialog(err)
-		default:
-			displayCrashDialog("An unexpected type of error")
-		}
-	}
-
-	if err != nil {
-		os.Exit(1)
-	}
-}
-
-func displayCrashDialog(errorMessage string) {
-	formattedString := `
-Something completely unexpected happened. This is a bug in %s.
-Please file this bug : https://github.com/cloudfoundry-community/bosh-softlayer-tools/issues
-Tell us that you ran this command:
-
-	%s
-
-this error occurred:
-
-	%s
-
-and this stack trace:
-
-%s
-	`
-
-	stackTrace := "\t" + strings.Replace(string(debug.Stack()), "\n", "\n\t", -1)
-	println(fmt.Sprintf(formattedString, "bosh-bmp-cli", strings.Join(os.Args, " "), errorMessage, stackTrace))
 }
