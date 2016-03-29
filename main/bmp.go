@@ -11,8 +11,8 @@ import (
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
 )
 
-var options cmds.Options
-var parser = flags.NewParser(&options, flags.Default)
+var bmpOptions cmds.Options
+var parser = flags.NewParser(&bmpOptions, flags.Default)
 
 func main() {
 	args, err := parser.ParseArgs(os.Args)
@@ -21,7 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	command, err := createCommand(args, options)
+	command, err := createCommand(args, bmpOptions)
 	if err != nil {
 		fmt.Println("bmp: could not create command, err:", err)
 		os.Exit(1)

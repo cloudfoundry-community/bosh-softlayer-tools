@@ -18,7 +18,7 @@ import (
 
 const VERSION = "v0.0.1"
 
-var options common.Options
+var stemcellsOptions common.Options
 
 type ImportImageCmdResponse struct {
 	Id   int    `json:"id"`
@@ -28,7 +28,7 @@ type ImportImageCmdResponse struct {
 func main() {
 	flag.Parse()
 
-	if options.HelpFlag || options.LongHelpFlag || len(flag.Args()) == 0 {
+	if stemcellsOptions.HelpFlag || stemcellsOptions.LongHelpFlag || len(flag.Args()) == 0 {
 		usage()
 		return
 	}
@@ -44,7 +44,7 @@ func main() {
 }
 
 func importImageCmd() {
-	if options.HelpFlag {
+	if stemcellsOptions.HelpFlag {
 		usage()
 		return
 	}
@@ -55,7 +55,7 @@ func importImageCmd() {
 		os.Exit(1)
 	}
 
-	cmd, err := import_image.NewImportImageCmd(options, client)
+	cmd, err := import_image.NewImportImageCmd(stemcellsOptions, client)
 	if err != nil {
 		cmd.Println("stemcells: Could not create image command, err:", err)
 		os.Exit(1)
@@ -93,7 +93,7 @@ func importImageCmd() {
 }
 
 func lightStemcellCmd() {
-	if options.HelpFlag {
+	if stemcellsOptions.HelpFlag {
 		usage()
 		return
 	}
@@ -106,10 +106,10 @@ func lightStemcellCmd() {
 
 	var cmd light_stemcell.LightStemcellCmd
 
-	if options.LightStemcellTypeFlag == "VDI" {
-		cmd = light_stemcell.NewLightStemcellVDICmd(options, client)
+	if stemcellsOptions.LightStemcellTypeFlag == "VDI" {
+		cmd = light_stemcell.NewLightStemcellVDICmd(stemcellsOptions, client)
 	} else {
-		cmd = light_stemcell.NewLightStemcellVGBDGTCmd(options, client)
+		cmd = light_stemcell.NewLightStemcellVGBDGTCmd(stemcellsOptions, client)
 	}
 
 	err = cmd.CheckOptions()
@@ -133,23 +133,23 @@ func lightStemcellCmd() {
 }
 
 func init() {
-	flag.StringVar(&options.CommandFlag, "c", "", "the command, one of: import-image")
+	flag.StringVar(&stemcellsOptions.CommandFlag, "c", "", "the command, one of: import-image")
 
-	flag.BoolVar(&options.HelpFlag, "h", false, "prints the usage")
-	flag.BoolVar(&options.LongHelpFlag, "-help", false, "prints the usage")
+	flag.BoolVar(&stemcellsOptions.HelpFlag, "h", false, "prints the usage")
+	flag.BoolVar(&stemcellsOptions.LongHelpFlag, "-help", false, "prints the usage")
 
-	flag.StringVar(&options.NameFlag, "name", "", "the name used by the specified command")
-	flag.StringVar(&options.NoteFlag, "note", "", "the note to be applied to the imported template")
-	flag.StringVar(&options.OsRefCodeFlag, "os-ref-code", "UBUNTU_14_64", "the referenceCode of the operating system software")
-	flag.StringVar(&options.UriFlag, "uri", "", "the URI for an object storage object (.vhd/.iso file)")
+	flag.StringVar(&stemcellsOptions.NameFlag, "name", "", "the name used by the specified command")
+	flag.StringVar(&stemcellsOptions.NoteFlag, "note", "", "the note to be applied to the imported template")
+	flag.StringVar(&stemcellsOptions.OsRefCodeFlag, "os-ref-code", "UBUNTU_14_64", "the referenceCode of the operating system software")
+	flag.StringVar(&stemcellsOptions.UriFlag, "uri", "", "the URI for an object storage object (.vhd/.iso file)")
 
-	flag.StringVar(&options.LightStemcellTypeFlag, "type", "VGBDGT", "two possible SoftLayer light stemcells: VGBDGT (default) or VDI")
-	flag.StringVar(&options.LightStemcellPathFlag, "path", ".", "the path for the location of the light stemcell file created")
-	flag.StringVar(&options.VersionFlag, "version", "", "the light stemcell version")
-	flag.StringVar(&options.StemcellInfoFilenameFlag, "stemcell-info-filename", "", "the path and filename to a JSON file containing the ID & UUID for a SoftLayer stemcell ")
-	flag.StringVar(&options.InfrastructureFlag, "infrastructure", "softlayer", "the light stemcell infrastructure, defaults to softlayer")
-	flag.StringVar(&options.HypervisorFlag, "hypervisor", "esxi", "the light stemcell version")
-	flag.StringVar(&options.OsNameFlag, "os-name", "ubuntu-trusty", "the name of the operating system")
+	flag.StringVar(&stemcellsOptions.LightStemcellTypeFlag, "type", "VGBDGT", "two possible SoftLayer light stemcells: VGBDGT (default) or VDI")
+	flag.StringVar(&stemcellsOptions.LightStemcellPathFlag, "path", ".", "the path for the location of the light stemcell file created")
+	flag.StringVar(&stemcellsOptions.VersionFlag, "version", "", "the light stemcell version")
+	flag.StringVar(&stemcellsOptions.StemcellInfoFilenameFlag, "stemcell-info-filename", "", "the path and filename to a JSON file containing the ID & UUID for a SoftLayer stemcell ")
+	flag.StringVar(&stemcellsOptions.InfrastructureFlag, "infrastructure", "softlayer", "the light stemcell infrastructure, defaults to softlayer")
+	flag.StringVar(&stemcellsOptions.HypervisorFlag, "hypervisor", "esxi", "the light stemcell version")
+	flag.StringVar(&stemcellsOptions.OsNameFlag, "os-name", "ubuntu-trusty", "the name of the operating system")
 }
 
 func usage() {
