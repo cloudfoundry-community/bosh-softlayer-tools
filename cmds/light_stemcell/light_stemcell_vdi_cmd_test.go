@@ -142,7 +142,7 @@ var _ = Describe("LightStemcellVDICmd", func() {
 
 		Context("running command", func() {
 			BeforeEach(func() {
-				fakeClient.FakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Disk_Image_getObject.json")
+				fakeClient.FakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("../..", "softlayer", "SoftLayer_Virtual_Disk_Image_getObject.json")
 				Expect(err).ToNot(HaveOccurred())
 			})
 
@@ -157,7 +157,7 @@ var _ = Describe("LightStemcellVDICmd", func() {
 
 	Context("Light Stemcell Command interface", func() {
 		BeforeEach(func() {
-			fakeClient.FakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Disk_Image_getObject.json")
+			fakeClient.FakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("../..", "softlayer", "SoftLayer_Virtual_Disk_Image_getObject.json")
 			Expect(err).ToNot(HaveOccurred())
 		})
 

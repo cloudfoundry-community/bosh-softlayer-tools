@@ -199,13 +199,13 @@ var _ = Describe("LightStemcellVGBDGTCmd", func() {
 })
 
 func readJsonTestFixtures(fakeClient *slclientfakes.FakeSoftLayerClient) {
-	blockDeviceTemplateGroups, err := common.ReadJsonTestFixtures("services", "SoftLayer_Account_Service_getBlockDeviceTemplateGroups.json")
+	blockDeviceTemplateGroups, err := common.ReadJsonTestFixtures("../..", "softlayer", "SoftLayer_Account_Service_getBlockDeviceTemplateGroups.json")
 	Expect(err).ToNot(HaveOccurred())
 
-	getObject, err := common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getObject.json")
+	getObject, err := common.ReadJsonTestFixtures("../..", "softlayer", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getObject.json")
 	Expect(err).ToNot(HaveOccurred())
 
-	getDatacenters, err := common.ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getDatacenters.json")
+	getDatacenters, err := common.ReadJsonTestFixtures("../..", "softlayer", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_getDatacenters.json")
 	Expect(err).ToNot(HaveOccurred())
 
 	fakeClient.FakeHttpClient.DoRawHttpRequestResponses = [][]byte{blockDeviceTemplateGroups, getObject, getDatacenters}

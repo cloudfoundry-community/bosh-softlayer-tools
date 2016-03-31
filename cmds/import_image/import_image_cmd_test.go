@@ -40,7 +40,7 @@ var _ = Describe("import-image command", func() {
 		fakeClient = slclientfakes.NewFakeSoftLayerClient(username, apiKey)
 		Expect(fakeClient).ToNot(BeNil())
 
-		fakeClient.FakeHttpClient.DoRawHttpRequestResponse, err = ReadJsonTestFixtures("services", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json")
+		fakeClient.FakeHttpClient.DoRawHttpRequestResponse, err = ReadJsonTestFixtures("../..", "softlayer", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json")
 		Expect(err).ToNot(HaveOccurred())
 
 		vgbdtgService, err = fakeClient.GetSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service()

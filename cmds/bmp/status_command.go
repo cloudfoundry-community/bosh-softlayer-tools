@@ -1,6 +1,7 @@
 package bmp
 
 import (
+	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
@@ -10,16 +11,19 @@ type statusCommand struct {
 
 	ui      common.UI
 	printer common.Printer
+
+	bmpClient clients.BmpClient
 }
 
-func NewStatusCommand(options cmds.Options) statusCommand {
+func NewStatusCommand(options cmds.Options, bmpClient clients.BmpClient) statusCommand {
 	consoleUi := common.NewConsoleUi()
 
 	return statusCommand{
 		options: options,
 
-		ui:      consoleUi,
-		printer: common.NewDefaultPrinter(consoleUi, options.Verbose),
+		ui:        consoleUi,
+		printer:   common.NewDefaultPrinter(consoleUi, options.Verbose),
+		bmpClient: bmpClient,
 	}
 }
 
@@ -46,5 +50,17 @@ func (cmd statusCommand) Validate() (bool, error) {
 
 func (cmd statusCommand) Execute(args []string) (int, error) {
 	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+
+	info, err := cmd.bmpClient.Info()
+	if err != nil {
+		return 1, err
+	}
+
+	cmd.ui.Println("BMP server info")
+	cmd.ui.Printf(" status: %d", info.Status)
+	cmd.ui.Printf(" name: %s", info.Data.Name)
+	cmd.ui.Printf(" version: %s", info.Data.Version)
+	cmd.ui.Println()
+
 	return 0, nil
 }
