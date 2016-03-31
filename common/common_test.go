@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("LightStemcellCmd", func() {
+var _ = XDescribe("LightStemcellCmd", func() {
 	var (
 		err    error
 		tmpDir string
@@ -21,5 +21,23 @@ var _ = Describe("LightStemcellCmd", func() {
 
 	AfterEach(func() {
 		os.RemoveAll(tmpDir)
+	})
+
+	Context("CreateFile", func() {
+		It("creates a file", func() {
+			Fail("implement me!")
+		})
+	})
+
+	Context("CreateTarball", func() {
+		It("creates a tarball", func() {
+			Fail("implement me!")
+		})
+	})
+
+	Context("CreateBmpClient", func() {
+		It("creates a BMP client", func() {
+			Fail("implement me!")
+		})
 	})
 })
