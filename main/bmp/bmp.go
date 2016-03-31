@@ -7,8 +7,10 @@ import (
 
 	flags "github.com/jessevdk/go-flags"
 
+	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
+	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
 
 var bmpOptions cmds.Options
@@ -52,7 +54,12 @@ func createCommand(args []string, options cmds.Options) (cmds.Command, error) {
 		return nil, errors.New("No bmp command specified")
 	}
 
-	cmd := createCommands(options)[args[1]]
+	bmpClient, err := common.CreateBmpClient()
+	if err == nil {
+		return nil, errors.New(fmt.Sprintf("Could not create BMP client: %s", err.Error()))
+	}
+
+	cmd := createCommands(options, bmpClient)[args[1]]
 	if cmd == nil {
 		return nil, errors.New(fmt.Sprintf("Invalid command: %s", args[1]))
 	}
@@ -60,13 +67,13 @@ func createCommand(args []string, options cmds.Options) (cmds.Command, error) {
 	return cmd, nil
 }
 
-func createCommands(options cmds.Options) map[string]cmds.Command {
+func createCommands(options cmds.Options, bmpClient clients.BmpClient) map[string]cmds.Command {
 	return map[string]cmds.Command{
 		"bms":               bmp.NewBmsCommand(options),
 		"create-baremetals": bmp.NewCreateBaremetalsCommand(options),
 		"login":             bmp.NewLoginCommand(options),
 		"sl":                bmp.NewSlCommand(options),
-		"status":            bmp.NewStatusCommand(options),
+		"status":            bmp.NewStatusCommand(options, bmpClient),
 		"stemcells":         bmp.NewStemcellsCommand(options),
 		"target":            bmp.NewTargetCommand(options),
 		"task":              bmp.NewTaskCommand(options),
