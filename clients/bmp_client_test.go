@@ -71,5 +71,12 @@ var _ = Describe("BMP client", func() {
 				Id:   1,
 				Name: "name1"}))
 		})
+
+		It("fails when BMP server /sl/packages fails", func() {
+			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
+
+			_, err := bmpClient.SlPackages()
+			Expect(err).To(HaveOccurred())
+		})
 	})
 })
