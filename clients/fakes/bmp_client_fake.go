@@ -11,6 +11,9 @@ type FakeBmpClient struct {
 
 	InfoResponse clients.InfoResponse
 	InfoErr      error
+
+	SlPackagesResponse clients.SlPackagesResponse
+	SlPackagesErr      error
 }
 
 func NewFakeBmpClient(username, password, url string) *FakeBmpClient {
@@ -23,4 +26,8 @@ func NewFakeBmpClient(username, password, url string) *FakeBmpClient {
 
 func (bc *FakeBmpClient) Info() (clients.InfoResponse, error) {
 	return bc.InfoResponse, bc.InfoErr
+}
+
+func (bc *FakeBmpClient) SlPackages() (clients.SlPackagesResponse, error) {
+	return bc.SlPackagesResponse, bc.SlPackagesErr
 }

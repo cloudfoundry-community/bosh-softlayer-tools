@@ -24,14 +24,16 @@ var _ = Describe("BMP client", func() {
 		fakeHttpClient = slclientfakes.NewFakeHttpClient("fake-username", "fake-password")
 		Expect(fakeHttpClient).ToNot(BeNil())
 
-		fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "Info.json")
-		Expect(err).ToNot(HaveOccurred())
-
 		bmpClient = clients.NewBmpClient("fake-username", "fake-password", "http://fake.url.com", fakeHttpClient)
 		Expect(bmpClient).ToNot(BeNil())
 	})
 
 	Describe("#Info", func() {
+		BeforeEach(func() {
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "Info.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
 		It("returns BMP server info", func() {
 			info, err := bmpClient.Info()
 			Expect(err).ToNot(HaveOccurred())
@@ -48,6 +50,26 @@ var _ = Describe("BMP client", func() {
 
 			_, err := bmpClient.Info()
 			Expect(err).To(HaveOccurred())
+		})
+	})
+
+	Describe("#SlPackages", func() {
+		BeforeEach(func() {
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "SlPackages.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns an array of DataPackage", func() {
+			slPackageResponse, err := bmpClient.SlPackages()
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(len(slPackageResponse.Data)).To(Equal(2))
+			Expect(slPackageResponse.Data[0]).To(Equal(clients.DataPackage{
+				Id:   0,
+				Name: "name0"}))
+			Expect(slPackageResponse.Data[1]).To(Equal(clients.DataPackage{
+				Id:   1,
+				Name: "name1"}))
 		})
 	})
 })
