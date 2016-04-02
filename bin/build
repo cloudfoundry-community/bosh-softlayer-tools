@@ -8,6 +8,8 @@ echo -e "\n Formatting packages..."
 
 echo -e "\nGenerating Binary: sl_stemcells..."
 go build -o $(dirname $0)/../out/sl_stemcells $(dirname $0)/../main/stemcells/stemcells.go
+chmod +x out/sl_stemcells
 
-#echo -e "\nGenerating Binary: bmp..."
-#go build -o $(dirname $0)/../out/bmp ./main/bmp/bmp.go
+echo -e "\nGenerating Binary: bmp..."
+go build -o $(dirname $0)/../out/bmp ./main/bmp/bmp.go
+chmod +x out/bmp
