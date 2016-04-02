@@ -1,0 +1,10 @@
+#!/bin/bash 
+
+set -e
+
+export GOARCH=darwin
+export GOOS=darwin
+export GOTOOLDIR=$(go env GOROOT)/pkg/darwin_amd64
+
+$(dirname $0)/build
+
