@@ -1,4 +1,4 @@
-package main_stemcells
+package main
 
 import (
 	"encoding/json"
