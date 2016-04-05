@@ -4,30 +4,29 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	main "github.com/cloudfoundry-community/bosh-softlayer-tools/main"
+	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 )
 
 var _ = Describe("config", func() {
 	var (
-		config main.Config
-		err    error
+		c config.Config
 	)
 
 	BeforeEach(func() {
-		config = main.NewConfig("fake-path")
+		c = config.NewConfig("fake-path")
 	})
 
 	Describe("#GetPath", func() {
 		Context("when a path is path to config", func() {
 			It("returns the fake-path config path", func() {
-				Expect(config.GetPath()).To(Equal("fake-path"))
+				Expect(c.GetPath()).To(Equal("fake-path"))
 			})
 		})
 
 		Context("when no path is set", func() {
 			BeforeEach(func() {
 				It("returns the default config path", func() {
-					Expect(config.GetPath()).To(Equal(main.CONFIG_PATH))
+					Expect(c.GetPath()).To(Equal(config.CONFIG_PATH))
 				})
 			})
 		})

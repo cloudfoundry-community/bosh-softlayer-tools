@@ -8,7 +8,7 @@ type ConfigInfo struct {
 
 type Config interface {
 	GetPath() string
-	LoadConfig() (Config, error)
+	LoadConfig() (ConfigInfo, error)
 	SaveConfig() error
 }
 
@@ -27,7 +27,7 @@ func NewConfig(path string) *config {
 }
 
 func (c *config) GetPath() string {
-	return ""
+	return c.path
 }
 
 func (c *config) LoadConfig() (ConfigInfo, error) {
