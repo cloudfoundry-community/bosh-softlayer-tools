@@ -1,4 +1,4 @@
-package main_bmp
+package main
 
 import (
 	"errors"
