@@ -1,6 +1,7 @@
 package config_test
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -102,6 +103,43 @@ var _ = Describe("config", func() {
 		})
 	})
 
-	// Describe("#SaveConfig", func() {
-	// })
+	Describe("#SaveConfig", func() {
+		BeforeEach(func() {
+			tmpDirName, err = ioutil.TempDir("", "config")
+			Expect(err).ToNot(HaveOccurred())
+
+			tmpFileName = filepath.Join(tmpDirName, "config")
+			err = ioutil.WriteFile(tmpFileName, []byte(
+				`{
+    "username": "",
+	"password": "",
+	"target_url": ""
+}`), 0666)
+			Expect(err).ToNot(HaveOccurred())
+
+			c = config.NewConfig(tmpFileName)
+		})
+
+		It("saves new content of config in config path", func() {
+			configInfo := config.ConfigInfo{
+				Username:  "fake-username",
+				Password:  "fake-password",
+				TargetUrl: "http://fake.target.url",
+			}
+
+			err = c.SaveConfig(configInfo)
+			Expect(err).ToNot(HaveOccurred())
+
+			configFileContents, err := ioutil.ReadFile(tmpFileName)
+			Expect(err).ToNot(HaveOccurred())
+
+			readConfigInfo := config.ConfigInfo{}
+			err = json.Unmarshal(configFileContents, &readConfigInfo)
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(readConfigInfo.Username).To(Equal("fake-username"))
+			Expect(readConfigInfo.Password).To(Equal("fake-password"))
+			Expect(readConfigInfo.TargetUrl).To(Equal("http://fake.target.url"))
+		})
+	})
 })

@@ -14,7 +14,7 @@ type ConfigInfo struct {
 type Config interface {
 	GetPath() string
 	LoadConfig() (ConfigInfo, error)
-	SaveConfig() error
+	SaveConfig(configInfo ConfigInfo) error
 }
 
 const CONFIG_PATH = "~/.bmp_config"
@@ -54,6 +54,16 @@ func (c *config) LoadConfig() (ConfigInfo, error) {
 	return configInfo, nil
 }
 
-func (c *config) SaveConfig() error {
+func (c *config) SaveConfig(configInfo ConfigInfo) error {
+	contents, err := json.Marshal(configInfo)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(c.path, contents, 0666)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
