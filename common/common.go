@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
+	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 )
 
 func CreateFile(filePath string, data []byte) error {
@@ -51,7 +52,13 @@ func ReadJsonTestFixtures(rootPath, packageName, fileName string) ([]byte, error
 }
 
 func CreateBmpClient() (clients.BmpClient, error) {
-	return nil, nil
+	config := config.NewConfig("")
+	configInfo, err := config.LoadConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	return clients.NewBmpClient(configInfo.Username, configInfo.Password, configInfo.TargetUrl, nil), nil
 }
 
 // Private methods
