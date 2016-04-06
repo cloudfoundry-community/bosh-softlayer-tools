@@ -1,5 +1,10 @@
 package config
 
+import (
+	"encoding/json"
+	"io/ioutil"
+)
+
 type ConfigInfo struct {
 	Username  string `json:"username"`
 	Password  string `json:"password"`
@@ -20,6 +25,10 @@ type config struct {
 }
 
 func NewConfig(path string) *config {
+	if path == "" {
+		path = CONFIG_PATH
+	}
+
 	return &config{
 		configInfo: ConfigInfo{},
 		path:       path,
@@ -31,7 +40,18 @@ func (c *config) GetPath() string {
 }
 
 func (c *config) LoadConfig() (ConfigInfo, error) {
-	return ConfigInfo{}, nil
+	configFileContents, err := ioutil.ReadFile(c.path)
+	if err != nil {
+		return ConfigInfo{}, err
+	}
+
+	configInfo := ConfigInfo{}
+	err = json.Unmarshal(configFileContents, &configInfo)
+	if err != nil {
+		return ConfigInfo{}, err
+	}
+
+	return configInfo, nil
 }
 
 func (c *config) SaveConfig() error {
