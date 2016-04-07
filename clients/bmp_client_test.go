@@ -152,4 +152,61 @@ var _ = Describe("BMP client", func() {
 			Expect(err).To(HaveOccurred())
 		})
 	})
+
+	Describe("#tasks", func() {
+		BeforeEach(func() {
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "Tasks.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns an array of tasks", func() {
+			tasksResponse, err := bmpClient.Tasks(10)
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(len(tasksResponse.Data)).To(Equal(2))
+			Expect(tasksResponse.Data[0]).To(Equal(clients.Task{
+				Id:          0,
+				Description: "fake-description-0",
+				Start_time:  "fake-start-time-0",
+				Status:      "fake-status-0",
+				End_time:    "fake-end-time-0"}))
+			Expect(tasksResponse.Data[1]).To(Equal(clients.Task{
+				Id:          1,
+				Description: "fake-description-1",
+				Start_time:  "fake-start-time-1",
+				Status:      "fake-status-1",
+				End_time:    "fake-end-time-1"}))
+		})
+
+		It("fails when BMP server /tasks?latest= fails", func() {
+			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
+
+			_, err := bmpClient.Tasks(10)
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
+	Describe("#taskOutput", func() {
+		BeforeEach(func() {
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "TaskOutput.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns an array of task ouput", func() {
+			taskOutputResponse, err := bmpClient.TaskOutput(10, "event")
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(len(taskOutputResponse.Data)).To(Equal(2))
+			Expect(taskOutputResponse.Data[0]).To(Equal("INFO -- event0"))
+			Expect(taskOutputResponse.Data[1]).To(Equal("ERROR -- event1"))
+		})
+
+		It("fails when BMP server /task/{taskid}/txt/{level} fails", func() {
+			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
+
+			_, err := bmpClient.TaskOutput(10, "event")
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
 })

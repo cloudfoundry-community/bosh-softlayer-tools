@@ -20,6 +20,12 @@ type FakeBmpClient struct {
 
 	SlPackageOptionsResponse clients.SlPackageOptionsResponse
 	SlPackageOptionsErr      error
+
+	TasksResponse clients.TasksResponse
+	TasksErr      error
+
+	TaskOutputResponse clients.TaskOutputResponse
+	TaskOutputErr      error
 }
 
 func NewFakeBmpClient(username, password, url string) *FakeBmpClient {
@@ -44,4 +50,12 @@ func (bc *FakeBmpClient) Stemcells() (clients.StemcellsResponse, error) {
 
 func (bc *FakeBmpClient) SlPackageOptions(packageId string) (clients.SlPackageOptionsResponse, error) {
 	return bc.SlPackageOptionsResponse, bc.SlPackageOptionsErr
+}
+
+func (bc *FakeBmpClient) Tasks(latest int) (clients.TasksResponse, error) {
+	return bc.TasksResponse, bc.TasksErr
+}
+
+func (bc *FakeBmpClient) TaskOutput(taskID int, level string) (clients.TaskOutputResponse, error) {
+	return bc.TasksResponse, bc.TaskOutputErr
 }
