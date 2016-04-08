@@ -79,4 +79,134 @@ var _ = Describe("BMP client", func() {
 			Expect(err).To(HaveOccurred())
 		})
 	})
+
+	Describe("#stemcells", func() {
+		BeforeEach(func() {
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "Stemcells.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns an array of stemcells", func() {
+			stemcellsResponse, err := bmpClient.Stemcells()
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(len(stemcellsResponse.Stemcell)).To(Equal(2))
+			Expect(stemcellsResponse.Stemcell[0]).To(Equal(
+				"fake-stemcell-0"))
+			Expect(stemcellsResponse.Stemcell[1]).To(Equal(
+				"fake-stemcell-1"))
+		})
+
+		It("fails when BMP server /stemcells fails", func() {
+			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
+
+			_, err := bmpClient.Stemcells()
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
+	Describe("#SlPackageOptions", func() {
+		BeforeEach(func() {
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "SlPackageOptions.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns DataPackageOptions info", func() {
+			slPackageOptionsResponse, err := bmpClient.SlPackageOptions("fake-id")
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(len(slPackageOptionsResponse.Data.Category)).To(Equal(2))
+
+			Options1 := []clients.Option{
+				clients.Option{Id: 0, Description: "description0"},
+				clients.Option{Id: 1, Description: "description1"},
+			}
+
+			Expect(slPackageOptionsResponse.Data.Category[0]).To(Equal(clients.Category{
+				Code:     "code0",
+				Name:     "name0",
+				Options:  Options1,
+				Required: true}))
+
+			Options2 := []clients.Option{
+				clients.Option{Id: 0, Description: "description0"},
+			}
+
+			Expect(slPackageOptionsResponse.Data.Category[1]).To(Equal(clients.Category{
+				Code:     "code1",
+				Name:     "name1",
+				Options:  Options2,
+				Required: false}))
+
+			Expect(len(slPackageOptionsResponse.Data.Datacenter)).To(Equal(2))
+			Expect(slPackageOptionsResponse.Data.Datacenter[0]).To(Equal(
+				"datacenter0 - location0"))
+			Expect(slPackageOptionsResponse.Data.Datacenter[1]).To(Equal(
+				"datacenter1 - location1"))
+		})
+
+		It("fails when BMP server /sl/package/{packageid}/options fails", func() {
+			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
+
+			_, err := bmpClient.SlPackageOptions("fake-id")
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
+	Describe("#tasks", func() {
+		BeforeEach(func() {
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "Tasks.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns an array of tasks", func() {
+			tasksResponse, err := bmpClient.Tasks(10)
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(len(tasksResponse.Data)).To(Equal(2))
+			Expect(tasksResponse.Data[0]).To(Equal(clients.Task{
+				Id:          0,
+				Description: "fake-description-0",
+				Start_time:  "fake-start-time-0",
+				Status:      "fake-status-0",
+				End_time:    "fake-end-time-0"}))
+			Expect(tasksResponse.Data[1]).To(Equal(clients.Task{
+				Id:          1,
+				Description: "fake-description-1",
+				Start_time:  "fake-start-time-1",
+				Status:      "fake-status-1",
+				End_time:    "fake-end-time-1"}))
+		})
+
+		It("fails when BMP server /tasks?latest= fails", func() {
+			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
+
+			_, err := bmpClient.Tasks(10)
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
+	Describe("#taskOutput", func() {
+		BeforeEach(func() {
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "TaskOutput.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns an array of task ouput", func() {
+			taskOutputResponse, err := bmpClient.TaskOutput(10, "event")
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(len(taskOutputResponse.Data)).To(Equal(2))
+			Expect(taskOutputResponse.Data[0]).To(Equal("INFO -- event0"))
+			Expect(taskOutputResponse.Data[1]).To(Equal("ERROR -- event1"))
+		})
+
+		It("fails when BMP server /task/{taskid}/txt/{level} fails", func() {
+			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
+
+			_, err := bmpClient.TaskOutput(10, "event")
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
 })

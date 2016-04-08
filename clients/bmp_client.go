@@ -79,3 +79,100 @@ func (bc *bmpClient) SlPackages() (SlPackagesResponse, error) {
 
 	return response, nil
 }
+
+func (bc *bmpClient) Stemcells() (StemcellsResponse, error) {
+	path := fmt.Sprintf("%s/%s", bc.url, "/stemcells")
+	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: could not calls /stemcells on BMP server, error message '%s'", err.Error())
+		return StemcellsResponse{}, errors.New(errorMessage)
+	}
+
+	if slcommon.IsHttpErrorCode(errorCode) {
+		errorMessage := fmt.Sprintf("bmp: could not call /stemcells on BMP server, HTTP error code: '%d'", errorCode)
+		return StemcellsResponse{}, errors.New(errorMessage)
+	}
+
+	response := StemcellsResponse{}
+
+	err = json.Unmarshal(responseBytes, &response)
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
+		return StemcellsResponse{}, errors.New(errorMessage)
+	}
+
+	return response, nil
+}
+
+func (bc *bmpClient) SlPackageOptions(packageId string) (SlPackageOptionsResponse, error) {
+	path := fmt.Sprintf("%s/sl/packages/%s/options", bc.url, packageId)
+
+	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: could not calls /sl/packages/'%s'/options on BMP server, error message '%s'", packageId, err.Error())
+		return SlPackageOptionsResponse{}, errors.New(errorMessage)
+	}
+
+	if slcommon.IsHttpErrorCode(errorCode) {
+		errorMessage := fmt.Sprintf("bmp: could not call /sl/packages/'%s'/options on BMP server, HTTP error code: '%d'", packageId, errorCode)
+		return SlPackageOptionsResponse{}, errors.New(errorMessage)
+	}
+
+	response := SlPackageOptionsResponse{}
+
+	err = json.Unmarshal(responseBytes, &response)
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
+		return SlPackageOptionsResponse{}, errors.New(errorMessage)
+	}
+
+	return response, nil
+}
+
+func (bc *bmpClient) Tasks(latest int) (TasksResponse, error) {
+	path := fmt.Sprintf("%s/%s%d", bc.url, "/tasks?latest=", latest)
+	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: could not calls /tasks?latest='%d'on BMP server, error message '%s'", latest, err.Error())
+		return TasksResponse{}, errors.New(errorMessage)
+	}
+
+	if slcommon.IsHttpErrorCode(errorCode) {
+		errorMessage := fmt.Sprintf("bmp: could not call /tasks?latest='%d' on BMP server, HTTP error code: '%d'", latest, errorCode)
+		return TasksResponse{}, errors.New(errorMessage)
+	}
+
+	response := TasksResponse{}
+
+	err = json.Unmarshal(responseBytes, &response)
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
+		return TasksResponse{}, errors.New(errorMessage)
+	}
+
+	return response, nil
+}
+
+func (bc *bmpClient) TaskOutput(taskId int, level string) (TaskOutputResponse, error) {
+	path := fmt.Sprintf("%s/task/%d/txt/%s", bc.url, taskId, level)
+	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: could not calls /task/'%d'/txt/'%s'on BMP server, error message '%s'", taskId, level, err.Error())
+		return TaskOutputResponse{}, errors.New(errorMessage)
+	}
+
+	if slcommon.IsHttpErrorCode(errorCode) {
+		errorMessage := fmt.Sprintf("bmp: could not call /task/'%d'/txt/'%s' on BMP server, HTTP error code: '%d'", taskId, level, errorCode)
+		return TaskOutputResponse{}, errors.New(errorMessage)
+	}
+
+	response := TaskOutputResponse{}
+
+	err = json.Unmarshal(responseBytes, &response)
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
+		return TaskOutputResponse{}, errors.New(errorMessage)
+	}
+
+	return response, nil
+}
