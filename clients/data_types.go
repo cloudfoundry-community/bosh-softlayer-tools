@@ -72,16 +72,19 @@ type TaskOutputResponse struct {
 }
 
 // /baremetal/${serverId}/${status}
+
 type UpdateStatusResponse struct {
 	Status string `json:"status"`
 }
 
 // /login/${username}/${password}
+
 type LoginResponse struct {
 	Status string `json:"status"`
 }
 
 // //baremetals (dry_run: optional)
+
 type TaskInfo struct {
 	TaskId int `json:"task_id"`
 }
@@ -100,16 +103,6 @@ type ServerSpec struct {
 	PrivateVlanId string `json:"private_vlan_id"`
 	Hourly        bool `json:"hourly"`
 }
-
-//type Deployment struct {
-//	Name          string         `yaml:"name"`
-//	ResourcePools []ResourcePool `yaml:"resource_pools"`
-//}
-
-//type ResourcePool struct {
-//	CloudProperties CloudProperty `yaml:"cloud_properties"`
-//	Size            int           `yaml:"size"`
-//}
 
 type CloudProperty struct {
 	ImageId    string     `json:"image_id"`
