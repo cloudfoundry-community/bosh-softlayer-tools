@@ -5,9 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	//"gopkg.in/yaml.v2"
-	//"io/ioutil"
-	//"path/filepath"
 
 	slclient "github.com/maximilien/softlayer-go/client"
 	slcommon "github.com/maximilien/softlayer-go/common"
@@ -229,38 +226,6 @@ func (bc *bmpClient) Login(username string, password string) (LoginResponse, err
 }
 
 func (bc *bmpClient) CreateBaremetal(createBaremetalInfo CreateBaremetalInfo) (CreateBaremetalResponse, error) {
-	//filename, _ := filepath.Abs(deployment)
-	//yamlFile, err := ioutil.ReadFile(filename)
-	//if err != nil {
-	//	errorMessage := fmt.Sprintf("bmp: could not read File '%s', error message '%s'", deployment, err.Error())
-	//	return CreateBaremetalResponse{}, errors.New(errorMessage)
-	//}
-	//
-	//var deploymentInfo Deployment
-	//
-	//err = yaml.Unmarshal(yamlFile, &deploymentInfo)
-	//if err != nil {
-	//	errorMessage := fmt.Sprintf("bmp: failed to decode Yaml File '%s', error message '%s'", deployment, err.Error())
-	//	return CreateBaremetalResponse{}, errors.New(errorMessage)
-	//}
-	//
-	//deploymentName := deploymentInfo.Name
-	//baremetalSpecs := []CloudProperty{}
-	//
-	//for _, ResourcePool := range deploymentInfo.ResourcePools {
-	//	if ResourcePool.CloudProperties.Baremetal && ResourcePool.Size != 0 {
-	//		baremetalSpecs = append(baremetalSpecs, ResourcePool.CloudProperties)
-	//	}
-	//}
-	//
-	//createBaremetalParameters := CreateBaremetalParameters{
-	//	Parameters: CreateBaremetal{
-	//		BaremetalSpecs: baremetalSpecs,
-	//		Deployment:     deploymentName},
-	//}
-	//
-	//requestBody, err := json.Marshal(createBaremetalParameters)
-
 	createBaremetalParameters := CreateBaremetalParameters{
 		Parameters: createBaremetalInfo,
 	}
