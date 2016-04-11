@@ -292,7 +292,7 @@ var _ = Describe("BMP client", func() {
 		})
 
 		It("fails when BMP create baremetal fails", func() {
-			fakeHttpClient.DoRawHttpRequestError = errors.New("../test_fixtures/fake-deployment.yml")
+			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
 
 			_, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo)
 			Expect(err).To(HaveOccurred())
