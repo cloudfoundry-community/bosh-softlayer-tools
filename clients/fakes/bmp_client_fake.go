@@ -32,6 +32,9 @@ type FakeBmpClient struct {
 
 	LoginResponse clients.LoginResponse
 	LoginErr      error
+
+	CreateBaremetalResponse clients.CreateBaremetalResponse
+	CreateBaremetalErr      error
 }
 
 func NewFakeBmpClient(username, password, url string) *FakeBmpClient {
@@ -64,4 +67,16 @@ func (bc *FakeBmpClient) Tasks(latest int) (clients.TasksResponse, error) {
 
 func (bc *FakeBmpClient) TaskOutput(taskID int, level string) (clients.TaskOutputResponse, error) {
 	return bc.TaskOutputResponse, bc.TaskOutputErr
+}
+
+func (bc *FakeBmpClient) UpdateStatus(serverId string, status string) (clients.UpdateStatusResponse, error) {
+	return bc.UpdateStatusResponse, bc.UpdateStatusErr
+}
+
+func (bc *FakeBmpClient) Login(username string, password string) (clients.LoginResponse, error) {
+	return bc.LoginResponse, bc.LoginErr
+}
+
+func (bc *FakeBmpClient) CreateBaremetal(createBaremetalInfo clients.CreateBaremetalInfo) (clients.CreateBaremetalResponse, error) {
+	return bc.CreateBaremetalResponse, bc.CreateBaremetalErr
 }

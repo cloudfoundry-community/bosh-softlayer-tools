@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	//"gopkg.in/yaml.v2"
+	//"io/ioutil"
+	//"path/filepath"
 
 	slclient "github.com/maximilien/softlayer-go/client"
 	slcommon "github.com/maximilien/softlayer-go/common"
@@ -172,6 +175,119 @@ func (bc *bmpClient) TaskOutput(taskId int, level string) (TaskOutputResponse, e
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
 		return TaskOutputResponse{}, errors.New(errorMessage)
+	}
+
+	return response, nil
+}
+
+func (bc *bmpClient) UpdateStatus(serverId string, status string) (UpdateStatusResponse, error) {
+	path := fmt.Sprintf("%s/baremetal/%s/%s", bc.url, serverId, status)
+	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "PUT", &bytes.Buffer{})
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: could not calls /baremetal/'%s'/'%s' on BMP server, error message '%s'", serverId, status, err.Error())
+		return UpdateStatusResponse{}, errors.New(errorMessage)
+	}
+
+	if slcommon.IsHttpErrorCode(errorCode) {
+		errorMessage := fmt.Sprintf("bmp: could not call /baremetal/'%s'/'%s' on BMP server, HTTP error code: '%d'", serverId, status, errorCode)
+		return UpdateStatusResponse{}, errors.New(errorMessage)
+	}
+
+	response := UpdateStatusResponse{}
+
+	err = json.Unmarshal(responseBytes, &response)
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
+		return UpdateStatusResponse{}, errors.New(errorMessage)
+	}
+
+	return response, nil
+}
+
+func (bc *bmpClient) Login(username string, password string) (LoginResponse, error) {
+	path := fmt.Sprintf("%s/login/%s/%s", bc.url, username, password)
+	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: could not calls /login/'%s'/'%s' on BMP server, error message '%s'", username, password, err.Error())
+		return LoginResponse{}, errors.New(errorMessage)
+	}
+
+	if slcommon.IsHttpErrorCode(errorCode) {
+		errorMessage := fmt.Sprintf("bmp: could not call /login/'%s'/'%s' on BMP server, HTTP error code: '%d'", username, password, errorCode)
+		return LoginResponse{}, errors.New(errorMessage)
+	}
+
+	response := LoginResponse{}
+
+	err = json.Unmarshal(responseBytes, &response)
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
+		return LoginResponse{}, errors.New(errorMessage)
+	}
+
+	return response, nil
+}
+
+func (bc *bmpClient) CreateBaremetal(createBaremetalInfo CreateBaremetalInfo) (CreateBaremetalResponse, error) {
+	//filename, _ := filepath.Abs(deployment)
+	//yamlFile, err := ioutil.ReadFile(filename)
+	//if err != nil {
+	//	errorMessage := fmt.Sprintf("bmp: could not read File '%s', error message '%s'", deployment, err.Error())
+	//	return CreateBaremetalResponse{}, errors.New(errorMessage)
+	//}
+	//
+	//var deploymentInfo Deployment
+	//
+	//err = yaml.Unmarshal(yamlFile, &deploymentInfo)
+	//if err != nil {
+	//	errorMessage := fmt.Sprintf("bmp: failed to decode Yaml File '%s', error message '%s'", deployment, err.Error())
+	//	return CreateBaremetalResponse{}, errors.New(errorMessage)
+	//}
+	//
+	//deploymentName := deploymentInfo.Name
+	//baremetalSpecs := []CloudProperty{}
+	//
+	//for _, ResourcePool := range deploymentInfo.ResourcePools {
+	//	if ResourcePool.CloudProperties.Baremetal && ResourcePool.Size != 0 {
+	//		baremetalSpecs = append(baremetalSpecs, ResourcePool.CloudProperties)
+	//	}
+	//}
+	//
+	//createBaremetalParameters := CreateBaremetalParameters{
+	//	Parameters: CreateBaremetal{
+	//		BaremetalSpecs: baremetalSpecs,
+	//		Deployment:     deploymentName},
+	//}
+	//
+	//requestBody, err := json.Marshal(createBaremetalParameters)
+
+	createBaremetalParameters := CreateBaremetalParameters{
+		Parameters: createBaremetalInfo,
+	}
+
+	requestBody, err := json.Marshal(createBaremetalParameters)
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: failed to encode Json File, error message '%s'", err.Error())
+		return CreateBaremetalResponse{}, errors.New(errorMessage)
+	}
+
+	path := fmt.Sprintf("%s/%s", bc.url, "sl/packages")
+	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "Post", bytes.NewBuffer(requestBody))
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: could not calls /baremetals on BMP server, error message '%s'", err.Error())
+		return CreateBaremetalResponse{}, errors.New(errorMessage)
+	}
+
+	if slcommon.IsHttpErrorCode(errorCode) {
+		errorMessage := fmt.Sprintf("bmp: could not call /baremetals on BMP server, HTTP error code: '%d'", errorCode)
+		return CreateBaremetalResponse{}, errors.New(errorMessage)
+	}
+
+	response := CreateBaremetalResponse{}
+	err = json.Unmarshal(responseBytes, &response)
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
+		return CreateBaremetalResponse{}, errors.New(errorMessage)
 	}
 
 	return response, nil
