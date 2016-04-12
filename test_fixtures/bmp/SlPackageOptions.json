@@ -1,37 +1,37 @@
 {
-    "status": 200,
-	"data" : {
-      "categories" : [
-        {
-          "code": "code0",
-          "name": "name0",
-          "options": [
-            {
-              "id": 0,
-              "description": "description0"
-            },
-            {
-              "id": 1,
-              "description": "description1"
-            }
-          ],
-          "required": true
-        },
-        {
-          "code": "code1",
-          "name": "name1",
-          "options": [
-            {
-              "id": 0,
-              "description": "description0"
-            }
-          ],
-          "required": false
-        }
-      ],
-      "datacenters" : [
-        "datacenter0 - location0",
-        "datacenter1 - location1"
-      ]
-    }
+  "status": 200,
+  "data" : {
+    "categories" : [
+      {
+        "code": "code0",
+        "name": "name0",
+        "options": [
+          {
+            "id": 0,
+            "description": "description0"
+          },
+          {
+            "id": 1,
+            "description": "description1"
+          }
+        ],
+        "required": true
+      },
+      {
+        "code": "code1",
+        "name": "name1",
+        "options": [
+          {
+             "id": 0,
+            "description": "description0"
+          }
+        ],
+        "required": false
+      }
+    ],
+    "datacenters" : [
+      "datacenter0 - location0",
+      "datacenter1 - location1"
+    ]
+  }
 }

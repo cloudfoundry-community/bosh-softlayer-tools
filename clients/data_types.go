@@ -18,6 +18,7 @@ type Package struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
 }
+
 type DataPackage struct {
 	Packages []Package `json:"packages"`
 }
