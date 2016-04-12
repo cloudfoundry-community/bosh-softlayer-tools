@@ -1,6 +1,6 @@
 {
   "status": 200,
-  "data" : [
+  "data": [
     "fake-stemcell-0",
     "fake-stemcell-1"
   ]

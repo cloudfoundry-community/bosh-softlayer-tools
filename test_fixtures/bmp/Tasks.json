@@ -1,6 +1,6 @@
 {
-  "status" : 200,
-  "data" : [
+  "status": 200,
+  "data": [
     {
       "id": 0,
       "description": "fake-description-0",

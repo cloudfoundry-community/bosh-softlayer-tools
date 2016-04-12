@@ -1,7 +1,7 @@
 {
   "status": 200,
-  "data" : {
-    "categories" : [
+  "data": {
+    "categories": [
       {
         "code": "code0",
         "name": "name0",
