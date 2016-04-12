@@ -15,9 +15,12 @@ import (
 var _ = Describe("BMP client", func() {
 
 	var (
-		err            error
-		bmpClient      clients.BmpClient
-		fakeHttpClient *slclientfakes.FakeHttpClient
+		err                     error
+		bmpClient               clients.BmpClient
+		fakeHttpClient          *slclientfakes.FakeHttpClient
+	        fakeServerSpec          clients.ServerSpec
+	        fakeCloudProperty       []clients.CloudProperty
+	        fakeCreateBaremetalInfo clients.CreateBaremetalInfo
 	)
 
 	BeforeEach(func() {
@@ -38,11 +41,10 @@ var _ = Describe("BMP client", func() {
 			info, err := bmpClient.Info()
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(info).To(Equal(clients.InfoResponse{
-				Status: 0,
-				Data: clients.DataInfo{
+			Expect(info.Status).To(Equal(200))
+			Expect(info.Data).To(Equal(clients.DataInfo{
 					Name:    "fake-name",
-					Version: "fake-version"}}))
+					Version: "fake-version"}))
 		})
 
 		It("fails when BMP server fails", func() {
@@ -63,11 +65,12 @@ var _ = Describe("BMP client", func() {
 			slPackageResponse, err := bmpClient.SlPackages()
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(len(slPackageResponse.Data)).To(Equal(2))
-			Expect(slPackageResponse.Data[0]).To(Equal(clients.DataPackage{
+			Expect(slPackageResponse.Status).To(Equal(200))
+			Expect(len(slPackageResponse.Data.Packages)).To(Equal(2))
+			Expect(slPackageResponse.Data.Packages[0]).To(Equal(clients.Package{
 				Id:   0,
 				Name: "name0"}))
-			Expect(slPackageResponse.Data[1]).To(Equal(clients.DataPackage{
+			Expect(slPackageResponse.Data.Packages[1]).To(Equal(clients.Package{
 				Id:   1,
 				Name: "name1"}))
 		})
@@ -89,7 +92,7 @@ var _ = Describe("BMP client", func() {
 		It("returns an array of stemcells", func() {
 			stemcellsResponse, err := bmpClient.Stemcells()
 			Expect(err).ToNot(HaveOccurred())
-
+			Expect(stemcellsResponse.Status).To(Equal(200))
 			Expect(len(stemcellsResponse.Stemcell)).To(Equal(2))
 			Expect(stemcellsResponse.Stemcell[0]).To(Equal(
 				"fake-stemcell-0"))
@@ -115,27 +118,23 @@ var _ = Describe("BMP client", func() {
 			slPackageOptionsResponse, err := bmpClient.SlPackageOptions("fake-id")
 			Expect(err).ToNot(HaveOccurred())
 
+			Expect(slPackageOptionsResponse.Status).To(Equal(200))
+
 			Expect(len(slPackageOptionsResponse.Data.Category)).To(Equal(2))
-
-			Options1 := []clients.Option{
-				clients.Option{Id: 0, Description: "description0"},
-				clients.Option{Id: 1, Description: "description1"},
-			}
-
 			Expect(slPackageOptionsResponse.Data.Category[0]).To(Equal(clients.Category{
-				Code:     "code0",
-				Name:     "name0",
-				Options:  Options1,
+				Code: "code0",
+				Name: "name0",
+				Options: []clients.Option{
+					clients.Option{Id: 0, Description: "description0"},
+					clients.Option{Id: 1, Description: "description1"},
+				},
 				Required: true}))
-
-			Options2 := []clients.Option{
-				clients.Option{Id: 0, Description: "description0"},
-			}
-
 			Expect(slPackageOptionsResponse.Data.Category[1]).To(Equal(clients.Category{
-				Code:     "code1",
-				Name:     "name1",
-				Options:  Options2,
+				Code: "code1",
+				Name: "name1",
+				Options: []clients.Option{
+					clients.Option{Id: 0, Description: "description0"},
+				},
 				Required: false}))
 
 			Expect(len(slPackageOptionsResponse.Data.Datacenter)).To(Equal(2))
@@ -162,6 +161,8 @@ var _ = Describe("BMP client", func() {
 		It("returns an array of tasks", func() {
 			tasksResponse, err := bmpClient.Tasks(10)
 			Expect(err).ToNot(HaveOccurred())
+
+			Expect(tasksResponse.Status).To(Equal(200))
 
 			Expect(len(tasksResponse.Data)).To(Equal(2))
 			Expect(tasksResponse.Data[0]).To(Equal(clients.Task{
@@ -196,6 +197,8 @@ var _ = Describe("BMP client", func() {
 			taskOutputResponse, err := bmpClient.TaskOutput(10, "event")
 			Expect(err).ToNot(HaveOccurred())
 
+			Expect(taskOutputResponse.Status).To(Equal(200))
+
 			Expect(len(taskOutputResponse.Data)).To(Equal(2))
 			Expect(taskOutputResponse.Data[0]).To(Equal("INFO -- event0"))
 			Expect(taskOutputResponse.Data[1]).To(Equal("ERROR -- event1"))
@@ -219,7 +222,7 @@ var _ = Describe("BMP client", func() {
 			updateStatusResponse, err := bmpClient.UpdateStatus("fake-id", "fake-status")
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(updateStatusResponse.Status).To(Equal("200"))
+			Expect(updateStatusResponse.Status).To(Equal(200))
 		})
 
 		It("fails when BMP server /baremetal/{serverId}/{staus} fails", func() {
@@ -240,7 +243,7 @@ var _ = Describe("BMP client", func() {
 			loginResponse, err := bmpClient.Login("fake-username", "fake-password")
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(loginResponse.Status).To(Equal("200"))
+			Expect(loginResponse.Status).To(Equal(200))
 		})
 
 		It("fails when BMP server /login/{username}/{password} fails", func() {
@@ -255,37 +258,39 @@ var _ = Describe("BMP client", func() {
 		BeforeEach(func() {
 			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "CreateBaremetal.json")
 			Expect(err).ToNot(HaveOccurred())
+
+			fakeServerSpec = clients.ServerSpec{
+				Package:       "fake-package",
+				Server:        "fake-server",
+				Ram:           "fake-ram",
+				Disk0:         "fake-disk0",
+				PortSpeed:     "fake-portSpeed",
+				PublicVlanId:  "fake-publicvlanid",
+				PrivateVlanId: "fake-privatevlanid",
+				Hourly:        true,
+			}
+
+			fakeCloudProperty = []clients.CloudProperty{
+				clients.CloudProperty{
+					ImageId:    "fake-id",
+					BoshIP:     "fake-boship",
+					Datacenter: "fake-datacenter",
+					NamePrefix: "fake-nameprefix",
+					Baremetal:  true,
+					ServerSpec: fakeServerSpec,
+				}}
+
+			fakeCreateBaremetalInfo = clients.CreateBaremetalInfo{
+				BaremetalSpecs: fakeCloudProperty,
+				Deployment:     "fake-name",
+			}
 		})
-
-		fakeServerSpec := clients.ServerSpec{
-			Package: "fake-package",
-			Server: "fake-server",
-			Ram: "fake-ram",
-			Disk0: "fake-disk0",
-			PortSpeed: "fake-portSpeed",
-			PublicVlanId: "fake-publicvlanid",
-			PrivateVlanId: "fake-privatevlanid",
-			Hourly: true,
-		}
-
-		fakeCloudProperty := []clients.CloudProperty{
-			clients.CloudProperty{
-				ImageId: "fake-id",
-				BoshIP: "fake-boship",
-				Datacenter: "fake-datacenter",
-				NamePrefix: "fake-nameprefix",
-				Baremetal: true,
-				ServerSpec: fakeServerSpec,
-			}}
-
-		fakeCreateBaremetalInfo := clients.CreateBaremetalInfo{
-			BaremetalSpecs: fakeCloudProperty,
-			Deployment: "fake-name",
-		}
 
 		It("returns an task ID", func() {
 			createBaremetalResponse, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo)
 			Expect(err).ToNot(HaveOccurred())
+
+			Expect(createBaremetalResponse.Status).To(Equal(201))
 
 			Expect(createBaremetalResponse.Data).To(Equal(clients.TaskInfo{
 				TaskId: 10}))

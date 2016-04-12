@@ -14,13 +14,17 @@ type InfoResponse struct {
 
 // /sl/packages
 
-type DataPackage struct {
+type Package struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
 }
+type DataPackage struct {
+	Packages []Package `json:"packages"`
+}
 
 type SlPackagesResponse struct {
-	Data []DataPackage `json:"data"`
+	Status int      `json:"status"`
+	Data DataPackage `json:"data"`
 }
 
 // /sl/${package_id}/options
@@ -42,12 +46,14 @@ type DataPackageOptions struct {
 }
 
 type SlPackageOptionsResponse struct {
+	Status int      `json:"status"`
 	Data DataPackageOptions `json:"data"`
 }
 
 // /stemcells
 
 type StemcellsResponse struct {
+	Status int      `json:"status"`
 	Stemcell []string `json:"data"`
 }
 
@@ -62,25 +68,27 @@ type Task struct {
 }
 
 type TasksResponse struct {
+	Status int      `json:"status"`
 	Data []Task `json:"data"`
 }
 
 // /task/${task_id}/txt}" (default event)
 
 type TaskOutputResponse struct {
+	Status int      `json:"status"`
 	Data []string `json:"data`
 }
 
 // /baremetal/${serverId}/${status}
 
 type UpdateStatusResponse struct {
-	Status string `json:"status"`
+	Status int `json:"status"`
 }
 
 // /login/${username}/${password}
 
 type LoginResponse struct {
-	Status string `json:"status"`
+	Status int `json:"status"`
 }
 
 // //baremetals (dry_run: optional)
@@ -90,6 +98,7 @@ type TaskInfo struct {
 }
 
 type CreateBaremetalResponse struct {
+	Status int      `json:"status"`
 	Data TaskInfo `json:"data"`
 }
 
@@ -101,7 +110,7 @@ type ServerSpec struct {
 	PortSpeed     string `json:"port_speed"`
 	PublicVlanId  string `json:"public_vlan_id"`
 	PrivateVlanId string `json:"private_vlan_id"`
-	Hourly        bool `json:"hourly"`
+	Hourly        bool   `json:"hourly"`
 }
 
 type CloudProperty struct {

@@ -1,5 +1,5 @@
 {
-	"status" : 0,
+	"status" : 200,
 	"data" : {
 		"name" : "fake-name",
 		"version" : "fake-version"

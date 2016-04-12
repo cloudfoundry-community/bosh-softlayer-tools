@@ -1,4 +1,5 @@
 {
+  "status": 200,
   "data" : [
     "INFO -- event0",
     "ERROR -- event1"

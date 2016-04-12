@@ -94,7 +94,6 @@ func (bc *bmpClient) Stemcells() (StemcellsResponse, error) {
 	}
 
 	response := StemcellsResponse{}
-
 	err = json.Unmarshal(responseBytes, &response)
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
@@ -106,7 +105,6 @@ func (bc *bmpClient) Stemcells() (StemcellsResponse, error) {
 
 func (bc *bmpClient) SlPackageOptions(packageId string) (SlPackageOptionsResponse, error) {
 	path := fmt.Sprintf("%s/sl/packages/%s/options", bc.url, packageId)
-
 	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: could not calls /sl/packages/'%s'/options on BMP server, error message '%s'", packageId, err.Error())
@@ -119,7 +117,6 @@ func (bc *bmpClient) SlPackageOptions(packageId string) (SlPackageOptionsRespons
 	}
 
 	response := SlPackageOptionsResponse{}
-
 	err = json.Unmarshal(responseBytes, &response)
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
@@ -143,7 +140,6 @@ func (bc *bmpClient) Tasks(latest int) (TasksResponse, error) {
 	}
 
 	response := TasksResponse{}
-
 	err = json.Unmarshal(responseBytes, &response)
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
@@ -167,7 +163,6 @@ func (bc *bmpClient) TaskOutput(taskId int, level string) (TaskOutputResponse, e
 	}
 
 	response := TaskOutputResponse{}
-
 	err = json.Unmarshal(responseBytes, &response)
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
@@ -191,7 +186,6 @@ func (bc *bmpClient) UpdateStatus(serverId string, status string) (UpdateStatusR
 	}
 
 	response := UpdateStatusResponse{}
-
 	err = json.Unmarshal(responseBytes, &response)
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
@@ -215,7 +209,6 @@ func (bc *bmpClient) Login(username string, password string) (LoginResponse, err
 	}
 
 	response := LoginResponse{}
-
 	err = json.Unmarshal(responseBytes, &response)
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
@@ -237,7 +230,7 @@ func (bc *bmpClient) CreateBaremetal(createBaremetalInfo CreateBaremetalInfo) (C
 	}
 
 	path := fmt.Sprintf("%s/%s", bc.url, "sl/packages")
-	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "Post", bytes.NewBuffer(requestBody))
+	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "POST", bytes.NewBuffer(requestBody))
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: could not calls /baremetals on BMP server, error message '%s'", err.Error())
 		return CreateBaremetalResponse{}, errors.New(errorMessage)
