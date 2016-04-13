@@ -1,0 +1,19 @@
+{
+  "status": 200,
+  "data": [
+    {
+      "id": 0,
+      "description": "fake-description-0",
+      "start_time": "fake-start-time-0",
+      "status": "fake-status-0",
+      "end_time": "fake-end-time-0"
+    },
+    {
+      "id": 1,
+      "description": "fake-description-1",
+      "start_time": "fake-start-time-1",
+      "status": "fake-status-1",
+      "end_time": "fake-end-time-1"
+    }
+  ]
+}
