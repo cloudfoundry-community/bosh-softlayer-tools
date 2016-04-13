@@ -11,6 +11,9 @@ type Options struct {
 
 	Packages       string `long:"packages" description:"List SL packages"`
 	PackageOptions string `long:"package-options" description:"List SL package options"`
+
+	Username string `long:"username" short:"u" description:"the username for login in"`
+	Password string `long:"password" short:"p" description:"the password for login in"`
 }
 
 type Command interface {

@@ -18,9 +18,9 @@ var _ = Describe("BMP client", func() {
 		err                     error
 		bmpClient               clients.BmpClient
 		fakeHttpClient          *slclientfakes.FakeHttpClient
-	        fakeServerSpec          clients.ServerSpec
-	        fakeCloudProperty       []clients.CloudProperty
-	        fakeCreateBaremetalInfo clients.CreateBaremetalInfo
+		fakeServerSpec          clients.ServerSpec
+		fakeCloudProperty       []clients.CloudProperty
+		fakeCreateBaremetalInfo clients.CreateBaremetalInfo
 	)
 
 	BeforeEach(func() {
@@ -43,8 +43,8 @@ var _ = Describe("BMP client", func() {
 
 			Expect(info.Status).To(Equal(200))
 			Expect(info.Data).To(Equal(clients.DataInfo{
-					Name:    "fake-name",
-					Version: "fake-version"}))
+				Name:    "fake-name",
+				Version: "fake-version"}))
 		})
 
 		It("fails when BMP server fails", func() {

@@ -71,7 +71,7 @@ func createCommands(options cmds.Options, bmpClient clients.BmpClient) map[strin
 	return map[string]cmds.Command{
 		"bms":               bmp.NewBmsCommand(options),
 		"create-baremetals": bmp.NewCreateBaremetalsCommand(options),
-		"login":             bmp.NewLoginCommand(options),
+		"login":             bmp.NewLoginCommand(options, bmpClient),
 		"sl":                bmp.NewSlCommand(options),
 		"status":            bmp.NewStatusCommand(options, bmpClient),
 		"stemcells":         bmp.NewStemcellsCommand(options),

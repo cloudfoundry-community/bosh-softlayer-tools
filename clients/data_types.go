@@ -24,8 +24,8 @@ type DataPackage struct {
 }
 
 type SlPackagesResponse struct {
-	Status int      `json:"status"`
-	Data DataPackage `json:"data"`
+	Status int         `json:"status"`
+	Data   DataPackage `json:"data"`
 }
 
 // /sl/${package_id}/options
@@ -47,14 +47,14 @@ type DataPackageOptions struct {
 }
 
 type SlPackageOptionsResponse struct {
-	Status int      `json:"status"`
-	Data DataPackageOptions `json:"data"`
+	Status int                `json:"status"`
+	Data   DataPackageOptions `json:"data"`
 }
 
 // /stemcells
 
 type StemcellsResponse struct {
-	Status int      `json:"status"`
+	Status   int      `json:"status"`
 	Stemcell []string `json:"data"`
 }
 
@@ -69,15 +69,15 @@ type Task struct {
 }
 
 type TasksResponse struct {
-	Status int      `json:"status"`
-	Data []Task `json:"data"`
+	Status int    `json:"status"`
+	Data   []Task `json:"data"`
 }
 
 // /task/${task_id}/txt}" (default event)
 
 type TaskOutputResponse struct {
 	Status int      `json:"status"`
-	Data []string `json:"data`
+	Data   []string `json:"data`
 }
 
 // /baremetal/${serverId}/${status}
@@ -100,7 +100,7 @@ type TaskInfo struct {
 
 type CreateBaremetalResponse struct {
 	Status int      `json:"status"`
-	Data TaskInfo `json:"data"`
+	Data   TaskInfo `json:"data"`
 }
 
 type ServerSpec struct {

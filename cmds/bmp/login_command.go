@@ -1,6 +1,9 @@
 package bmp
 
 import (
+	"errors"
+
+	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
@@ -10,9 +13,11 @@ type loginCommand struct {
 
 	ui      common.UI
 	printer common.Printer
+
+	bmpClient clients.BmpClient
 }
 
-func NewLoginCommand(options cmds.Options) loginCommand {
+func NewLoginCommand(options cmds.Options, bmpClient clients.BmpClient) loginCommand {
 	consoleUi := common.NewConsoleUi()
 
 	return loginCommand{
@@ -20,6 +25,8 @@ func NewLoginCommand(options cmds.Options) loginCommand {
 
 		ui:      consoleUi,
 		printer: common.NewDefaultPrinter(consoleUi, options.Verbose),
+
+		bmpClient: bmpClient,
 	}
 }
 
@@ -32,7 +39,7 @@ func (cmd loginCommand) Description() string {
 }
 
 func (cmd loginCommand) Usage() string {
-	return "bmp login"
+	return "bmp login --username[-u] <username> --password[-p] <password"
 }
 
 func (cmd loginCommand) Options() cmds.Options {
@@ -41,10 +48,30 @@ func (cmd loginCommand) Options() cmds.Options {
 
 func (cmd loginCommand) Validate() (bool, error) {
 	cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	if cmd.options.Username == "" {
+		return false, errors.New("cannot have empty username")
+	}
+
+	if cmd.options.Password == "" {
+		return false, errors.New("cannot have empty password")
+	}
+
 	return true, nil
 }
 
 func (cmd loginCommand) Execute(args []string) (int, error) {
 	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+
+	loginResponse, err := cmd.bmpClient.Login(cmd.options.Username, cmd.options.Password)
+	if err != nil {
+		return loginResponse.Status, err
+	}
+
+	if loginResponse.Status != 200 {
+		return loginResponse.Status, nil
+	}
+
+	//TODO: save config
+
 	return 0, nil
 }
