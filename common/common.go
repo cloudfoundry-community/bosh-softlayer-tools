@@ -61,6 +61,17 @@ func CreateBmpClient() (clients.BmpClient, error) {
 	return clients.NewBmpClient(configInfo.Username, configInfo.Password, configInfo.TargetUrl, nil), nil
 }
 
+func CreateDefaultConfig() (config.ConfigInfo, error) {
+	return CreateConfig("")
+}
+
+func CreateConfig(pathToConfig string) (config.ConfigInfo, error) {
+	// config := config.NewConfig(pathToConfig)
+	// return config.LoadConfig()
+
+	return config.ConfigInfo{}, nil
+}
+
 // Private methods
 
 func addFileToTarWriter(filePath string, tarWriter *tar.Writer) error {
