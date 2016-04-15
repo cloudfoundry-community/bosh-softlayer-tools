@@ -9,6 +9,8 @@ type FakeBmpClient struct {
 	Password string
 	Url      string
 
+	ConfigPathString string
+
 	InfoResponse clients.InfoResponse
 	InfoErr      error
 
@@ -37,12 +39,17 @@ type FakeBmpClient struct {
 	CreateBaremetalErr      error
 }
 
-func NewFakeBmpClient(username, password, url string) *FakeBmpClient {
+func NewFakeBmpClient(username, password, url string, configPath string) *FakeBmpClient {
 	return &FakeBmpClient{
-		Username: username,
-		Password: password,
-		Url:      url,
+		Username:         username,
+		Password:         password,
+		Url:              url,
+		ConfigPathString: configPath,
 	}
+}
+
+func (bc *FakeBmpClient) ConfigPath() string {
+	return bc.ConfigPathString
 }
 
 func (bc *FakeBmpClient) Info() (clients.InfoResponse, error) {

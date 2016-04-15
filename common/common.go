@@ -52,13 +52,13 @@ func ReadJsonTestFixtures(rootPath, packageName, fileName string) ([]byte, error
 }
 
 func CreateBmpClient() (clients.BmpClient, error) {
-	config := config.NewConfig("")
-	configInfo, err := config.LoadConfig()
+	c := config.NewConfig("")
+	configInfo, err := c.LoadConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	return clients.NewBmpClient(configInfo.Username, configInfo.Password, configInfo.TargetUrl, nil), nil
+	return clients.NewBmpClient(configInfo.Username, configInfo.Password, configInfo.TargetUrl, nil, c.Path()), nil
 }
 
 func CreateDefaultConfig() (config.ConfigInfo, error) {

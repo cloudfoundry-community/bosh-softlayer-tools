@@ -23,10 +23,10 @@ var _ = Describe("config", func() {
 		c = config.NewConfig("fake-path")
 	})
 
-	Describe("#GetPath", func() {
+	Describe("#Path", func() {
 		Context("when a path is path to config", func() {
 			It("returns the fake-path config path", func() {
-				Expect(c.GetPath()).To(Equal("fake-path"))
+				Expect(c.Path()).To(Equal("fake-path"))
 			})
 		})
 
@@ -36,7 +36,7 @@ var _ = Describe("config", func() {
 			})
 
 			It("returns the default config path", func() {
-				Expect(c.GetPath()).To(Equal(config.CONFIG_PATH))
+				Expect(c.Path()).To(Equal(config.CONFIG_PATH))
 			})
 		})
 	})

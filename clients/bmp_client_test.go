@@ -27,8 +27,15 @@ var _ = Describe("BMP client", func() {
 		fakeHttpClient = slclientfakes.NewFakeHttpClient("fake-username", "fake-password")
 		Expect(fakeHttpClient).ToNot(BeNil())
 
-		bmpClient = clients.NewBmpClient("fake-username", "fake-password", "http://fake.url.com", fakeHttpClient)
+		bmpClient = clients.NewBmpClient("fake-username", "fake-password", "http://fake.url.com", fakeHttpClient, "fake-config-path")
 		Expect(bmpClient).ToNot(BeNil())
+	})
+
+	Describe("#ConfigPath", func() {
+		It("returns the ConfigPath", func() {
+			configPath := bmpClient.ConfigPath()
+			Expect(configPath).To(Equal("fake-config-path"))
+		})
 	})
 
 	Describe("#Info", func() {

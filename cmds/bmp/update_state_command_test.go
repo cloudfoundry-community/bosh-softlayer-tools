@@ -25,7 +25,7 @@ var _ = Describe("update-state command", func() {
 			Verbose: false,
 		}
 
-		fakeBmpClient = fakes.NewFakeBmpClient("fake-username", "fake-password", "http://fake.url.com")
+		fakeBmpClient = fakes.NewFakeBmpClient("fake-username", "fake-password", "http://fake.url.com", "fake-config-path")
 		cmd = bmp.NewUpdateStateCommand(options, fakeBmpClient)
 	})
 

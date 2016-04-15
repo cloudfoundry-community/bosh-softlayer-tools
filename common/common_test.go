@@ -12,12 +12,12 @@ import (
 
 var _ = Describe("LightStemcellCmd", func() {
 	var (
-		err    error
+		err                 error
 		tmpDir, tmpFileName string
 	)
 
 	BeforeEach(func() {
-		tmpDir, err = ioutil.TempDir("", "bosh-softlayer-stemcells")
+		tmpDir, err = ioutil.TempDir("", "bosh-softlayer-tools")
 		Expect(err).ToNot(HaveOccurred())
 	})
 
@@ -55,19 +55,19 @@ var _ = Describe("LightStemcellCmd", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			configInfo, err := c.LoadConfig()
-			Expect(err).ToNot(HaveOccurred())			
+			Expect(err).ToNot(HaveOccurred())
 
 			Expect(configInfo.Username).To(Equal(""))
 			Expect(configInfo.Password).To(Equal(""))
 			Expect(configInfo.TargetUrl).To(Equal(""))
 		})
-		
+
 		It("creates config with data", func() {
 			c := config.NewConfig(tmpFileName)
 			Expect(err).ToNot(HaveOccurred())
 
 			configInfo, err := c.LoadConfig()
-			Expect(err).ToNot(HaveOccurred())			
+			Expect(err).ToNot(HaveOccurred())
 
 			configInfo.Username = "fake-username"
 			configInfo.Password = "fake-password"
@@ -77,7 +77,7 @@ var _ = Describe("LightStemcellCmd", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			configInfo, err = c.LoadConfig()
-			Expect(err).ToNot(HaveOccurred())			
+			Expect(err).ToNot(HaveOccurred())
 
 			Expect(configInfo.Username).To(Equal("fake-username"))
 			Expect(configInfo.Password).To(Equal("fake-password"))

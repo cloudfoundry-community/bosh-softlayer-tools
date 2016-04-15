@@ -1,6 +1,8 @@
 package clients
 
 type BmpClient interface {
+	ConfigPath() string
+
 	Info() (InfoResponse, error)
 	SlPackages() (SlPackagesResponse, error)
 	Stemcells() (StemcellsResponse, error)

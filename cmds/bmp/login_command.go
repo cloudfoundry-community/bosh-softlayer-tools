@@ -6,6 +6,7 @@ import (
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 )
 
 type loginCommand struct {
@@ -71,7 +72,19 @@ func (cmd loginCommand) Execute(args []string) (int, error) {
 		return loginResponse.Status, nil
 	}
 
-	//TODO: save config
+	c := config.NewConfig(cmd.bmpClient.ConfigPath())
+	configInfo, err := c.LoadConfig()
+	if err != nil {
+		return 1, err
+	}
+
+	configInfo.Username = cmd.options.Username
+	configInfo.Password = cmd.options.Password
+
+	err = c.SaveConfig(configInfo)
+	if err != nil {
+		return 1, err
+	}
 
 	return 0, nil
 }

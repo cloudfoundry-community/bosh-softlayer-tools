@@ -12,13 +12,16 @@ import (
 )
 
 type bmpClient struct {
-	username   string
-	password   string
-	url        string
+	username string
+	password string
+	url      string
+
+	configPath string
+
 	httpClient softlayer.HttpClient
 }
 
-func NewBmpClient(username, password, url string, hClient softlayer.HttpClient) *bmpClient {
+func NewBmpClient(username, password, url string, hClient softlayer.HttpClient, configPath string) *bmpClient {
 	var httpClient softlayer.HttpClient
 	if hClient == nil {
 		httpClient = slclient.NewHttpClient(username, password, url, "")
@@ -27,11 +30,18 @@ func NewBmpClient(username, password, url string, hClient softlayer.HttpClient) 
 	}
 
 	return &bmpClient{
-		username:   username,
-		password:   password,
-		url:        url,
+		username: username,
+		password: password,
+		url:      url,
+
+		configPath: configPath,
+
 		httpClient: httpClient,
 	}
+}
+
+func (bc *bmpClient) ConfigPath() string {
+	return bc.configPath
 }
 
 func (bc *bmpClient) Info() (InfoResponse, error) {

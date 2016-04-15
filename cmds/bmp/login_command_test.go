@@ -2,12 +2,16 @@ package bmp_test
 
 import (
 	"errors"
+	"io/ioutil"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
+	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 
 	clientsfakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 )
@@ -15,14 +19,20 @@ import (
 var _ = Describe("login command", func() {
 
 	var (
+		err     error
 		args    []string
 		options cmds.Options
 		cmd     cmds.Command
+
+		tmpDir, tmpFileName string
 
 		fakeBmpClient *clientsfakes.FakeBmpClient
 	)
 
 	BeforeEach(func() {
+		tmpDir, err = ioutil.TempDir("", "bosh-softlayer-tools")
+		Expect(err).ToNot(HaveOccurred())
+
 		args = []string{"bmp", "login"}
 		options = cmds.Options{
 			Verbose:  false,
@@ -30,8 +40,12 @@ var _ = Describe("login command", func() {
 			Password: "fake-password",
 		}
 
-		fakeBmpClient = clientsfakes.NewFakeBmpClient(options.Username, options.Password, "http://fake.target.url")
+		fakeBmpClient = clientsfakes.NewFakeBmpClient(options.Username, options.Password, "http://fake.target.url", "fake-config-path")
 		cmd = bmp.NewLoginCommand(options, fakeBmpClient)
+	})
+
+	AfterEach(func() {
+		os.RemoveAll(tmpDir)
 	})
 
 	Describe("NewLoginCommand", func() {
@@ -139,8 +153,13 @@ var _ = Describe("login command", func() {
 	Describe("#Execute", func() {
 		Context("good LoginCommand", func() {
 			BeforeEach(func() {
+				tmpFileName = createTmpConfig(tmpDir, config.ConfigInfo{})
+				fakeBmpClient = clientsfakes.NewFakeBmpClient(options.Username, options.Password, "http://fake.target.url", tmpFileName)
+
 				fakeBmpClient.LoginResponse.Status = 200
 				fakeBmpClient.LoginErr = nil
+
+				cmd = bmp.NewLoginCommand(options, fakeBmpClient)
 			})
 
 			It("executes with no error", func() {
@@ -150,7 +169,25 @@ var _ = Describe("login command", func() {
 			})
 
 			It("saves the Username and Password to Config", func() {
-				//TODO: @grace
+				configInfo, err := common.CreateConfig(fakeBmpClient.ConfigPath())
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(configInfo.Username).To(Equal(""))
+				Expect(configInfo.Password).To(Equal(""))
+				Expect(configInfo.TargetUrl).To(Equal(""))
+
+				rc, err := cmd.Execute(args)
+				Expect(rc).To(Equal(0))
+				Expect(err).ToNot(HaveOccurred())
+
+				c := config.NewConfig(fakeBmpClient.ConfigPath())
+				Expect(err).ToNot(HaveOccurred())
+
+				configInfo, err = c.LoadConfig()
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(configInfo.Username).To(Equal("fake-username"))
+				Expect(configInfo.Password).To(Equal("fake-password"))
 			})
 		})
 
@@ -171,3 +208,16 @@ var _ = Describe("login command", func() {
 		})
 	})
 })
+
+func createTmpConfig(tmpDir string, configInfo config.ConfigInfo) string {
+	tmpFile, err := ioutil.TempFile(tmpDir, ".bmp_config")
+	Expect(err).ToNot(HaveOccurred())
+
+	c := config.NewConfig(tmpFile.Name())
+	Expect(err).ToNot(HaveOccurred())
+
+	err = c.SaveConfig(configInfo)
+	Expect(err).ToNot(HaveOccurred())
+
+	return tmpFile.Name()
+}
