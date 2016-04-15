@@ -48,7 +48,7 @@ var _ = Describe("login command", func() {
 		os.RemoveAll(tmpDir)
 	})
 
-	Describe("NewLoginCommand", func() {
+	Describe("#NewLoginCommand", func() {
 		It("create new LoginCommand", func() {
 			Expect(cmd).ToNot(BeNil())
 
@@ -203,8 +203,17 @@ var _ = Describe("login command", func() {
 				Expect(err).To(HaveOccurred())
 			})
 
-			//TODO: verify LoginResponse.Status different than 200
-			//TODO: verify Login() execution failing
+			It("response code is not equal to 200", func() {
+				rc, err := cmd.Execute(args)
+				Expect(rc).ToNot(Equal(200))
+				Expect(err).To(HaveOccurred())
+			})
+
+			It("fails when login execution fails", func() {
+				_, err := cmd.Execute(args)
+				Expect(err).To(HaveOccurred())
+
+			})
 		})
 	})
 })
