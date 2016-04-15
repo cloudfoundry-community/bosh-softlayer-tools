@@ -192,27 +192,41 @@ var _ = Describe("login command", func() {
 		})
 
 		Context("bad LoginCommand", func() {
-			BeforeEach(func() {
-				fakeBmpClient.LoginResponse.Status = 500
-				fakeBmpClient.LoginErr = errors.New("500")
+			Context("executes with error", func() {
+				BeforeEach(func() {
+					fakeBmpClient.LoginResponse.Status = 500
+					fakeBmpClient.LoginErr = errors.New("fake-err")
+				})
+
+				It("execute login with error", func() {
+					rc, err := cmd.Execute(args)
+					Expect(rc).To(Equal(500))
+					Expect(err).To(HaveOccurred())
+				})
 			})
 
-			It("executes with error", func() {
-				rc, err := cmd.Execute(args)
-				Expect(rc).To(Equal(500))
-				Expect(err).To(HaveOccurred())
+			Context("login response code different than 200", func() {
+				BeforeEach(func() {
+					fakeBmpClient.LoginResponse.Status = 400
+				})
+
+				It("response code is not 200 but no err", func() {
+					rc, err := cmd.Execute(args)
+					Expect(rc).ToNot(Equal(200))
+					Expect(err).ToNot(HaveOccurred())
+				})
 			})
 
-			It("response code is not equal to 200", func() {
-				rc, err := cmd.Execute(args)
-				Expect(rc).ToNot(Equal(200))
-				Expect(err).To(HaveOccurred())
-			})
+			Context("fails when login execution fails", func() {
+				BeforeEach(func() {
+					fakeBmpClient.LoginResponse.Status = 200
+				})
 
-			It("fails when login execution fails", func() {
-				_, err := cmd.Execute(args)
-				Expect(err).To(HaveOccurred())
-
+				It("fail to load config", func() {
+					rc, err := cmd.Execute(args)
+					Expect(rc).To(Equal(1))
+					Expect(err).To(HaveOccurred())
+				})
 			})
 		})
 	})

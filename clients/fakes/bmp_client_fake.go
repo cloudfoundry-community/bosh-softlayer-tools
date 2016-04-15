@@ -9,7 +9,7 @@ type FakeBmpClient struct {
 	Password string
 	Url      string
 
-	ConfigPathString string
+	configPath string
 
 	InfoResponse clients.InfoResponse
 	InfoErr      error
@@ -41,15 +41,15 @@ type FakeBmpClient struct {
 
 func NewFakeBmpClient(username, password, url string, configPath string) *FakeBmpClient {
 	return &FakeBmpClient{
-		Username:         username,
-		Password:         password,
-		Url:              url,
-		ConfigPathString: configPath,
+		Username:   username,
+		Password:   password,
+		Url:        url,
+		configPath: configPath,
 	}
 }
 
 func (bc *FakeBmpClient) ConfigPath() string {
-	return bc.ConfigPathString
+	return bc.configPath
 }
 
 func (bc *FakeBmpClient) Info() (clients.InfoResponse, error) {
