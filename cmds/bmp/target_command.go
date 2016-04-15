@@ -1,6 +1,7 @@
 package bmp
 
 import (
+	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
@@ -11,16 +12,19 @@ type targetCommand struct {
 
 	ui      common.UI
 	printer common.Printer
+
+	bmpClient clients.BmpClient
 }
 
-func NewTargetCommand(options cmds.Options) targetCommand {
+func NewTargetCommand(options cmds.Options, bmpClient clients.BmpClient) targetCommand {
 	consoleUi := common.NewConsoleUi()
 
 	return targetCommand{
 		options: options,
 
-		ui:      consoleUi,
-		printer: common.NewDefaultPrinter(consoleUi, options.Verbose),
+		ui:        consoleUi,
+		printer:   common.NewDefaultPrinter(consoleUi, options.Verbose),
+		bmpClient: bmpClient,
 	}
 }
 

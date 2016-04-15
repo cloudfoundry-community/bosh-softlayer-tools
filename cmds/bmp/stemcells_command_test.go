@@ -6,6 +6,8 @@ import (
 
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
+
+	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 )
 
 var _ = Describe("stemcells command", func() {
@@ -13,6 +15,8 @@ var _ = Describe("stemcells command", func() {
 		args    []string
 		options cmds.Options
 		cmd     cmds.Command
+
+		fakeBmpClient *fakes.FakeBmpClient
 	)
 
 	BeforeEach(func() {
@@ -21,14 +25,15 @@ var _ = Describe("stemcells command", func() {
 			Verbose: false,
 		}
 
-		cmd = bmp.NewStemcellsCommand(options)
+		fakeBmpClient = fakes.NewFakeBmpClient("fake-username", "fake-password", "http://fake.url.com")
+		cmd = bmp.NewStemcellsCommand(options, fakeBmpClient)
 	})
 
 	Describe("NewStemcellsCommand", func() {
 		It("create new StemcellsCommand", func() {
 			Expect(cmd).ToNot(BeNil())
 
-			cmd2 := bmp.NewStemcellsCommand(options)
+			cmd2 := bmp.NewStemcellsCommand(options, fakeBmpClient)
 			Expect(cmd2).ToNot(BeNil())
 			Expect(cmd2).To(Equal(cmd))
 		})

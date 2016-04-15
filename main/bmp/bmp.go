@@ -69,15 +69,15 @@ func createCommand(args []string, options cmds.Options) (cmds.Command, error) {
 
 func createCommands(options cmds.Options, bmpClient clients.BmpClient) map[string]cmds.Command {
 	return map[string]cmds.Command{
-		"bms":               bmp.NewBmsCommand(options),
-		"create-baremetals": bmp.NewCreateBaremetalsCommand(options),
+		"bms":               bmp.NewBmsCommand(options, bmpClient),
+		"create-baremetals": bmp.NewCreateBaremetalsCommand(options, bmpClient),
 		"login":             bmp.NewLoginCommand(options, bmpClient),
-		"sl":                bmp.NewSlCommand(options),
+		"sl":                bmp.NewSlCommand(options, bmpClient),
 		"status":            bmp.NewStatusCommand(options, bmpClient),
-		"stemcells":         bmp.NewStemcellsCommand(options),
-		"target":            bmp.NewTargetCommand(options),
-		"task":              bmp.NewTaskCommand(options),
-		"tasks":             bmp.NewTasksCommand(options),
-		"update-state":      bmp.NewUpdateStateCommand(options),
+		"stemcells":         bmp.NewStemcellsCommand(options, bmpClient),
+		"target":            bmp.NewTargetCommand(options, bmpClient),
+		"task":              bmp.NewTaskCommand(options, bmpClient),
+		"tasks":             bmp.NewTasksCommand(options, bmpClient),
+		"update-state":      bmp.NewUpdateStateCommand(options, bmpClient),
 	}
 }

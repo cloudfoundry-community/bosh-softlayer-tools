@@ -6,6 +6,8 @@ import (
 
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
+
+	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 )
 
 var _ = Describe("target command", func() {
@@ -13,6 +15,8 @@ var _ = Describe("target command", func() {
 		args    []string
 		options cmds.Options
 		cmd     cmds.Command
+
+		fakeBmpClient *fakes.FakeBmpClient
 	)
 
 	BeforeEach(func() {
@@ -21,14 +25,15 @@ var _ = Describe("target command", func() {
 			Verbose: false,
 		}
 
-		cmd = bmp.NewTargetCommand(options)
+		fakeBmpClient = fakes.NewFakeBmpClient("fake-username", "fake-password", "http://fake.url.com")
+		cmd = bmp.NewTargetCommand(options, fakeBmpClient)
 	})
 
 	Describe("NewTargetCommand", func() {
 		It("create new TargetCommand", func() {
 			Expect(cmd).ToNot(BeNil())
 
-			cmd2 := bmp.NewTargetCommand(options)
+			cmd2 := bmp.NewTargetCommand(options, fakeBmpClient)
 			Expect(cmd2).ToNot(BeNil())
 			Expect(cmd2).To(Equal(cmd))
 		})

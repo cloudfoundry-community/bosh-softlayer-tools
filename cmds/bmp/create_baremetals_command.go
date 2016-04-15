@@ -1,6 +1,7 @@
 package bmp
 
 import (
+	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
@@ -10,16 +11,19 @@ type createBaremetalsCommand struct {
 
 	ui      common.UI
 	printer common.Printer
+
+	bmpClient clients.BmpClient
 }
 
-func NewCreateBaremetalsCommand(options cmds.Options) createBaremetalsCommand {
+func NewCreateBaremetalsCommand(options cmds.Options, bmpClient clients.BmpClient) createBaremetalsCommand {
 	consoleUi := common.NewConsoleUi()
 
 	return createBaremetalsCommand{
 		options: options,
 
-		ui:      consoleUi,
-		printer: common.NewDefaultPrinter(consoleUi, options.Verbose),
+		ui:        consoleUi,
+		printer:   common.NewDefaultPrinter(consoleUi, options.Verbose),
+		bmpClient: bmpClient,
 	}
 }
 

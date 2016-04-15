@@ -27,7 +27,6 @@ var _ = Describe("status command", func() {
 		}
 
 		fakeBmpClient = fakes.NewFakeBmpClient("fake-username", "fake-password", "http://fake.url.com")
-
 		cmd = bmp.NewStatusCommand(options, fakeBmpClient)
 	})
 

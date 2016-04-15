@@ -1,6 +1,7 @@
 package bmp
 
 import (
+	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
@@ -10,16 +11,19 @@ type stemcellsCommand struct {
 
 	ui      common.UI
 	printer common.Printer
+
+	bmpClient clients.BmpClient
 }
 
-func NewStemcellsCommand(options cmds.Options) stemcellsCommand {
+func NewStemcellsCommand(options cmds.Options, bmpClient clients.BmpClient) stemcellsCommand {
 	consoleUi := common.NewConsoleUi()
 
 	return stemcellsCommand{
 		options: options,
 
-		ui:      consoleUi,
-		printer: common.NewDefaultPrinter(consoleUi, options.Verbose),
+		ui:        consoleUi,
+		printer:   common.NewDefaultPrinter(consoleUi, options.Verbose),
+		bmpClient: bmpClient,
 	}
 }
 

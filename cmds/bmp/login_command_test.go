@@ -15,9 +15,10 @@ import (
 var _ = Describe("login command", func() {
 
 	var (
-		args          []string
-		options       cmds.Options
-		cmd           cmds.Command
+		args    []string
+		options cmds.Options
+		cmd     cmds.Command
+
 		fakeBmpClient *clientsfakes.FakeBmpClient
 	)
 
