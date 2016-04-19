@@ -72,7 +72,7 @@ var _ = Describe("login command", func() {
 
 	Describe("#Usage", func() {
 		It("returns the usage text of a LoginCommand", func() {
-			Expect(cmd.Usage()).To(Equal("bmp login --username[-u] <username> --password[-p] <password"))
+			Expect(cmd.Usage()).To(Equal("bmp login --username[-u] <username> --password[-p] <password>"))
 		})
 	})
 
