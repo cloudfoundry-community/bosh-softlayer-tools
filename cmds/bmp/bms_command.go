@@ -99,11 +99,11 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 
 	content := make([][]string,len(bmsResponse.Data),7)
 	for i, serverInfo := range bmsResponse.Data {
-		IPs := []string{serverInfo.Private_ip_address, serverInfo.Public_ip_address}
+		IPs := strings.Join([]string{serverInfo.Private_ip_address, serverInfo.Public_ip_address}, "/")
 		content[i] = []string{
 			strconv.Itoa(serverInfo.Id),
 			serverInfo.Hostname,
-			strings.Join(IPs, "/"),
+			IPs,
 			serverInfo.Hardware_status,
 			strconv.Itoa(serverInfo.Memory),
 			strconv.Itoa(serverInfo.Cpu),
