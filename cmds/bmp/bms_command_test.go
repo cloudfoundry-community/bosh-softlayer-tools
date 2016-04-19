@@ -1,15 +1,14 @@
 package bmp_test
 
 import (
+	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
-
 	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
-	"errors"
-	"github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 )
 
 var _ = Describe("bms command", func() {
@@ -117,17 +116,6 @@ var _ = Describe("bms command", func() {
 			BeforeEach(func() {
 				fakeBmpClient.BmsResponse.Status = 200
 				fakeBmpClient.BmsErr = nil
-				fakeBmpClient.BmsResponse.Data = []clients.BaremetalInfo{
-					clients.BaremetalInfo{
-						Id:   0,
-						Hostname: "hostname0",
-						Private_ip_address: "private_ip_address0",
-						Public_ip_address: "public_ip_address0",
-						Hardware_status: "hardware_status0",
-						Memory: 0,
-						Cpu: 0,
-						Provision_date: "provision_date0",
-					}}
 			})
 
 			It("executes with no error", func() {
