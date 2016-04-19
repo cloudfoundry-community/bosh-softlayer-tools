@@ -4,6 +4,7 @@ type BmpClient interface {
 	ConfigPath() string
 
 	Info() (InfoResponse, error)
+	Bms(deploymentName string) (BmsResponse, error)
 	SlPackages() (SlPackagesResponse, error)
 	Stemcells() (StemcellsResponse, error)
 	SlPackageOptions(packageId string) (SlPackageOptionsResponse, error)

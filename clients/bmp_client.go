@@ -67,6 +67,29 @@ func (bc *bmpClient) Info() (InfoResponse, error) {
 	return response, nil
 }
 
+func (bc *bmpClient) Bms(deploymentName string) (BmsResponse, error) {
+	path := fmt.Sprintf("%s/%s/%s", bc.url, "/bms/", deploymentName)
+	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: could not calls /bms/'%s' on BMP server, error message '%s'", deploymentName, err.Error())
+		return BmsResponse{}, errors.New(errorMessage)
+	}
+
+	if slcommon.IsHttpErrorCode(errorCode) {
+		errorMessage := fmt.Sprintf("bmp: could not call /bms/'%s' on BMP server, HTTP error code: '%d'", deploymentName, errorCode)
+		return BmsResponse{}, errors.New(errorMessage)
+	}
+
+	response := BmsResponse{}
+	err = json.Unmarshal(responseBytes, &response)
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
+		return BmsResponse{}, errors.New(errorMessage)
+	}
+
+	return response, nil
+}
+
 func (bc *bmpClient) SlPackages() (SlPackagesResponse, error) {
 	path := fmt.Sprintf("%s/%s", bc.url, "sl/packages")
 	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})

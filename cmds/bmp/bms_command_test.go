@@ -1,12 +1,13 @@
 package bmp_test
 
 import (
+	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
-
 	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 )
 
@@ -24,6 +25,7 @@ var _ = Describe("bms command", func() {
 		args = []string{"bmp", "bms"}
 		options = cmds.Options{
 			Verbose: false,
+			Deployment: "../../test_fixtures/bmp/deployment.yml",
 		}
 
 		fakeBmpClient = fakes.NewFakeBmpClient("fake-username", "fake-password", "http://fake.url.com", "fake-config-path")
@@ -54,13 +56,16 @@ var _ = Describe("bms command", func() {
 
 	Describe("#Usage", func() {
 		It("returns the usage text of a BmsCommand", func() {
-			Expect(cmd.Usage()).To(Equal("bmp bms"))
+			Expect(cmd.Usage()).To(Equal("bmp bms --deployment[-d] <deployment file>"))
 		})
 	})
 
 	Describe("#Options", func() {
 		It("returns the options of a BmsCommand", func() {
 			Expect(cmds.EqualOptions(cmd.Options(), options)).To(BeTrue())
+
+			Expect(cmd.Options().Deployment).ToNot(Equal(""))
+			Expect(cmd.Options().Deployment).To(Equal("../../test_fixtures/bmp/deployment.yml"))
 		})
 	})
 
@@ -70,13 +75,69 @@ var _ = Describe("bms command", func() {
 			Expect(validate).To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
 		})
+
+		Context("bad BmsCommand", func() {
+			Context("no deployment file", func() {
+				BeforeEach(func() {
+					options = cmds.Options{
+						Verbose: false,
+						Deployment: "",
+					}
+				})
+
+				It("fails validation", func(){
+					cmd = bmp.NewBmsCommand(options, fakeBmpClient)
+					validate, err := cmd.Validate()
+					Expect(validate).To(BeFalse())
+					Expect(err).To(HaveOccurred())
+				})
+			})
+
+			Context("deployment file doesn't exist", func() {
+				BeforeEach(func() {
+					options = cmds.Options{
+						Verbose: false,
+						Deployment: "fake-deployment-file",
+					}
+				})
+
+				It("fails validation", func(){
+					cmd = bmp.NewBmsCommand(options, fakeBmpClient)
+					validate, err := cmd.Validate()
+					Expect(validate).To(BeFalse())
+					Expect(err).To(HaveOccurred())
+				})
+			})
+		})
 	})
 
 	Describe("#Execute", func() {
-		It("executes a good BmsCommand", func() {
-			rc, err := cmd.Execute(args)
-			Expect(rc).To(Equal(0))
-			Expect(err).ToNot(HaveOccurred())
+		Context("executes a good BmsCommand", func() {
+			BeforeEach(func() {
+				fakeBmpClient.BmsResponse.Status = 200
+				fakeBmpClient.BmsErr = nil
+			})
+
+			It("executes with no error", func() {
+				rc, err := cmd.Execute(args)
+				Expect(rc).To(Equal(0))
+				Expect(err).ToNot(HaveOccurred())
+			})
 		})
+
+		Context("executes a bad Bmscommand", func() {
+			BeforeEach(func() {
+				fakeBmpClient.BmsResponse.Status = 404
+				fakeBmpClient.BmsErr = errors.New("fake-error")
+			})
+
+			It("executes with error", func() {
+				rc, err := cmd.Execute(args)
+				Expect(rc).To(Equal(404))
+				Expect(err).To(HaveOccurred())
+			})
+
+		})
+
 	})
 })
