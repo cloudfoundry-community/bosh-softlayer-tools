@@ -6,9 +6,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
-	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 )
 
 var _ = Describe("bms command", func() {
@@ -24,7 +24,7 @@ var _ = Describe("bms command", func() {
 	BeforeEach(func() {
 		args = []string{"bmp", "bms"}
 		options = cmds.Options{
-			Verbose: false,
+			Verbose:    false,
 			Deployment: "../../test_fixtures/bmp/deployment.yml",
 		}
 
@@ -77,36 +77,18 @@ var _ = Describe("bms command", func() {
 		})
 
 		Context("bad BmsCommand", func() {
-			Context("no deployment file", func() {
-				BeforeEach(func() {
-					options = cmds.Options{
-						Verbose: false,
-						Deployment: "",
-					}
-				})
-
-				It("fails validation", func(){
-					cmd = bmp.NewBmsCommand(options, fakeBmpClient)
-					validate, err := cmd.Validate()
-					Expect(validate).To(BeFalse())
-					Expect(err).To(HaveOccurred())
-				})
+			BeforeEach(func() {
+				options = cmds.Options{
+					Verbose:    false,
+					Deployment: "fake-deployment-file",
+				}
 			})
 
-			Context("deployment file doesn't exist", func() {
-				BeforeEach(func() {
-					options = cmds.Options{
-						Verbose: false,
-						Deployment: "fake-deployment-file",
-					}
-				})
-
-				It("fails validation", func(){
-					cmd = bmp.NewBmsCommand(options, fakeBmpClient)
-					validate, err := cmd.Validate()
-					Expect(validate).To(BeFalse())
-					Expect(err).To(HaveOccurred())
-				})
+			It("fails validation when deployment file not existed", func() {
+				cmd = bmp.NewBmsCommand(options, fakeBmpClient)
+				validate, err := cmd.Validate()
+				Expect(validate).To(BeFalse())
+				Expect(err).To(HaveOccurred())
 			})
 		})
 	})

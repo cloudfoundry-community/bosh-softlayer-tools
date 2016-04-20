@@ -2,11 +2,11 @@ package bmp
 
 import (
 	"errors"
-	"gopkg.in/yaml.v2"
-	"path/filepath"
-	"io/ioutil"
 	"fmt"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -72,7 +72,7 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 
 	filename, _ := filepath.Abs(cmd.options.Deployment)
 	yamlFile, err := ioutil.ReadFile(filename)
-	if err != nil{
+	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: could not read File '%s', error message '%s'", filename, err.Error())
 		return 1, errors.New(errorMessage)
 	}
@@ -95,9 +95,9 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Id", "Hostname", "IPs", "Hardware_status", "Memory","Cpu", "Provision_date"})
+	table.SetHeader([]string{"Id", "Hostname", "IPs", "Hardware_status", "Memory", "Cpu", "Provision_date"})
 
-	content := make([][]string,len(bmsResponse.Data))
+	content := make([][]string, len(bmsResponse.Data))
 	for i, serverInfo := range bmsResponse.Data {
 		IPs := strings.Join([]string{serverInfo.Private_ip_address, serverInfo.Public_ip_address}, "/")
 		content[i] = []string{
