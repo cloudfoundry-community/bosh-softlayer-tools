@@ -1,9 +1,13 @@
 package bmp
 
 import (
+	"errors"
+	"net/url"
+
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 )
 
 type targetCommand struct {
@@ -46,10 +50,41 @@ func (cmd targetCommand) Options() cmds.Options {
 
 func (cmd targetCommand) Validate() (bool, error) {
 	cmd.printer.Printf("Validating %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
+
+	if cmd.options.Target == "" {
+		return false, nil
+	}
+
+	_, err := url.ParseRequestURI(cmd.options.Target)
+	if err != nil {
+		return false, err
+	}
+
 	return true, nil
 }
 
 func (cmd targetCommand) Execute(args []string) (int, error) {
 	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+
+	validate, err := cmd.Validate()
+	if validate == false && err == nil {
+		return 1, errors.New("bmp target validation error")
+	} else if validate == false && err != nil {
+		return 1, err
+	}
+
+	configInfo, err := common.CreateConfig(cmd.bmpClient.ConfigPath())
+	if err != nil {
+		return 1, err
+	}
+
+	configInfo.TargetUrl = cmd.options.Target
+
+	c := config.NewConfig(cmd.bmpClient.ConfigPath())
+	err = c.SaveConfig(configInfo)
+	if err != nil {
+		return 1, err
+	}
+
 	return 0, nil
 }

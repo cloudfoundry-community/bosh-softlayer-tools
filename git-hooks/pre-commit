@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+
+go fmt ./...
+goimports -w .
+ginkgo -r -p
+

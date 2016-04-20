@@ -1,32 +1,54 @@
 package bmp_test
 
 import (
+	"io/ioutil"
+	"os"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
+	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 
-	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
+	clientsfakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 )
 
 var _ = Describe("target command", func() {
 	var (
+		err error
+
 		args    []string
 		options cmds.Options
 		cmd     cmds.Command
 
-		fakeBmpClient *fakes.FakeBmpClient
+		tmpDir, tmpFileName string
+
+		fakeBmpClient *clientsfakes.FakeBmpClient
 	)
 
 	BeforeEach(func() {
 		args = []string{"bmp", "target"}
 		options = cmds.Options{
 			Verbose: false,
+			Target:  "http://fake.url",
 		}
 
-		fakeBmpClient = fakes.NewFakeBmpClient("fake-username", "fake-password", "http://fake.url.com", "fake-config-path")
+		tmpDir, err = ioutil.TempDir("", "bmp-target-execute")
+		Expect(err).ToNot(HaveOccurred())
+
+		tmpFile, err := ioutil.TempFile(tmpDir, ".bmp_config")
+		Expect(err).ToNot(HaveOccurred())
+
+		tmpFileName = tmpFile.Name()
+
+		fakeBmpClient = clientsfakes.NewFakeBmpClient(options.Username, options.Password, options.Target, tmpFileName)
 		cmd = bmp.NewTargetCommand(options, fakeBmpClient)
+	})
+
+	AfterEach(func() {
+		err := os.RemoveAll(tmpDir)
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	Describe("NewTargetCommand", func() {
@@ -64,10 +86,47 @@ var _ = Describe("target command", func() {
 	})
 
 	Describe("#Validate", func() {
-		It("validates a good TargetCommand", func() {
-			validate, err := cmd.Validate()
-			Expect(validate).To(BeTrue())
-			Expect(err).ToNot(HaveOccurred())
+		Context("when the options includes a URL", func() {
+			It("returns true on validation", func() {
+				validate, err := cmd.Validate()
+				Expect(validate).To(BeTrue())
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when the options includes an empty target URL", func() {
+			BeforeEach(func() {
+				options.Target = ""
+				cmd = bmp.NewTargetCommand(options, fakeBmpClient)
+			})
+
+			It("returns false on validation", func() {
+				validate, err := cmd.Validate()
+				Expect(validate).To(BeFalse())
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when the options includes bad target URL", func() {
+			var badCmd1, badCmd2 cmds.Command
+
+			BeforeEach(func() {
+				options.Target = "bad-url"
+				badCmd1 = bmp.NewTargetCommand(options, fakeBmpClient)
+
+				options.Target = "..."
+				badCmd2 = bmp.NewTargetCommand(options, fakeBmpClient)
+			})
+
+			It("returns false on validation", func() {
+				validate, err := badCmd1.Validate()
+				Expect(validate).To(BeFalse())
+				Expect(err).To(HaveOccurred())
+
+				validate, err = badCmd2.Validate()
+				Expect(validate).To(BeFalse())
+				Expect(err).To(HaveOccurred())
+			})
 		})
 	})
 
@@ -76,6 +135,10 @@ var _ = Describe("target command", func() {
 			rc, err := cmd.Execute(args)
 			Expect(rc).To(Equal(0))
 			Expect(err).ToNot(HaveOccurred())
+
+			configInfo, err := common.CreateConfig(fakeBmpClient.ConfigPath())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(configInfo.TargetUrl).To(Equal("http://fake.url"))
 		})
 	})
 })

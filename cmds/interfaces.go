@@ -16,6 +16,8 @@ type Options struct {
 	Password string `long:"password" short:"p" description:"the password for login in"`
 
 	Deployment string `long:"Deployment" short:"d" description:"The deployment file"`
+
+	Target string `long:"target" short:"t" description:"the target URL"`
 }
 
 type Command interface {
