@@ -75,7 +75,6 @@ var _ = Describe("BMP client", func() {
 			Expect(bmsResponse.Status).To(Equal(200))
 			Expect(len(bmsResponse.Data)).To(Equal(2))
 			Expect(bmsResponse.Data[0]).To(Equal(clients.BaremetalInfo{
-<<<<<<< HEAD
 				Id:                 0,
 				Hostname:           "hostname0",
 				Private_ip_address: "private_ip_address0",
@@ -94,26 +93,6 @@ var _ = Describe("BMP client", func() {
 				Memory:             1,
 				Cpu:                1,
 				Provision_date:     "2016-01-01T00:00:00-00:00"}))
-=======
-				Id:   0,
-				Hostname: "hostname0",
-				Private_ip_address: "private_ip_address0",
-				Public_ip_address: "public_ip_address0",
-				Hardware_status: "hardware_status0",
-				Memory: 0,
-				Cpu: 0,
-				Provision_date: "provision_date0"}))
-
-			Expect(bmsResponse.Data[1]).To(Equal(clients.BaremetalInfo{
-				Id:   1,
-				Hostname: "hostname1",
-				Private_ip_address: "private_ip_address1",
-				Public_ip_address: "public_ip_address1",
-				Hardware_status: "hardware_status1",
-				Memory: 1,
-				Cpu: 1,
-				Provision_date: "provision_date1"}))
->>>>>>> 0fba5cde4d9f3d262ffa7c2d4de331bfe9264f0c
 		})
 
 		It("fails when BMP server /sl/packages fails", func() {
