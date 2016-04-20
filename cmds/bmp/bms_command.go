@@ -97,7 +97,7 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Id", "Hostname", "IPs", "Hardware_status", "Memory","Cpu", "Provision_date"})
 
-	content := make([][]string,len(bmsResponse.Data),7)
+	content := make([][]string,len(bmsResponse.Data))
 	for i, serverInfo := range bmsResponse.Data {
 		IPs := strings.Join([]string{serverInfo.Private_ip_address, serverInfo.Public_ip_address}, "/")
 		content[i] = []string{
