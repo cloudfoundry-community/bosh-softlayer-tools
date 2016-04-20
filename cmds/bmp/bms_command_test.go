@@ -120,6 +120,5 @@ var _ = Describe("bms command", func() {
 			})
 
 		})
-
 	})
 })
