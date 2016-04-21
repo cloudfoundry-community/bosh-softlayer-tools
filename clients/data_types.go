@@ -151,5 +151,5 @@ type CreateBaremetalInfo struct {
 
 // deployment
 type Deployment struct {
-	Name string `yaml:"name"`
+	Name string `json:"name"`
 }

@@ -101,7 +101,7 @@ var _ = Describe("bms command", func() {
 			})
 
 			It("executes with no error", func() {
-				rc, err := cmd.Execute(args)
+				rc, err := cmd.Execute([]string{"bmp", "bms"})
 				Expect(rc).To(Equal(0))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -114,7 +114,7 @@ var _ = Describe("bms command", func() {
 			})
 
 			It("executes with error", func() {
-				rc, err := cmd.Execute(args)
+				rc, err := cmd.Execute([]string{"bmp", "bms"})
 				Expect(rc).To(Equal(404))
 				Expect(err).To(HaveOccurred())
 			})
