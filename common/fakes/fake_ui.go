@@ -2,6 +2,7 @@ package fakes
 
 import (
 	"fmt"
+	"github.com/olekukonko/tablewriter"
 )
 
 type FakeUi struct {
@@ -40,4 +41,10 @@ func (fakeUi *FakeUi) Println(args ...interface{}) (int, error) {
 	fakeUi.Output = fmt.Sprintln(args...)
 
 	return fakeUi.PrintlnRc, fakeUi.PrintlnErr
+}
+
+func (fakeUi *FakeUi) PrintTable(table *tablewriter.Table) (int, error) {
+	table.Render()
+
+	return 0, nil
 }
