@@ -1,6 +1,9 @@
 package common
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/olekukonko/tablewriter"
+)
 
 type consoleUi struct {
 	verbose bool
@@ -26,4 +29,12 @@ func (ui consoleUi) Println(args ...interface{}) (int, error) {
 	}
 
 	return fmt.Println(args...)
+}
+
+func (ui consoleUi) PrintTable(table *tablewriter.Table) (int, error) {
+	if ui.verbose {
+		table.Render()
+	}
+
+	return 0, nil
 }

@@ -115,7 +115,7 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 	for _, value := range content {
 		table.Append(value)
 	}
-	table.Render()
+	cmd.ui.PrintTable(table)
 
 	return 0, nil
 }
