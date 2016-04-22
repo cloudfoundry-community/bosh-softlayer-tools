@@ -17,7 +17,10 @@ type Config interface {
 	SaveConfig(configInfo ConfigInfo) error
 }
 
-const CONFIG_PATH = "~/.bmp_config"
+const (
+	CONFIG_FILE_NAME = ".bmp_config"
+	CONFIG_PATH      = "~/" + CONFIG_FILE_NAME
+)
 
 type config struct {
 	configInfo ConfigInfo
