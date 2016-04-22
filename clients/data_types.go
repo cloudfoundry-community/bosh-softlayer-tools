@@ -12,6 +12,23 @@ type InfoResponse struct {
 	Data   DataInfo `json:"data"`
 }
 
+// /bms
+type BaremetalInfo struct {
+	Id                 int    `json:"id"`
+	Hostname           string `json:"hostname"`
+	Private_ip_address string `json:"private_ip_address"`
+	Public_ip_address  string `json:"public_ip_address"`
+	Hardware_status    string `json:"hardware_status"`
+	Memory             int    `json:"memory"`
+	Cpu                int    `json:"cpu"`
+	Provision_date     string `json:"provision_date"`
+}
+
+type BmsResponse struct {
+	Status int             `json:"Status"`
+	Data   []BaremetalInfo `json:"data"`
+}
+
 // /sl/packages
 
 type Package struct {
@@ -130,4 +147,9 @@ type CreateBaremetalParameters struct {
 type CreateBaremetalInfo struct {
 	BaremetalSpecs []CloudProperty `json:"baremetal_specs"`
 	Deployment     string          `json:"deployment"`
+}
+
+// deployment
+type Deployment struct {
+	Name string `json:"name"`
 }

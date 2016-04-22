@@ -62,6 +62,47 @@ var _ = Describe("BMP client", func() {
 		})
 	})
 
+	Describe("#bms", func() {
+		BeforeEach(func() {
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "Bms.json")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns an array of BaremetalInfo", func() {
+			bmsResponse, err := bmpClient.Bms("fake-name")
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(bmsResponse.Status).To(Equal(200))
+			Expect(len(bmsResponse.Data)).To(Equal(2))
+			Expect(bmsResponse.Data[0]).To(Equal(clients.BaremetalInfo{
+				Id:                 0,
+				Hostname:           "hostname0",
+				Private_ip_address: "private_ip_address0",
+				Public_ip_address:  "public_ip_address0",
+				Hardware_status:    "hardware_status0",
+				Memory:             0,
+				Cpu:                0,
+				Provision_date:     "2016-01-01T00:00:00-00:00"}))
+
+			Expect(bmsResponse.Data[1]).To(Equal(clients.BaremetalInfo{
+				Id:                 1,
+				Hostname:           "hostname1",
+				Private_ip_address: "private_ip_address1",
+				Public_ip_address:  "public_ip_address1",
+				Hardware_status:    "hardware_status1",
+				Memory:             1,
+				Cpu:                1,
+				Provision_date:     "2016-01-01T00:00:00-00:00"}))
+		})
+
+		It("fails when BMP server /sl/packages fails", func() {
+			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
+
+			_, err := bmpClient.Bms("fake-name")
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
 	Describe("#SlPackages", func() {
 		BeforeEach(func() {
 			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "SlPackages.json")
