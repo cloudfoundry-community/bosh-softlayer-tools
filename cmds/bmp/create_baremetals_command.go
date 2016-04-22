@@ -16,7 +16,7 @@ type createBaremetalsCommand struct {
 }
 
 func NewCreateBaremetalsCommand(options cmds.Options, bmpClient clients.BmpClient) createBaremetalsCommand {
-	consoleUi := common.NewConsoleUi()
+	consoleUi := common.NewConsoleUi(options.Verbose)
 
 	return createBaremetalsCommand{
 		options: options,

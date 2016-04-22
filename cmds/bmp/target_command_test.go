@@ -9,7 +9,7 @@ import (
 
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
-	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 
 	clientsfakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 )
@@ -136,7 +136,8 @@ var _ = Describe("target command", func() {
 			Expect(rc).To(Equal(0))
 			Expect(err).ToNot(HaveOccurred())
 
-			configInfo, err := common.CreateConfig(fakeBmpClient.ConfigPath())
+			c := config.NewConfig(fakeBmpClient.ConfigPath())
+			configInfo, err := c.LoadConfig()
 			Expect(err).ToNot(HaveOccurred())
 			Expect(configInfo.TargetUrl).To(Equal("http://fake.url"))
 		})

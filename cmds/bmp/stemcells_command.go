@@ -16,7 +16,7 @@ type stemcellsCommand struct {
 }
 
 func NewStemcellsCommand(options cmds.Options, bmpClient clients.BmpClient) stemcellsCommand {
-	consoleUi := common.NewConsoleUi()
+	consoleUi := common.NewConsoleUi(options.Verbose)
 
 	return stemcellsCommand{
 		options: options,

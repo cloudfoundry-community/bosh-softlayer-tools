@@ -16,7 +16,7 @@ type slCommand struct {
 }
 
 func NewSlCommand(options cmds.Options, bmpClient clients.BmpClient) slCommand {
-	consoleUi := common.NewConsoleUi()
+	consoleUi := common.NewConsoleUi(options.Verbose)
 
 	return slCommand{
 		options: options,

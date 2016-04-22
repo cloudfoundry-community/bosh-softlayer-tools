@@ -17,7 +17,7 @@ type taskCommand struct {
 }
 
 func NewTaskCommand(options cmds.Options, bmpClient clients.BmpClient) taskCommand {
-	consoleUi := common.NewConsoleUi()
+	consoleUi := common.NewConsoleUi(options.Verbose)
 
 	return taskCommand{
 		options: options,

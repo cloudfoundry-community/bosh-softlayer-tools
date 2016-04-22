@@ -16,7 +16,7 @@ type statusCommand struct {
 }
 
 func NewStatusCommand(options cmds.Options, bmpClient clients.BmpClient) statusCommand {
-	consoleUi := common.NewConsoleUi()
+	consoleUi := common.NewConsoleUi(options.Verbose)
 
 	return statusCommand{
 		options: options,

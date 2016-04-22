@@ -27,7 +27,7 @@ type bmsCommand struct {
 }
 
 func NewBmsCommand(options cmds.Options, bmpClient clients.BmpClient) bmsCommand {
-	consoleUi := common.NewConsoleUi()
+	consoleUi := common.NewConsoleUi(options.Verbose)
 
 	return bmsCommand{
 		options:   options,

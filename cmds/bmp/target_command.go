@@ -21,7 +21,7 @@ type targetCommand struct {
 }
 
 func NewTargetCommand(options cmds.Options, bmpClient clients.BmpClient) targetCommand {
-	consoleUi := common.NewConsoleUi()
+	consoleUi := common.NewConsoleUi(options.Verbose)
 
 	return targetCommand{
 		options: options,

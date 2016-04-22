@@ -19,7 +19,7 @@ type loginCommand struct {
 }
 
 func NewLoginCommand(options cmds.Options, bmpClient clients.BmpClient) loginCommand {
-	consoleUi := common.NewConsoleUi()
+	consoleUi := common.NewConsoleUi(options.Verbose)
 
 	return loginCommand{
 		options: options,
