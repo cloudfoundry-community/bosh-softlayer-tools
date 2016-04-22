@@ -1,6 +1,7 @@
 package bmp_test
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -133,6 +134,9 @@ var _ = Describe("target command", func() {
 	Describe("#Execute", func() {
 		It("executes a good TargetCommand", func() {
 			rc, err := cmd.Execute(args)
+
+			fmt.Printf("====> err: %#v\n", err)
+
 			Expect(rc).To(Equal(0))
 			Expect(err).ToNot(HaveOccurred())
 

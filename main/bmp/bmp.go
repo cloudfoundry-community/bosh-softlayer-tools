@@ -55,7 +55,7 @@ func createCommand(args []string, options cmds.Options) (cmds.Command, error) {
 	}
 
 	bmpClient, err := common.CreateBmpClient()
-	if err == nil {
+	if err != nil {
 		return nil, errors.New(fmt.Sprintf("Could not create BMP client: %s", err.Error()))
 	}
 
