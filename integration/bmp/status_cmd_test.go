@@ -12,6 +12,11 @@ import (
 var _ = Describe("`$bmp status` integration tests", func() {
 	var session *Session
 
+	BeforeEach(func() {
+		session = RunBmpTarget()
+		Expect(session.ExitCode()).To(Equal(0))
+	})
+
 	Describe("$bmp status", func() {
 		BeforeEach(func() {
 			session = RunBmp("status")
