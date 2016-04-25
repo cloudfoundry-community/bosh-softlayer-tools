@@ -15,6 +15,9 @@ var _ = Describe("`$bmp status` integration tests", func() {
 	BeforeEach(func() {
 		session = RunBmpTarget()
 		Expect(session.ExitCode()).To(Equal(0))
+
+		session = RunBmpLogin()
+		Expect(session.ExitCode()).To(Equal(0))
 	})
 
 	Describe("$bmp status", func() {
