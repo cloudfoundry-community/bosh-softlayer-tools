@@ -2,6 +2,7 @@ package common_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -29,9 +30,44 @@ var _ = Describe("common", func() {
 		os.RemoveAll(tmpDir)
 	})
 
-	XContext("CreateTarball", func() {
+	Context("CreateTarball", func() {
+		var (
+			err              error
+			tarballFileName  string
+			tarballFileNames []string
+		)
+
+		BeforeEach(func() {
+			tarballFileNames = []string{"file0", "file1", "file2"}
+			for i := 0; i < 3; i++ {
+				tmpFile, err := ioutil.TempFile("", "CreateTarball")
+				Expect(err).NotTo(HaveOccurred())
+
+				tarballFileNames[i] = tmpFile.Name()
+				fileContents := []byte(fmt.Sprintf("file %d contents", i))
+				err = ioutil.WriteFile(tarballFileNames[i], fileContents, 0666)
+				Expect(err).NotTo(HaveOccurred())
+			}
+
+			tmpFile, err := ioutil.TempFile("", "Tarball")
+			Expect(err).NotTo(HaveOccurred())
+
+			tarballFileName = tmpFile.Name()
+		})
+
+		AfterEach(func() {
+			err = os.Remove(tarballFileName)
+			Expect(err).NotTo(HaveOccurred())
+
+			for _, fileName := range tarballFileNames {
+				err = os.Remove(fileName)
+				Expect(err).NotTo(HaveOccurred())
+			}
+		})
+
 		It("creates a tarball", func() {
-			Fail("implement me!")
+			err = common.CreateTarball(tarballFileName, tarballFileNames)
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 
