@@ -2,11 +2,10 @@ package test_helpers
 
 import (
 	"errors"
-	"fmt"
-	"net/url"
 	"os"
 	"os/exec"
 
+	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gexec"
@@ -21,6 +20,21 @@ func RunBmpTarget() *Session {
 	Expect(err).ToNot(HaveOccurred())
 
 	session := RunBmp("target", "--target", TargetURL)
+	return session
+}
+
+func RunBmpLogin() *Session {
+	Username, Password, err := GetCredential()
+	Expect(err).ToNot(HaveOccurred())
+
+	session := RunBmp("login", "--username", Username, "--password", Password)
+	Expect(session.ExitCode()).To(Equal(0))
+
+	c := config.NewConfig("")
+	configInfo, err := c.LoadConfig()
+	Expect(configInfo.Username).To(Equal(Username))
+	Expect(configInfo.Password).To(Equal(Password))
+
 	return session
 }
 
@@ -45,4 +59,17 @@ func GetTargetURL() (string, error) {
 	}
 
 	return TargetURL, nil
+}
+
+func GetCredential() (string, string, error) {
+	Username := os.Getenv("BMP_USERNAME")
+	if Username == "" {
+		return "", "", errors.New("BMP_USERNAME environment must be set")
+	}
+
+	Password := os.Getenv("BMP_PASSWORD")
+	if Password == "" {
+		return "", "", errors.New("BMP_PASSWORD environment must be set")
+	}
+	return Username, Password, nil
 }
