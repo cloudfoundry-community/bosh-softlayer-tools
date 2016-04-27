@@ -15,15 +15,6 @@ import (
 	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 )
 
-func CreateFile(filePath string, data []byte) error {
-	err := ioutil.WriteFile(filePath, data, 6000)
-	if err != nil {
-		return errors.New(fmt.Sprintf("Could not create file '%s', got error '%s'", filePath, err.Error()))
-	}
-
-	return nil
-}
-
 func CreateTarball(tarballFilePath string, filePaths []string) error {
 	file, err := os.Create(tarballFilePath)
 	if err != nil {

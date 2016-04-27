@@ -1,12 +1,13 @@
 package bmp_test
 
 import (
+	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
-
 	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 )
 
@@ -72,10 +73,44 @@ var _ = Describe("stemcells command", func() {
 	})
 
 	Describe("#Execute", func() {
-		It("executes a good StemcellsCommand", func() {
-			rc, err := cmd.Execute(args)
-			Expect(rc).To(Equal(0))
-			Expect(err).ToNot(HaveOccurred())
+		Context("executes a good StemcellsCommand", func() {
+			BeforeEach(func() {
+				fakeBmpClient.StemcellResponse.Status = 200
+				fakeBmpClient.StemcellErr = nil
+			})
+
+			It("execute with no error", func() {
+				rc, err := cmd.Execute(args)
+				Expect(rc).To(Equal(0))
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("executes a bad StemcellsCommand", func() {
+			Context("executes StemcellsCommand with error", func() {
+				BeforeEach(func() {
+					fakeBmpClient.StemcellResponse.Status = 500
+					fakeBmpClient.StemcellErr = errors.New("500")
+				})
+
+				It("executes with error", func() {
+					rc, err := cmd.Execute(args)
+					Expect(rc).To(Equal(1))
+					Expect(err).To(HaveOccurred())
+				})
+			})
+
+			Context("StemcellsCommand response different than 200", func() {
+				BeforeEach(func() {
+					fakeBmpClient.StemcellResponse.Status = 404
+				})
+
+				It("response code different than 200", func() {
+					rc, err := cmd.Execute(args)
+					Expect(rc).To(Equal(404))
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
 		})
 	})
 })

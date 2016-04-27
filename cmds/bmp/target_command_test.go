@@ -1,7 +1,6 @@
 package bmp_test
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -42,6 +41,9 @@ var _ = Describe("target command", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		tmpFileName = tmpFile.Name()
+
+		err = ioutil.WriteFile(tmpFileName, []byte("{}"), 0666)
+		Expect(err).ToNot(HaveOccurred())
 
 		fakeBmpClient = clientsfakes.NewFakeBmpClient(options.Username, options.Password, options.Target, tmpFileName)
 		cmd = bmp.NewTargetCommand(options, fakeBmpClient)
@@ -134,9 +136,6 @@ var _ = Describe("target command", func() {
 	Describe("#Execute", func() {
 		It("executes a good TargetCommand", func() {
 			rc, err := cmd.Execute(args)
-
-			fmt.Printf("====> err: %#v\n", err)
-
 			Expect(rc).To(Equal(0))
 			Expect(err).ToNot(HaveOccurred())
 
