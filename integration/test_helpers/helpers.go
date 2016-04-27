@@ -44,10 +44,5 @@ func GetTargetURL() (string, error) {
 		return "", errors.New("TARGET_URL environment must be set")
 	}
 
-	_, err := url.ParseRequestURI(TargetURL)
-	if err != nil {
-		return "", errors.New(fmt.Sprintf("%s is not a valid URL", TargetURL))
-	}
-
 	return TargetURL, nil
 }
