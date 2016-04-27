@@ -1,9 +1,12 @@
 package bmp
 
 import (
+	"os"
+
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	tablewriter "github.com/olekukonko/tablewriter"
 )
 
 type stemcellsCommand struct {
@@ -50,5 +53,31 @@ func (cmd stemcellsCommand) Validate() (bool, error) {
 
 func (cmd stemcellsCommand) Execute(args []string) (int, error) {
 	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+
+	stemcellsResponse, err := cmd.bmpClient.Stemcells()
+	if err != nil {
+		return 1, err
+	}
+
+	if stemcellsResponse.Status != 200 {
+		return stemcellsResponse.Status, nil
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Stemcell"})
+
+	length := len(stemcellsResponse.Stemcell)
+	content := make([][]string, length)
+	for i, stemcell := range stemcellsResponse.Stemcell {
+		content[i] = []string{stemcell}
+	}
+
+	for _, value := range content {
+		table.Append(value)
+	}
+
+	cmd.ui.Println(table)
+	cmd.ui.Println("Stemcells total:", length)
+
 	return 0, nil
 }

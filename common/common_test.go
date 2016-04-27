@@ -1,16 +1,21 @@
 package common_test
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"os/user"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 )
 
-var _ = Describe("LightStemcellCmd", func() {
+var _ = Describe("common", func() {
 	var (
 		err                 error
 		tmpDir, tmpFileName string
@@ -25,21 +30,139 @@ var _ = Describe("LightStemcellCmd", func() {
 		os.RemoveAll(tmpDir)
 	})
 
-	XContext("CreateFile", func() {
-		It("creates a file", func() {
-			Fail("implement me!")
-		})
-	})
+	Context("CreateTarball", func() {
+		var (
+			err              error
+			tarballFileName  string
+			tarballFileNames []string
+		)
 
-	XContext("CreateTarball", func() {
+		BeforeEach(func() {
+			tarballFileNames = []string{"file0", "file1", "file2"}
+			for i := 0; i < 3; i++ {
+				tmpFile, err := ioutil.TempFile("", "CreateTarball")
+				Expect(err).NotTo(HaveOccurred())
+
+				tarballFileNames[i] = tmpFile.Name()
+				fileContents := []byte(fmt.Sprintf("file %d contents", i))
+				err = ioutil.WriteFile(tarballFileNames[i], fileContents, 0666)
+				Expect(err).NotTo(HaveOccurred())
+			}
+
+			tmpFile, err := ioutil.TempFile("", "Tarball")
+			Expect(err).NotTo(HaveOccurred())
+
+			tarballFileName = tmpFile.Name()
+		})
+
+		AfterEach(func() {
+			err = os.Remove(tarballFileName)
+			Expect(err).NotTo(HaveOccurred())
+
+			for _, fileName := range tarballFileNames {
+				err = os.Remove(fileName)
+				Expect(err).NotTo(HaveOccurred())
+			}
+		})
+
 		It("creates a tarball", func() {
-			Fail("implement me!")
+			err = common.CreateTarball(tarballFileName, tarballFileNames)
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 
-	XContext("CreateBmpClient", func() {
-		It("creates a BMP client", func() {
-			Fail("implement me!")
+	Context("ReadJsonTestFixtures", func() {
+		type Test struct {
+			Test string `json:"test"`
+		}
+
+		It("reads the test_fixtures/test/test.json", func() {
+			contents, err := common.ReadJsonTestFixtures("..", "test", "test.json")
+			Expect(err).NotTo(HaveOccurred())
+
+			test := Test{}
+			err = json.Unmarshal(contents, &test)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(test.Test).To(Equal("test"))
+		})
+	})
+
+	Context("CreateBmpClient", func() {
+		var (
+			currentUser    *user.User
+			configFileName string
+		)
+
+		BeforeEach(func() {
+			currentUser, err = user.Current()
+			Expect(err).NotTo(HaveOccurred())
+
+			configFileName = filepath.Join(currentUser.HomeDir, config.CONFIG_FILE_NAME)
+		})
+
+		Context("when current user has a .bmp_config", func() {
+			BeforeEach(func() {
+				_, err = ioutil.ReadFile(configFileName)
+				if err != nil {
+					configContents := []byte(`{
+							"Username": "",
+							"Password": "",
+							"TargetUrl": ""
+						}`)
+					err = ioutil.WriteFile(configFileName, configContents, 0666)
+					Expect(err).NotTo(HaveOccurred())
+				}
+			})
+
+			It("creates a BMP client", func() {
+				bmpClient, err := common.CreateBmpClient()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(bmpClient).ToNot(BeNil())
+			})
+		})
+
+		Context("when current user does not have a .bmp_config", func() {
+			var (
+				tmpFileName string
+				err         error
+			)
+
+			BeforeEach(func() {
+				_, err = os.Stat(configFileName)
+				if os.IsNotExist(err) == false {
+					tmpFile, err := ioutil.TempFile("", ".bmp_config")
+					Expect(err).NotTo(HaveOccurred())
+					tmpFileName = tmpFile.Name()
+
+					contents, err := ioutil.ReadFile(configFileName)
+					Expect(err).NotTo(HaveOccurred())
+
+					err = ioutil.WriteFile(tmpFileName, contents, 0666)
+					Expect(err).NotTo(HaveOccurred())
+
+					err = os.Remove(configFileName)
+					Expect(err).NotTo(HaveOccurred())
+				}
+			})
+
+			AfterEach(func() {
+				_, err := os.Stat(tmpFileName)
+				if os.IsNotExist(err) == false {
+					contents, err := ioutil.ReadFile(tmpFileName)
+					Expect(err).NotTo(HaveOccurred())
+
+					err = ioutil.WriteFile(configFileName, contents, 0666)
+					Expect(err).NotTo(HaveOccurred())
+
+					err = os.Remove(tmpFileName)
+					Expect(err).NotTo(HaveOccurred())
+				}
+			})
+
+			It("fails to create a BMP client", func() {
+				_, err = common.CreateBmpClient()
+				Expect(err).To(HaveOccurred())
+			})
 		})
 	})
 

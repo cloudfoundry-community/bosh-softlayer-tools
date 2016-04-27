@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -23,13 +24,13 @@ func GenerateLightStemcellTarball(lightStemcellMF LightStemcellMF, lightStemcell
 	lightStemcellMFBytes, err := GenerateManifestMFBytesYAML(lightStemcellMF)
 
 	lightStemcellMFFilePath := filepath.Join(lightStemcellsPath, "stemcell.MF")
-	err = common.CreateFile(lightStemcellMFFilePath, lightStemcellMFBytes)
+	err = ioutil.WriteFile(lightStemcellMFFilePath, lightStemcellMFBytes, 0666)
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Could not create stemcell.MF file, error: `%s`", err.Error()))
 	}
 
 	imageFilePath := filepath.Join(lightStemcellsPath, "image")
-	err = common.CreateFile(imageFilePath, []byte{})
+	err = ioutil.WriteFile(imageFilePath, []byte{}, 0666)
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Could not create image file, error: `%s`", err.Error()))
 	}
