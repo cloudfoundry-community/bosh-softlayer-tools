@@ -2,6 +2,8 @@ package test_helpers
 
 import (
 	"errors"
+	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
 
@@ -13,6 +15,14 @@ import (
 
 func RunBmp(args ...string) *Session {
 	return RunCommand(BmpExec, args...)
+}
+
+func RunBmpTarget() *Session {
+	TargetURL, err := GetTargetURL()
+	Expect(err).ToNot(HaveOccurred())
+
+	session := RunBmp("target", "--target", TargetURL)
+	return session
 }
 
 func RunBmpLogin() *Session {
@@ -44,6 +54,7 @@ func RunCommand(cmd string, args ...string) *Session {
 	return session
 }
 
+<<<<<<< HEAD
 func GetCredential() (string, string, error) {
 	Username := os.Getenv("BMP_USERNAME")
 	if Username == "" {
@@ -55,4 +66,13 @@ func GetCredential() (string, string, error) {
 		return "", "", errors.New("BMP_PASSWORD environment must be set")
 	}
 	return Username, Password, nil
+=======
+func GetTargetURL() (string, error) {
+	TargetURL := os.Getenv("TARGET_URL")
+	if TargetURL == "" {
+		return "", errors.New("TARGET_URL environment must be set")
+	}
+
+	return TargetURL, nil
+>>>>>>> 85737a3e0c9aed2880744917fd687ed9ae8fbfa9
 }

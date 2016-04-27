@@ -11,6 +11,11 @@ import (
 var _ = Describe("`$bmp stemcells` integration tests", func() {
 	var session *Session
 
+	BeforeEach(func() {
+		session = RunBmpTarget()
+		Expect(session.ExitCode()).To(Equal(0))
+	})
+
 	Describe("$bmp stemcells", func() {
 		BeforeEach(func() {
 			session = RunBmp("stemcells")
