@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 
+	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gexec"
@@ -20,6 +21,12 @@ func RunBmpLogin() *Session {
 
 	session := RunBmp("login", "--username", Username, "--password", Password)
 	Expect(session.ExitCode()).To(Equal(0))
+
+	c := config.NewConfig("~/.bmp_config")
+	configInfo, err := c.LoadConfig()
+	Expect(configInfo.Username).To(Equal(Username))
+	Expect(configInfo.Password).To(Equal(Password))
+
 	return session
 }
 
