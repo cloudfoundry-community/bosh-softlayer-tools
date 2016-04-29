@@ -24,7 +24,7 @@ type bmpClient struct {
 func NewBmpClient(username, password, url string, hClient softlayer.HttpClient, configPath string) *bmpClient {
 	var httpClient softlayer.HttpClient
 	if hClient == nil {
-		httpClient = slclient.NewHttpClient(username, password, url, "")
+		httpClient = slclient.NewHttpClient(username, password, url, "", false)
 	} else {
 		httpClient = hClient
 	}
