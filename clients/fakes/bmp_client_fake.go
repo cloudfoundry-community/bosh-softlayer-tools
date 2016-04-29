@@ -75,7 +75,7 @@ func (bc *FakeBmpClient) SlPackageOptions(packageId string) (clients.SlPackageOp
 	return bc.SlPackageOptionsResponse, bc.SlPackageOptionsErr
 }
 
-func (bc *FakeBmpClient) Tasks(latest int) (clients.TasksResponse, error) {
+func (bc *FakeBmpClient) Tasks(latest uint) (clients.TasksResponse, error) {
 	return bc.TasksResponse, bc.TasksErr
 }
 

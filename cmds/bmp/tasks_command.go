@@ -1,9 +1,13 @@
 package bmp
 
 import (
+	"os"
+	"strconv"
+
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	tablewriter "github.com/olekukonko/tablewriter"
 )
 
 type tasksCommand struct {
@@ -51,5 +55,41 @@ func (cmd tasksCommand) Validate() (bool, error) {
 
 func (cmd tasksCommand) Execute(args []string) (int, error) {
 	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+
+	var latest uint
+	latest = 50
+	if cmd.options.Latest != 0 {
+		latest = cmd.options.Latest
+	}
+
+	tasksResponse, err := cmd.bmpClient.Tasks(latest)
+	if err != nil {
+		return 1, err
+	}
+
+	if tasksResponse.Status != 200 {
+		return tasksResponse.Status, nil
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Task ID", "Status", "Description", "Start", "End"})
+
+	length := len(tasksResponse.Data)
+	content := make([][]string, length)
+	for i, task := range tasksResponse.Data {
+		content[i] = []string{
+			strconv.Itoa(task.Id),
+			task.Description,
+			task.Status,
+			task.Start_time,
+			task.End_time}
+	}
+
+	for _, value := range content {
+		table.Append(value)
+	}
+
+	cmd.ui.Println(table)
+	cmd.ui.Println("Tasks total:", length)
 	return 0, nil
 }
