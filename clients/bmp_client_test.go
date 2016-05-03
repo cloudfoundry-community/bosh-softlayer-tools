@@ -335,7 +335,7 @@ var _ = Describe("BMP client", func() {
 		})
 
 		It("returns an task ID", func() {
-			createBaremetalResponse, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo)
+			createBaremetalResponse, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo, false)
 			Expect(err).ToNot(HaveOccurred())
 
 			Expect(createBaremetalResponse.Status).To(Equal(201))
@@ -347,7 +347,7 @@ var _ = Describe("BMP client", func() {
 		It("fails when BMP create baremetal fails", func() {
 			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
 
-			_, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo)
+			_, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo, false)
 			Expect(err).To(HaveOccurred())
 		})
 	})
