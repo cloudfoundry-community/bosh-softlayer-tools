@@ -99,7 +99,6 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 	table.SetHeader([]string{"Id", "Hostname", "IPs", "Hardware_status", "Memory", "Cpu", "Provision_date"})
 
 	content := make([][]string, len(bmsResponse.Data))
-	table.SetHeader([]string{"Id", "Hostname", "IPs", "Hardware_status", "Memory", "Cpu", "Provision_date"})
 	for i, serverInfo := range bmsResponse.Data {
 		IPs := strings.Join([]string{serverInfo.Private_ip_address, serverInfo.Public_ip_address}, "/")
 		content[i] = []string{
@@ -115,7 +114,7 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 	for _, value := range content {
 		table.Append(value)
 	}
-	cmd.ui.PrintTable(table)
+	table.Render()
 
 	return 0, nil
 }
