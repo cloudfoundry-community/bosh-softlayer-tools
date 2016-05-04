@@ -12,5 +12,5 @@ type BmpClient interface {
 	TaskOutput(taskId int, level string) (TaskOutputResponse, error)
 	UpdateStatus(serverId string, status string) (UpdateStatusResponse, error)
 	Login(username string, password string) (LoginResponse, error)
-	CreateBaremetal(createBaremetalInfo CreateBaremetalInfo) (CreateBaremetalResponse, error)
+	CreateBaremetal(createBaremetalInfo CreateBaremetalInfo, dryRun bool) (CreateBaremetalResponse, error)
 }
