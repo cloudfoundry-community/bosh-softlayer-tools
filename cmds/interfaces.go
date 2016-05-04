@@ -7,7 +7,7 @@ type Options struct {
 
 	DryRun bool `long:"dry-run" description:"Runs command in a dry-run fashion (i.e., fake)"`
 
-	Latest uint `long:"latest" description:"The latest task number to use"`
+	Latest uint `long:"latest" description:"The latest task number to use" default:"50"`
 
 	Packages       string `long:"packages" description:"List SL packages"`
 	PackageOptions string `long:"package-options" description:"List SL package options"`

@@ -56,13 +56,7 @@ func (cmd tasksCommand) Validate() (bool, error) {
 func (cmd tasksCommand) Execute(args []string) (int, error) {
 	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
 
-	var latest uint
-	latest = 50
-	if cmd.options.Latest != 0 {
-		latest = cmd.options.Latest
-	}
-
-	tasksResponse, err := cmd.bmpClient.Tasks(latest)
+	tasksResponse, err := cmd.bmpClient.Tasks(cmd.options.Latest)
 	if err != nil {
 		return 1, err
 	}
@@ -81,8 +75,8 @@ func (cmd tasksCommand) Execute(args []string) (int, error) {
 			strconv.Itoa(task.Id),
 			task.Description,
 			task.Status,
-			task.Start_time,
-			task.End_time}
+			task.StartTime,
+			task.EndTime}
 	}
 
 	for _, value := range content {
