@@ -26,7 +26,7 @@ var _ = Describe("`$bmp stemcells` integration tests", func() {
 		})
 
 		It("prints the BMP stemcells information", func() {
-			Expect(session.Wait().Out.Contents()).To(ContainSubstring("Stemcells total"))
+			Expect(session.Wait().Out.Contents()).Should(ContainSubstring("Stemcells total"))
 		})
 	})
 })

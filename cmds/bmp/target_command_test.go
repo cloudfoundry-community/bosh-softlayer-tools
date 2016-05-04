@@ -106,7 +106,7 @@ var _ = Describe("target command", func() {
 			It("returns false on validation", func() {
 				validate, err := cmd.Validate()
 				Expect(validate).To(BeFalse())
-				Expect(err).ToNot(HaveOccurred())
+				Expect(err).To(HaveOccurred())
 			})
 		})
 

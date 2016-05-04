@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	slclient "github.com/maximilien/softlayer-go/client"
 	slcommon "github.com/maximilien/softlayer-go/common"
@@ -23,8 +24,19 @@ type bmpClient struct {
 
 func NewBmpClient(username, password, url string, hClient softlayer.HttpClient, configPath string) *bmpClient {
 	var httpClient softlayer.HttpClient
+
+	useHttps := false
+	if url != "" {
+		s := strings.Split(url, "://")
+		scheme, u := s[0], s[1]
+		url = u
+		if scheme == "https" {
+			useHttps = true
+		}
+	}
+
 	if hClient == nil {
-		httpClient = slclient.NewHttpClient(username, password, url, "", false)
+		httpClient = slclient.NewHttpClient(username, password, url, "", useHttps)
 	} else {
 		httpClient = hClient
 	}
