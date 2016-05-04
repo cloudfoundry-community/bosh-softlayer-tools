@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"time"
 
 	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 	. "github.com/onsi/ginkgo"
@@ -47,7 +48,7 @@ func RunCommand(cmd string, args ...string) *Session {
 
 	session, err := Start(command, GinkgoWriter, GinkgoWriter)
 	Expect(err).NotTo(HaveOccurred())
-	session.Wait()
+	session.Wait(10 * time.Second)
 
 	return session
 }
