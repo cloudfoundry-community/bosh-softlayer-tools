@@ -1,7 +1,6 @@
 {
 	"ImportPath": "github.com/cloudfoundry-community/bosh-softlayer-tools",
 	"GoVersion": "go1.5",
-	"GodepVersion": "v60",
 	"Packages": [
 		"./..."
 	],
