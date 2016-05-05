@@ -182,7 +182,7 @@ func (bc *bmpClient) Tasks(latest int) (TasksResponse, error) {
 	return response, nil
 }
 
-func (bc *bmpClient) TaskOutput(taskId int, level string) (TaskOutputResponse, error) {
+func (bc *bmpClient) TaskOutput(taskId uint, level string) (TaskOutputResponse, error) {
 	path := fmt.Sprintf("task/%d/txt/%s", taskId, level)
 	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
 	if err != nil {

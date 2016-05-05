@@ -18,6 +18,10 @@ type Options struct {
 	Target string `long:"target" short:"t" description:"the target URL"`
 
 	Deployment string `long:"Deployment" short:"d" description:"The deployment file"`
+
+	TaskID uint `long:"task_id" description:"The ID of a task"`
+
+	Debug bool `long:"debug" description:"Show debug information of a task"`
 }
 
 type Command interface {
