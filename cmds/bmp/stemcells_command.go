@@ -1,7 +1,6 @@
 package bmp
 
 import (
-	"fmt"
 	"os"
 
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
@@ -76,8 +75,8 @@ func (cmd stemcellsCommand) Execute(args []string) (int, error) {
 		table.Append(value)
 	}
 
-	table.Render()
-	fmt.Print("Stemcells total:", length)
+	cmd.ui.PrintTable(table)
+	cmd.ui.PrintlnInfo("Stemcells total: ", length)
 
 	return 0, nil
 }

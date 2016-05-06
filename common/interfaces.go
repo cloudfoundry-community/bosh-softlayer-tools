@@ -6,6 +6,8 @@ type Printer interface {
 	Println(args ...interface{}) (int, error)
 	Printf(msg string, args ...interface{}) (int, error)
 	PrintTable(table *tablewriter.Table) (int, error)
+	PrintfInfo(msg string, args ...interface{}) (int, error)
+	PrintlnInfo(args ...interface{}) (int, error)
 }
 
 type UI interface {

@@ -32,9 +32,15 @@ func (ui consoleUi) Println(args ...interface{}) (int, error) {
 }
 
 func (ui consoleUi) PrintTable(table *tablewriter.Table) (int, error) {
-	if ui.verbose {
-		table.Render()
-	}
+	table.Render()
 
 	return 0, nil
+}
+
+func (ui consoleUi) PrintfInfo(msg string, args ...interface{}) (int, error) {
+	return fmt.Printf(msg, args...)
+}
+
+func (ui consoleUi) PrintlnInfo(args ...interface{}) (int, error) {
+	return fmt.Println(args...)
 }

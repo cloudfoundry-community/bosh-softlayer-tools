@@ -11,6 +11,10 @@ import (
 	. "github.com/onsi/gomega/gexec"
 )
 
+const (
+	SESSION_TIMEOUT = 3 * time.Second
+)
+
 func RunBmp(args ...string) *Session {
 	return RunCommand(BmpExec, args...)
 }
@@ -29,7 +33,7 @@ func RunBmpLogin() *Session {
 
 	session := RunBmp("login", "--username", Username, "--password", Password)
 	Expect(session.ExitCode()).To(Equal(0))
-	Expect(session.Wait().Out.Contents()).Should(ContainSubstring("Login Successfully!"))
+	Expect(session.Wait().Out.Contents()).Should(ContainSubstring("Login Successful!"))
 
 	return session
 }
@@ -43,7 +47,7 @@ func RunCommand(cmd string, args ...string) *Session {
 
 	session, err := Start(command, GinkgoWriter, GinkgoWriter)
 	Expect(err).NotTo(HaveOccurred())
-	session.Wait(10 * time.Second)
+	session.Wait(SESSION_TIMEOUT)
 
 	return session
 }

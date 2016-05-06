@@ -2,7 +2,6 @@ package bmp
 
 import (
 	"errors"
-	"fmt"
 
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
@@ -87,6 +86,6 @@ func (cmd loginCommand) Execute(args []string) (int, error) {
 		return 1, err
 	}
 
-	fmt.Println("Login Successfully!")
+	cmd.ui.PrintlnInfo("Login Successful!")
 	return 0, nil
 }

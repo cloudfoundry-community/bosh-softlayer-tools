@@ -1,7 +1,6 @@
 package bmp
 
 import (
-	"fmt"
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
@@ -57,8 +56,9 @@ func (cmd statusCommand) Execute(args []string) (int, error) {
 		return 1, err
 	}
 
-	fmt.Println(" name:    ", info.Data.Name)
-	fmt.Println(" version: ", info.Data.Version)
+	cmd.ui.PrintlnInfo("BMP server info")
+	cmd.ui.PrintlnInfo(" name:    ", info.Data.Name)
+	cmd.ui.PrintlnInfo(" version: ", info.Data.Version)
 
 	return 0, nil
 }

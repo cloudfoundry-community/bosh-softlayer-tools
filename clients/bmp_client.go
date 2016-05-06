@@ -27,12 +27,7 @@ func NewBmpClient(username, password, url string, hClient softlayer.HttpClient, 
 
 	useHttps := false
 	if url != "" {
-		s := strings.Split(url, "://")
-		scheme, u := s[0], s[1]
-		url = u
-		if scheme == "https" {
-			useHttps = true
-		}
+		useHttps, url = analyseURL(url)
 	}
 
 	if hClient == nil {
@@ -298,4 +293,16 @@ func (bc *bmpClient) CreateBaremetal(createBaremetalInfo CreateBaremetalInfo, dr
 	}
 
 	return response, nil
+}
+
+// Private methods
+
+func analyseURL(url string) (bool, string) {
+	s := strings.Split(url, "://")
+	scheme, u := s[0], s[1]
+	if scheme == "https" {
+		return true, u
+	}
+
+	return false, u
 }

@@ -48,3 +48,21 @@ func (fakeUi *FakeUi) PrintTable(table *tablewriter.Table) (int, error) {
 
 	return 0, nil
 }
+
+func (fakeUi *FakeUi) PrintfInfo(msg string, args ...interface{}) (int, error) {
+	fmt.Print("in fakeUI PrintfInfo ")
+	fakeUi.Msg = msg
+	fakeUi.Args = args
+
+	fakeUi.Output = fmt.Sprintf(msg, args...)
+
+	return fakeUi.PrintfRc, fakeUi.PrintfErr
+}
+
+func (fakeUi *FakeUi) PrintlnInfo(args ...interface{}) (int, error) {
+	fakeUi.Args = args
+
+	fakeUi.Output = fmt.Sprintln(args...)
+
+	return fakeUi.PrintlnRc, fakeUi.PrintlnErr
+}

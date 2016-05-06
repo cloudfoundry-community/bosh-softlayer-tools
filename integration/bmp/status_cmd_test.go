@@ -28,7 +28,7 @@ var _ = Describe("`$bmp status` integration tests", func() {
 		})
 
 		It("prints a the BMP server status", func() {
-			Expect(session.Wait().Out.Contents()).Should(ContainSubstring("Bluemix Provision Server"))
+			Expect(session.Wait().Out.Contents()).Should(ContainSubstring("BMP server info"))
 		})
 	})
 })
