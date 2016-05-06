@@ -71,5 +71,15 @@ func GetCredential() (string, string, error) {
 	if Password == "" {
 		return "", "", errors.New("BMP_PASSWORD environment must be set")
 	}
+
 	return Username, Password, nil
+}
+
+func GetDeployment() (string, error) {
+	Deployment := os.Getenv("DEPLOYMENT")
+	if Deployment == "" {
+		return "", errors.New("DEPLOYMENT environment must be set")
+	}
+
+	return Deployment, nil
 }
