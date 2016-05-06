@@ -20,13 +20,31 @@ var _ = Describe("`$bmp task --task_id` integration tests", func() {
 	})
 
 	Describe("$bmp task --task_id", func() {
-		Context("execute bmp task with default level", func() {
+		Context("when execute bmp task with default event level", func() {
 			BeforeEach(func() {
 				session = RunBmp("task", "--task_id=1")
 			})
 
 			It("returns 0", func() {
 				Expect(session.ExitCode()).To(Equal(0))
+			})
+
+			It("prints task output", func() {
+				Expect(session.Wait().Out.Contents()).To(ContainSubstring("Task output for ID 1 with event level"))
+			})
+		})
+
+		Context("when execute bmp task with debug level", func() {
+			BeforeEach(func() {
+				session = RunBmp("task", "--task_id=1", "--debug")
+			})
+
+			It("returns 0", func() {
+				Expect(session.ExitCode()).To(Equal(0))
+			})
+
+			It("prints task output", func() {
+				Expect(session.Wait().Out.Contents()).To(ContainSubstring("Task output for ID 1 with debug level"))
 			})
 		})
 	})

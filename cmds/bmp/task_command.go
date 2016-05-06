@@ -62,7 +62,7 @@ func (cmd taskCommand) Execute(args []string) (int, error) {
 
 	level := "event"
 	if cmd.options.Debug == true {
-		level = "deubg"
+		level = "debug"
 	}
 
 	taskOutputResponse, err := cmd.bmpClient.TaskOutput(cmd.options.TaskID, level)
@@ -74,6 +74,7 @@ func (cmd taskCommand) Execute(args []string) (int, error) {
 		return taskOutputResponse.Status, nil
 	}
 
+	fmt.Printf("Task output for ID %d with %s level", cmd.options.TaskID, level)
 	for _, value := range taskOutputResponse.Data {
 		fmt.Println(value)
 	}

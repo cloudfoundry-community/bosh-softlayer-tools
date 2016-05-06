@@ -82,8 +82,8 @@ var _ = Describe("task command", func() {
 				}
 			})
 
-			It("no task_id", func() {
-				cmd = bmp.NewLoginCommand(options, fakeBmpClient)
+			It("fails when there are no task_id or task_id is 0", func() {
+				cmd = bmp.NewTaskCommand(options, fakeBmpClient)
 
 				validate, err := cmd.Validate()
 				Expect(validate).To(BeFalse())
@@ -95,7 +95,7 @@ var _ = Describe("task command", func() {
 
 	Describe("#Execute", func() {
 		Context("executes a good TaskCommand", func() {
-			Context("executes TaskCommand with default event level", func() {
+			Context("when a default event level is passed", func() {
 				BeforeEach(func() {
 					fakeBmpClient.TaskOutputResponse.Status = 200
 					fakeBmpClient.TaskOutputErr = nil
@@ -106,14 +106,14 @@ var _ = Describe("task command", func() {
 					}
 				})
 
-				It("executes a good TaskCommand ", func() {
+				It("executes without errors", func() {
 					rc, err := cmd.Execute([]string{"bmp", "task", "--task_id=1"})
 					Expect(rc).To(Equal(0))
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
 
-			Context("executes TaskCommand with debug level", func() {
+			Context("when debug level is passed", func() {
 				BeforeEach(func() {
 					fakeBmpClient.TaskOutputResponse.Status = 200
 					fakeBmpClient.TaskOutputErr = nil
@@ -124,7 +124,7 @@ var _ = Describe("task command", func() {
 					}
 				})
 
-				It("executes a good TaskCommand ", func() {
+				It("executes without errors", func() {
 					rc, err := cmd.Execute([]string{"bmp", "task", "--task_id=1", "--debug"})
 					Expect(rc).To(Equal(0))
 					Expect(err).ToNot(HaveOccurred())
@@ -134,7 +134,7 @@ var _ = Describe("task command", func() {
 		})
 
 		Context("executes a bad TaskCommand", func() {
-			Context("executes TaskCommand with error", func() {
+			Context("when TaskCommand fails", func() {
 				BeforeEach(func() {
 					fakeBmpClient.TaskOutputResponse.Status = 500
 					fakeBmpClient.TaskOutputErr = errors.New("500")
@@ -147,12 +147,12 @@ var _ = Describe("task command", func() {
 				})
 			})
 
-			Context("TaskCommand response different than 200", func() {
+			Context("when TaskCommand response different than 200", func() {
 				BeforeEach(func() {
 					fakeBmpClient.TaskOutputResponse.Status = 404
 				})
 
-				It("response code different than 200", func() {
+				It("executes without error", func() {
 					rc, err := cmd.Execute([]string{"bmp", "task", "--task_id=1"})
 					Expect(rc).To(Equal(404))
 					Expect(err).ToNot(HaveOccurred())
