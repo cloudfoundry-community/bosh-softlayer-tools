@@ -19,7 +19,7 @@ var _ = Describe("utils", func() {
 				Verbose:        true,
 				DryRun:         false,
 				Latest:         0,
-				Packages:       "test-package",
+				Packages:       true,
 				PackageOptions: "test-package-options",
 			}
 
@@ -28,7 +28,7 @@ var _ = Describe("utils", func() {
 				Verbose:        true,
 				DryRun:         false,
 				Latest:         0,
-				Packages:       "test-package",
+				Packages:       true,
 				PackageOptions: "test-package-options",
 			}
 		})
