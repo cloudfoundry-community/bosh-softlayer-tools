@@ -1,13 +1,14 @@
 package bmp_test
 
 import (
+	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
-
-	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 )
 
 var _ = Describe("sl command", func() {
@@ -65,18 +66,105 @@ var _ = Describe("sl command", func() {
 	})
 
 	Describe("#Validate", func() {
-		It("validates a good SlCommand", func() {
-			validate, err := cmd.Validate()
-			Expect(validate).To(BeTrue())
-			Expect(err).ToNot(HaveOccurred())
+		Context("validates a good TaskCommand", func() {
+			Context("when --pacakges specified", func() {
+				BeforeEach(func() {
+					options = cmds.Options{
+						Verbose:  false,
+						Packages: true,
+					}
+				})
+
+				It("validates without errors", func() {
+					cmd = bmp.NewSlCommand(options, fakeBmpClient)
+					validate, err := cmd.Validate()
+					Expect(validate).To(BeTrue())
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
+			//TODO: Add test cases for --package-options
+		})
+
+		Context("validates a bad SlCommand", func() {
+			Context("when neither --packages nor --package-options specified", func() {
+				BeforeEach(func() {
+					options = cmds.Options{
+						Verbose: false,
+					}
+				})
+
+				It("validates with errors", func() {
+					cmd = bmp.NewSlCommand(options, fakeBmpClient)
+					validate, err := cmd.Validate()
+					Expect(validate).To(BeFalse())
+					Expect(err).To(HaveOccurred())
+				})
+			})
+
+			//TODO: Add test cases for --package-options
+
 		})
 	})
 
 	Describe("#Execute", func() {
-		It("executes a good SlCommand", func() {
-			rc, err := cmd.Execute(args)
-			Expect(rc).To(Equal(0))
-			Expect(err).ToNot(HaveOccurred())
+		Context("executes a good SlCommand", func() {
+			Context("executes sl --packages", func() {
+				BeforeEach(func() {
+					fakeBmpClient.SlPackagesResponse.Status = 200
+					fakeBmpClient.SlPackagesErr = nil
+					options = cmds.Options{
+						Verbose:  false,
+						Packages: true,
+					}
+				})
+				It("executes without errors", func() {
+					cmd = bmp.NewSlCommand(options, fakeBmpClient)
+					rc, err := cmd.Execute([]string{"bmp", "sl", "--packages"})
+					Expect(rc).To(Equal(0))
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
+
+			//TODO: Add test cases for --package-options
+		})
+
+		Context("executes a bad SlCommand", func() {
+			Context("when SlCommand --packages fails", func() {
+				BeforeEach(func() {
+					fakeBmpClient.SlPackagesResponse.Status = 500
+					fakeBmpClient.SlPackagesErr = errors.New("500")
+					options = cmds.Options{
+						Verbose:  false,
+						Packages: true,
+					}
+				})
+
+				It("executes with error", func() {
+					cmd = bmp.NewSlCommand(options, fakeBmpClient)
+					rc, err := cmd.Execute([]string{"bmp", "sl", "--packages"})
+					Expect(rc).To(Equal(1))
+					Expect(err).To(HaveOccurred())
+				})
+			})
+
+			Context("when SlCommand --packages response different than 200", func() {
+				BeforeEach(func() {
+					fakeBmpClient.SlPackagesResponse.Status = 404
+					options = cmds.Options{
+						Verbose:  false,
+						Packages: true,
+					}
+				})
+
+				It("executes without error", func() {
+					cmd = bmp.NewSlCommand(options, fakeBmpClient)
+					rc, err := cmd.Execute([]string{"bmp", "sl", "--packages"})
+					Expect(rc).To(Equal(404))
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
+
+			//TODO: Add test cases for --package-options
 		})
 	})
 })
