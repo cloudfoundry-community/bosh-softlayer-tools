@@ -17,7 +17,7 @@ type Options struct {
 
 	Target string `long:"target" short:"t" description:"the target URL"`
 
-	Deployment string `long:"Deployment" short:"d" description:"The deployment file"`
+	Deployment string `long:"deployment" short:"d" description:"The deployment file"`
 }
 
 type Command interface {

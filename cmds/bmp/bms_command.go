@@ -98,7 +98,8 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Id", "Hostname", "IPs", "Hardware_status", "Memory", "Cpu", "Provision_date"})
 
-	content := make([][]string, len(bmsResponse.Data))
+	length := len(bmsResponse.Data)
+	content := make([][]string, length)
 	table.SetHeader([]string{"Id", "Hostname", "IPs", "Hardware_status", "Memory", "Cpu", "Provision_date"})
 	for i, serverInfo := range bmsResponse.Data {
 		IPs := strings.Join([]string{serverInfo.Private_ip_address, serverInfo.Public_ip_address}, "/")
@@ -116,6 +117,7 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 		table.Append(value)
 	}
 	cmd.ui.PrintTable(table)
+	cmd.ui.Println("Baremetals total: ", length)
 
 	return 0, nil
 }
