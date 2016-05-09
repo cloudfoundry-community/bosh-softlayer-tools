@@ -8,7 +8,7 @@ import (
 
 	. "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/import_image"
 
-	testhelpers "github.com/cloudfoundry-community/bosh-softlayer-tools/test_helpers"
+	testhelpers "github.com/cloudfoundry/bosh-softlayer-cpi/test_helpers"
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
