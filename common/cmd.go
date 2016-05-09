@@ -8,10 +8,14 @@ type Options struct {
 
 	DryRunFlag bool
 
-	NameFlag      string
-	NoteFlag      string
-	OsRefCodeFlag string
-	UriFlag       string
+	PublicFlag bool
+
+	NameFlag       string
+	NoteFlag       string
+	PublicNameFlag string
+	PublicNoteFlag string
+	OsRefCodeFlag  string
+	UriFlag        string
 
 	LightStemcellTypeFlag string
 	LightStemcellPathFlag string

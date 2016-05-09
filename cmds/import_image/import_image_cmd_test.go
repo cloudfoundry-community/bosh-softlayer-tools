@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/gomega"
 
 	. "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/import_image"
-	. "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 
+	testhelpers "github.com/cloudfoundry-community/bosh-softlayer-tools/test_helpers"
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
@@ -40,18 +40,18 @@ var _ = Describe("import-image command", func() {
 		fakeClient = slclientfakes.NewFakeSoftLayerClient(username, apiKey)
 		Expect(fakeClient).ToNot(BeNil())
 
-		fakeClient.FakeHttpClient.DoRawHttpRequestResponse, err = ReadJsonTestFixtures("../..", "softlayer", "SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json")
-		Expect(err).ToNot(HaveOccurred())
-
 		vgbdtgService, err = fakeClient.GetSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service()
 		Expect(err).ToNot(HaveOccurred())
 		Expect(vgbdtgService).ToNot(BeNil())
 
 		options = common.Options{
-			NameFlag:      "fake-name",
-			NoteFlag:      "fake-note",
-			OsRefCodeFlag: "fake-os-ref-code",
-			UriFlag:       "fake-uri",
+			NameFlag:       "fake-name",
+			NoteFlag:       "fake-note",
+			PublicFlag:     false,
+			PublicNameFlag: "fake-public-name",
+			PublicNoteFlag: "fake-public-note",
+			OsRefCodeFlag:  "fake-os-ref-code",
+			UriFlag:        "fake-uri",
 		}
 
 		importImageCmd, err = NewImportImageCmd(options, fakeClient)
@@ -140,7 +140,13 @@ var _ = Describe("import-image command", func() {
 			}
 		})
 
-		It("creates a VGDTG with UUID and ID", func() {
+		It("creates a private VGDTG with UUID and ID", func() {
+			fileNames := []string{
+				"SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json",
+				"SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json",
+			}
+			testhelpers.SetTestFixturesForFakeSoftLayerClient(fakeClient, fileNames)
+
 			vgbdtGroup, err := vgbdtgService.CreateFromExternalSource(configuration)
 			Expect(err).ToNot(HaveOccurred())
 
@@ -151,6 +157,36 @@ var _ = Describe("import-image command", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			Expect(importImageCmd.Uuid).ToNot(Equal(""))
+			Expect(importImageCmd.Id).ToNot(Equal(""))
+		})
+
+		It("creates a public VGDTG with UUID and ID", func() {
+			fileNames := []string{
+				"SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json",
+				"SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createPublicArchiveTransaction.json",
+			}
+			testhelpers.SetTestFixturesForFakeSoftLayerClient(fakeClient, fileNames)
+
+			options = common.Options{
+				NameFlag:       "fake-name",
+				NoteFlag:       "fake-note",
+				PublicFlag:     true,
+				PublicNameFlag: "fake-public-name",
+				PublicNoteFlag: "fake-public-note",
+				OsRefCodeFlag:  "fake-os-ref-code",
+				UriFlag:        "fake-uri",
+			}
+
+			importImageCmd, err = NewImportImageCmd(options, fakeClient)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(importImageCmd).ToNot(BeNil())
+
+			cmd = importImageCmd
+
+			err = cmd.Run()
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(importImageCmd.Uuid).To(Equal(""))
 			Expect(importImageCmd.Id).ToNot(Equal(""))
 		})
 	})

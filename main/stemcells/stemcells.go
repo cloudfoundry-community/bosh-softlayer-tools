@@ -9,11 +9,11 @@ import (
 	"time"
 
 	slclient "github.com/maximilien/softlayer-go/client"
-	softlayer "github.com/maximilien/softlayer-go/softlayer"
+	"github.com/maximilien/softlayer-go/softlayer"
 
-	import_image "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/import_image"
-	light_stemcell "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/light_stemcell"
-	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/import_image"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/light_stemcell"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
 
 const VERSION = "v0.0.1"
@@ -28,12 +28,12 @@ type ImportImageCmdResponse struct {
 func main() {
 	flag.Parse()
 
-	if stemcellsOptions.HelpFlag || stemcellsOptions.LongHelpFlag || len(flag.Args()) == 0 {
+	if stemcellsOptions.HelpFlag || stemcellsOptions.LongHelpFlag || len(os.Args) == 0 {
 		usage()
 		return
 	}
 
-	switch flag.Args()[0] {
+	switch stemcellsOptions.CommandFlag {
 	case "import-image":
 		importImageCmd()
 	case "light-stemcell":
@@ -138,8 +138,12 @@ func init() {
 	flag.BoolVar(&stemcellsOptions.HelpFlag, "h", false, "prints the usage")
 	flag.BoolVar(&stemcellsOptions.LongHelpFlag, "-help", false, "prints the usage")
 
+	flag.BoolVar(&stemcellsOptions.PublicFlag, "public", false, "make the stemcell public")
+
 	flag.StringVar(&stemcellsOptions.NameFlag, "name", "", "the name used by the specified command")
 	flag.StringVar(&stemcellsOptions.NoteFlag, "note", "", "the note to be applied to the imported template")
+	flag.StringVar(&stemcellsOptions.PublicNameFlag, "public-name", "", "the group name of public image to be imported")
+	flag.StringVar(&stemcellsOptions.PublicNoteFlag, "public-note", "", "the note and summary of public image to be imported")
 	flag.StringVar(&stemcellsOptions.OsRefCodeFlag, "os-ref-code", "UBUNTU_14_64", "the referenceCode of the operating system software")
 	flag.StringVar(&stemcellsOptions.UriFlag, "uri", "", "the URI for an object storage object (.vhd/.iso file)")
 
@@ -154,8 +158,8 @@ func init() {
 
 func usage() {
 	usageString := `
-usage: bosh-softlayer-stemcells -c import-image [--name <template-name>] [--note <import note>] 
-       --os-ref-code <OsRefCode> --uri <swiftURI>
+usage: sl-stemcells -c import-image [--name <template-name>] [--note <import note>]
+       --os-ref-code <OsRefCode> --uri <swiftURI> --public
 
   -h | --help   prints the usage
 
@@ -164,6 +168,8 @@ usage: bosh-softlayer-stemcells -c import-image [--name <template-name>] [--note
   -c import-image  the import image command
   --name           the group name to be applied to the imported template
   --note           the note to be applied to the imported template
+  --public-name    the group name of public image to be imported
+  --public-note    the note and summary of public image to be imported
   --os-ref-code    the referenceCode of the operating system software 
                    description for the imported VHD 
                    available options: CENTOS_6_32, CENTOS_6_64, CENTOS_7_64, 
@@ -173,6 +179,7 @@ usage: bosh-softlayer-stemcells -c import-image [--name <template-name>] [--note
                      WIN_2012-STD_64
   --uri            the URI for an object storage object (.vhd/.iso file)
                    swift://<ObjectStorageAccountName>@<clusterName>/<containerName>/<fileName.(vhd|iso)>
+  --public         the image will be made as public if this argument is specified
     `
 
 	fmt.Println(fmt.Sprintf("%s\nVersion %s", usageString, VERSION))
