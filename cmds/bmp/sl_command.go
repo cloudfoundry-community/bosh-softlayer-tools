@@ -66,13 +66,14 @@ func (cmd slCommand) Execute(args []string) (int, error) {
 		return 1, errors.New("bmp sl validation error")
 	}
 
+	var rc int
 	if cmd.options.Packages {
-		rc, err := executeSlPackages(cmd)
-		return rc, err
+		rc, err = executeSlPackages(cmd)
 	} else {
-		rc, err := executeSlPackageOptions(cmd, cmd.options.PackageOptions)
-		return rc, err
+		rc, err = executeSlPackageOptions(cmd, cmd.options.PackageOptions)
 	}
+
+	return rc, err
 }
 
 func executeSlPackages(cmd slCommand) (int, error) {
@@ -107,5 +108,44 @@ func executeSlPackages(cmd slCommand) (int, error) {
 }
 
 func executeSlPackageOptions(cmd slCommand, packageOptions string) (int, error) {
+	slPackageOptionsResponse, err := cmd.bmpClient.SlPackageOptions(packageOptions)
+	if err != nil {
+		return 1, err
+	}
+
+	if slPackageOptionsResponse.Status != 200 {
+		return slPackageOptionsResponse.Status, nil
+	}
+
+	for _, category := range slPackageOptionsResponse.Data.Category {
+		cmd.ui.Printf("Category Code: %s, Name: %s, Required: %t", category.Code, category.Name, category.Required)
+		cmd.ui.Println("")
+
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"ID", "Description"})
+
+		length := len(category.Options)
+		content := make([][]string, length)
+		for i, option := range category.Options {
+			content[i] = []string{
+				strconv.Itoa(option.Id),
+				option.Description}
+		}
+
+		for _, value := range content {
+			table.Append(value)
+		}
+
+		cmd.ui.PrintTable(table)
+	}
+
+	if len(slPackageOptionsResponse.Data.Datacenter) > 0 {
+		cmd.ui.Printf("Packege %s is available in below datacenters:", packageOptions)
+
+		for _, datacenter := range slPackageOptionsResponse.Data.Datacenter {
+			cmd.ui.Println(datacenter)
+		}
+	}
+
 	return 0, nil
 }

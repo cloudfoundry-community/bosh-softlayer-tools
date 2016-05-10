@@ -19,7 +19,7 @@ var _ = Describe("`$bmp sl` integration tests", func() {
 	})
 
 	Describe("$bmp sl", func() {
-		Context("execute --packages", func() {
+		Context("executes --packages", func() {
 			BeforeEach(func() {
 				session = RunBmp("sl", "--packages")
 			})
@@ -28,10 +28,23 @@ var _ = Describe("`$bmp sl` integration tests", func() {
 				Expect(session.ExitCode()).To(Equal(0))
 			})
 
-			It("prints the package information", func() {
+			It("prints packages information", func() {
 				Expect(session.Wait().Out.Contents()).To(ContainSubstring("Packages total"))
 			})
 		})
-		//TODO: Add test cases for --package-options
+
+		Context("executes --package-options", func() {
+			BeforeEach(func() {
+				session = RunBmp("sl", "--package-options", "100001")
+			})
+
+			It("returns 0", func() {
+				Expect(session.ExitCode()).To(Equal(0))
+			})
+
+			It("prints package options information", func() {
+				Expect(session.Wait().Out.Contents()).To(ContainSubstring("Failed to retrieve options"))
+			})
+		})
 	})
 })

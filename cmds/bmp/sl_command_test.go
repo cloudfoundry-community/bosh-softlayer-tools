@@ -66,7 +66,7 @@ var _ = Describe("sl command", func() {
 	})
 
 	Describe("#Validate", func() {
-		Context("validates a good TaskCommand", func() {
+		Context("validates a good SlCommand", func() {
 			Context("when --packages specified", func() {
 				BeforeEach(func() {
 					options = cmds.Options{
@@ -75,7 +75,23 @@ var _ = Describe("sl command", func() {
 					}
 				})
 
-				It("validates without errors", func() {
+				It("validation pass without errors", func() {
+					cmd = bmp.NewSlCommand(options, fakeBmpClient)
+					validate, err := cmd.Validate()
+					Expect(validate).To(BeTrue())
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
+
+			Context("when --package-options specified", func() {
+				BeforeEach(func() {
+					options = cmds.Options{
+						Verbose:        false,
+						PackageOptions: "1",
+					}
+				})
+
+				It("validation pass without errors", func() {
 					cmd = bmp.NewSlCommand(options, fakeBmpClient)
 					validate, err := cmd.Validate()
 					Expect(validate).To(BeTrue())
@@ -92,7 +108,23 @@ var _ = Describe("sl command", func() {
 					}
 				})
 
-				It("validates with errors", func() {
+				It("validation fails with errors", func() {
+					cmd = bmp.NewSlCommand(options, fakeBmpClient)
+					validate, err := cmd.Validate()
+					Expect(validate).To(BeFalse())
+					Expect(err).To(HaveOccurred())
+				})
+			})
+
+			Context("when --package-options specified but no value", func() {
+				BeforeEach(func() {
+					options = cmds.Options{
+						Verbose:        false,
+						PackageOptions: "",
+					}
+				})
+
+				It("validation fails with errors", func() {
 					cmd = bmp.NewSlCommand(options, fakeBmpClient)
 					validate, err := cmd.Validate()
 					Expect(validate).To(BeFalse())
@@ -104,7 +136,7 @@ var _ = Describe("sl command", func() {
 
 	Describe("#Execute", func() {
 		Context("executes a good SlCommand", func() {
-			Context("executes sl --packages", func() {
+			Context("when executes sl --packages", func() {
 				BeforeEach(func() {
 					fakeBmpClient.SlPackagesResponse.Status = 200
 					fakeBmpClient.SlPackagesErr = nil
@@ -113,9 +145,28 @@ var _ = Describe("sl command", func() {
 						Packages: true,
 					}
 				})
+
 				It("executes without errors", func() {
 					cmd = bmp.NewSlCommand(options, fakeBmpClient)
 					rc, err := cmd.Execute([]string{"bmp", "sl", "--packages"})
+					Expect(rc).To(Equal(0))
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
+
+			Context("when executes sl --package-options 1", func() {
+				BeforeEach(func() {
+					fakeBmpClient.SlPackageOptionsResponse.Status = 200
+					fakeBmpClient.SlPackageOptionsErr = nil
+					options = cmds.Options{
+						Verbose:        false,
+						PackageOptions: "1",
+					}
+				})
+
+				It("executes without errors", func() {
+					cmd = bmp.NewSlCommand(options, fakeBmpClient)
+					rc, err := cmd.Execute([]string{"bmp", "sl", "--package-options", "1"})
 					Expect(rc).To(Equal(0))
 					Expect(err).ToNot(HaveOccurred())
 				})
@@ -133,7 +184,7 @@ var _ = Describe("sl command", func() {
 					}
 				})
 
-				It("executes with error", func() {
+				It("executes with errors", func() {
 					cmd = bmp.NewSlCommand(options, fakeBmpClient)
 					rc, err := cmd.Execute([]string{"bmp", "sl", "--packages"})
 					Expect(rc).To(Equal(1))
@@ -150,9 +201,44 @@ var _ = Describe("sl command", func() {
 					}
 				})
 
-				It("executes without error", func() {
+				It("executes without errors", func() {
 					cmd = bmp.NewSlCommand(options, fakeBmpClient)
 					rc, err := cmd.Execute([]string{"bmp", "sl", "--packages"})
+					Expect(rc).To(Equal(404))
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
+
+			Context("when SlCommand --package-options fails", func() {
+				BeforeEach(func() {
+					fakeBmpClient.SlPackageOptionsResponse.Status = 500
+					fakeBmpClient.SlPackageOptionsErr = errors.New("500")
+					options = cmds.Options{
+						Verbose:        false,
+						PackageOptions: "1",
+					}
+				})
+
+				It("executes with error", func() {
+					cmd = bmp.NewSlCommand(options, fakeBmpClient)
+					rc, err := cmd.Execute([]string{"bmp", "sl", "--package-options", "1"})
+					Expect(rc).To(Equal(1))
+					Expect(err).To(HaveOccurred())
+				})
+			})
+
+			Context("when SlCommand --package-options response different than 200", func() {
+				BeforeEach(func() {
+					fakeBmpClient.SlPackageOptionsResponse.Status = 404
+					options = cmds.Options{
+						Verbose:        false,
+						PackageOptions: "1",
+					}
+				})
+
+				It("executes without error", func() {
+					cmd = bmp.NewSlCommand(options, fakeBmpClient)
+					rc, err := cmd.Execute([]string{"bmp", "sl", "--package-options", "1"})
 					Expect(rc).To(Equal(404))
 					Expect(err).ToNot(HaveOccurred())
 				})
