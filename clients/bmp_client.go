@@ -298,11 +298,11 @@ func (bc *bmpClient) CreateBaremetal(createBaremetalInfo CreateBaremetalInfo, dr
 // Private methods
 
 func analyseURL(url string) (bool, string) {
-	s := strings.Split(url, "://")
-	scheme, u := s[0], s[1]
+	subStrings := strings.Split(url, "://")
+	scheme, url := subStrings[0], subStrings[1]
 	if scheme == "https" {
-		return true, u
+		return true, url
 	}
 
-	return false, u
+	return false, url
 }

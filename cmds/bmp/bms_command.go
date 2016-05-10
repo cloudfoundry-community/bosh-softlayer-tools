@@ -13,7 +13,6 @@ import (
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
-	tablewriter "github.com/olekukonko/tablewriter"
 )
 
 type bmsCommand struct {
@@ -95,7 +94,7 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 		return bmsResponse.Status, nil
 	}
 
-	table := tablewriter.NewWriter(os.Stdout)
+	table := cmd.ui.NewTableWriter()
 	table.SetHeader([]string{"Id", "Hostname", "IPs", "Hardware_status", "Memory", "Cpu", "Provision_date"})
 
 	content := make([][]string, len(bmsResponse.Data))
@@ -114,7 +113,7 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 	for _, value := range content {
 		table.Append(value)
 	}
-	table.Render()
+	cmd.ui.PrintTable(table)
 
 	return 0, nil
 }

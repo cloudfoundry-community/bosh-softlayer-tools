@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/olekukonko/tablewriter"
+	"os"
 )
 
 type defaultPrinter struct {
@@ -44,4 +45,9 @@ func (p defaultPrinter) PrintfInfo(msg string, args ...interface{}) (int, error)
 
 func (p defaultPrinter) PrintlnInfo(args ...interface{}) (int, error) {
 	return p.Ui.PrintlnInfo(args)
+}
+
+func (p defaultPrinter) NewTableWriter() *tablewriter.Table {
+	table := tablewriter.NewWriter(os.Stdout)
+	return table
 }
