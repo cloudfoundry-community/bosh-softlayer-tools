@@ -1,13 +1,14 @@
 package bmp_test
 
 import (
+	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
-
-	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
 )
 
 var _ = Describe("BMP: tasks command", func() {
@@ -23,6 +24,7 @@ var _ = Describe("BMP: tasks command", func() {
 		args = []string{"bmp", "tasks"}
 		options = cmds.Options{
 			Verbose: false,
+			Latest:  0,
 		}
 
 		fakeBmpClient = fakes.NewFakeBmpClient("fake-username", "fake-password", "http://fake.url.com", "fake-config-path")
@@ -72,10 +74,57 @@ var _ = Describe("BMP: tasks command", func() {
 	})
 
 	Describe("#Execute", func() {
-		It("executes a good TasksCommand", func() {
-			rc, err := cmd.Execute(args)
-			Expect(rc).To(Equal(0))
-			Expect(err).ToNot(HaveOccurred())
+		Context("executes a good TasksCommand", func() {
+			BeforeEach(func() {
+				fakeBmpClient.TasksResponse.Status = 200
+				fakeBmpClient.TasksErr = nil
+				options = cmds.Options{
+					Verbose: false,
+					Latest:  1,
+				}
+			})
+
+			It("executes a good TasksCommand without specifying latest", func() {
+				rc, err := cmd.Execute([]string{"bmp", "tasks"})
+				Expect(rc).To(Equal(0))
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("executes a good TasksCommand with specifying latest", func() {
+				cmd = bmp.NewTasksCommand(options, fakeBmpClient)
+
+				rc, err := cmd.Execute([]string{"bmp", "tasks", "--latest=1"})
+				Expect(rc).To(Equal(0))
+				Expect(err).ToNot(HaveOccurred())
+			})
 		})
+
+		Context("executes a bad TasksCommand", func() {
+			Context("executes TasksCommand with error", func() {
+				BeforeEach(func() {
+					fakeBmpClient.TasksResponse.Status = 500
+					fakeBmpClient.TasksErr = errors.New("500")
+				})
+
+				It("executes with error", func() {
+					rc, err := cmd.Execute([]string{"bmp", "tasks"})
+					Expect(rc).To(Equal(1))
+					Expect(err).To(HaveOccurred())
+				})
+			})
+
+			Context("TasksCommand response different than 200", func() {
+				BeforeEach(func() {
+					fakeBmpClient.TasksResponse.Status = 404
+				})
+
+				It("response code different than 200", func() {
+					rc, err := cmd.Execute([]string{"bmp", "tasks"})
+					Expect(rc).To(Equal(404))
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
+		})
+
 	})
 })

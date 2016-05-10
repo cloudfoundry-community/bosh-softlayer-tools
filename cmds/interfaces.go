@@ -7,7 +7,7 @@ type Options struct {
 
 	DryRun bool `long:"dry-run" description:"Runs command in a dry-run fashion (i.e., fake)"`
 
-	Latest uint `long:"latest" description:"The latest task number to use"`
+	Latest uint `long:"latest" description:"The latest task number to use" default:"50"`
 
 	Packages       string `long:"packages" description:"List SL packages"`
 	PackageOptions string `long:"package-options" description:"List SL package options"`
@@ -17,7 +17,7 @@ type Options struct {
 
 	Target string `long:"target" short:"t" description:"the target URL"`
 
-	Deployment string `long:"Deployment" short:"d" description:"The deployment file"`
+	Deployment string `long:"deployment" short:"d" description:"The deployment file"`
 }
 
 type Command interface {

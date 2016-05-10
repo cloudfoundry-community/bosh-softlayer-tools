@@ -166,7 +166,7 @@ func (bc *bmpClient) SlPackageOptions(packageId string) (SlPackageOptionsRespons
 	return response, nil
 }
 
-func (bc *bmpClient) Tasks(latest int) (TasksResponse, error) {
+func (bc *bmpClient) Tasks(latest uint) (TasksResponse, error) {
 	path := fmt.Sprintf("tasks?latest=%d", latest)
 	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
 	if err != nil {
