@@ -63,6 +63,7 @@ var _ = Describe("task command", func() {
 	Describe("#Options", func() {
 		It("returns the options of a TaskCommand", func() {
 			Expect(cmds.EqualOptions(cmd.Options(), options)).To(BeTrue())
+			Expect(cmd.Options().TaskID).To(Equal(uint(1)))
 		})
 	})
 
