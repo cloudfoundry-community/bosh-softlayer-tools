@@ -40,6 +40,22 @@ var _ = Describe("DefaultPrinter", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(fakeUi.Output).To(ContainSubstring(fmt.Sprint("hello")))
 		})
+
+		It("#PrintfInfo", func() {
+			rc, err := printer.PrintfInfo("%s %s", "hello", "world")
+
+			Expect(rc).To(Equal(0))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(fakeUi.Output).To(ContainSubstring(fmt.Sprint("hello world")))
+		})
+
+		It("#PrintlnInfo", func() {
+			rc, err := printer.PrintlnInfo("hello")
+
+			Expect(rc).To(Equal(0))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(fakeUi.Output).To(ContainSubstring(fmt.Sprint("hello")))
+		})
 	})
 
 	Describe("when verbose is false", func() {
@@ -61,6 +77,22 @@ var _ = Describe("DefaultPrinter", func() {
 			Expect(rc).To(Equal(0))
 			Expect(err).ToNot(HaveOccurred())
 			Expect(fakeUi.Output).To(Equal(""))
+		})
+
+		It("#PrintfInfo", func() {
+			rc, err := printer.PrintfInfo("%s %s", "hello", "world")
+
+			Expect(rc).To(Equal(0))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(fakeUi.Output).To(ContainSubstring(fmt.Sprint("hello world")))
+		})
+
+		It("#PrintlnInfo", func() {
+			rc, err := printer.PrintlnInfo("hello")
+
+			Expect(rc).To(Equal(0))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(fakeUi.Output).To(ContainSubstring(fmt.Sprint("hello")))
 		})
 	})
 })
