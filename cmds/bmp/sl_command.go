@@ -67,37 +67,45 @@ func (cmd slCommand) Execute(args []string) (int, error) {
 	}
 
 	if cmd.options.Packages {
-		slPackagesResponse, err := cmd.bmpClient.SlPackages()
-		if err != nil {
-			return 1, err
-		}
-
-		if slPackagesResponse.Status != 200 {
-			return slPackagesResponse.Status, nil
-		}
-
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Package ID", "Name"})
-
-		length := len(slPackagesResponse.Data.Packages)
-		content := make([][]string, length)
-		for i, slPackage := range slPackagesResponse.Data.Packages {
-			content[i] = []string{
-				strconv.Itoa(slPackage.Id),
-				slPackage.Name}
-		}
-
-		for _, value := range content {
-			table.Append(value)
-		}
-
-		cmd.ui.PrintTable(table)
-		cmd.ui.Println("Packages total:", length)
-
-		return 0, nil
+		rc, err := executeSlPackages(cmd)
+		return rc, err
 	} else {
-		//TODO: Add sl --package-options
-
-		return 0, nil
+		rc, err := executeSlPackageOptions(cmd, cmd.options.PackageOptions)
+		return rc, err
 	}
+}
+
+func executeSlPackages(cmd slCommand) (int, error) {
+	slPackagesResponse, err := cmd.bmpClient.SlPackages()
+	if err != nil {
+		return 1, err
+	}
+
+	if slPackagesResponse.Status != 200 {
+		return slPackagesResponse.Status, nil
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Package ID", "Name"})
+
+	length := len(slPackagesResponse.Data.Packages)
+	content := make([][]string, length)
+	for i, slPackage := range slPackagesResponse.Data.Packages {
+		content[i] = []string{
+			strconv.Itoa(slPackage.Id),
+			slPackage.Name}
+	}
+
+	for _, value := range content {
+		table.Append(value)
+	}
+
+	cmd.ui.PrintTable(table)
+	cmd.ui.Println("Packages total:", length)
+
+	return 0, nil
+}
+
+func executeSlPackageOptions(cmd slCommand, packageOptions string) (int, error) {
+	return 0, nil
 }

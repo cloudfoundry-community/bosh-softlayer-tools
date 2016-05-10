@@ -67,7 +67,7 @@ var _ = Describe("sl command", func() {
 
 	Describe("#Validate", func() {
 		Context("validates a good TaskCommand", func() {
-			Context("when --pacakges specified", func() {
+			Context("when --packages specified", func() {
 				BeforeEach(func() {
 					options = cmds.Options{
 						Verbose:  false,
@@ -82,7 +82,6 @@ var _ = Describe("sl command", func() {
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
-			//TODO: Add test cases for --package-options
 		})
 
 		Context("validates a bad SlCommand", func() {
@@ -100,9 +99,6 @@ var _ = Describe("sl command", func() {
 					Expect(err).To(HaveOccurred())
 				})
 			})
-
-			//TODO: Add test cases for --package-options
-
 		})
 	})
 
@@ -124,8 +120,6 @@ var _ = Describe("sl command", func() {
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
-
-			//TODO: Add test cases for --package-options
 		})
 
 		Context("executes a bad SlCommand", func() {
@@ -163,8 +157,6 @@ var _ = Describe("sl command", func() {
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
-
-			//TODO: Add test cases for --package-options
 		})
 	})
 })
