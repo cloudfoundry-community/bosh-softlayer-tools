@@ -2,6 +2,8 @@ package fakes
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -65,4 +67,9 @@ func (fakeUi *FakeUi) PrintlnInfo(args ...interface{}) (int, error) {
 	fakeUi.Output = fmt.Sprintln(args...)
 
 	return fakeUi.PrintlnRc, fakeUi.PrintlnErr
+}
+
+func (fakeUi *FakeUi) NewTableWriter() *tablewriter.Table {
+	table := tablewriter.NewWriter(os.Stdout)
+	return table
 }
