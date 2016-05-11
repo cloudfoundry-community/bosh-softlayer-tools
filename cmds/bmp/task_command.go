@@ -1,6 +1,9 @@
 package bmp
 
 import (
+	"errors"
+
+	"fmt"
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
@@ -46,10 +49,35 @@ func (cmd taskCommand) Options() cmds.Options {
 
 func (cmd taskCommand) Validate() (bool, error) {
 	cmd.printer.Printf("Validating %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
+
+	if cmd.options.TaskID == 0 {
+		return false, errors.New("cannot have empty task ID")
+	}
+
 	return true, nil
 }
 
 func (cmd taskCommand) Execute(args []string) (int, error) {
 	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+
+	level := "event"
+	if cmd.options.Debug == true {
+		level = "debug"
+	}
+
+	taskOutputResponse, err := cmd.bmpClient.TaskOutput(cmd.options.TaskID, level)
+	if err != nil {
+		return 1, err
+	}
+
+	if taskOutputResponse.Status != 200 {
+		return taskOutputResponse.Status, nil
+	}
+
+	fmt.Printf("Task output for ID %d with %s level", cmd.options.TaskID, level)
+	for _, value := range taskOutputResponse.Data {
+		fmt.Println(value)
+	}
+
 	return 0, nil
 }

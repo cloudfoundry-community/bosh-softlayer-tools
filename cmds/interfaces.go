@@ -17,6 +17,9 @@ type Options struct {
 
 	Target string `long:"target" short:"t" description:"the target URL"`
 
+	TaskID uint `long:"task_id" description:"The ID of a task"`
+	Debug  bool `long:"debug" description:"Show debug information of a task"`
+
 	Deployment string `long:"deployment" short:"d" description:"The deployment file"`
 }
 
