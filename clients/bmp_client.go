@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	slclient "github.com/maximilien/softlayer-go/client"
 	slcommon "github.com/maximilien/softlayer-go/common"
@@ -23,8 +24,14 @@ type bmpClient struct {
 
 func NewBmpClient(username, password, url string, hClient softlayer.HttpClient, configPath string) *bmpClient {
 	var httpClient softlayer.HttpClient
+
+	useHttps := false
+	if url != "" {
+		useHttps, url = analyseURL(url)
+	}
+
 	if hClient == nil {
-		httpClient = slclient.NewHttpClient(username, password, url, "", false)
+		httpClient = slclient.NewHttpClient(username, password, url, "", useHttps)
 	} else {
 		httpClient = hClient
 	}
@@ -159,7 +166,7 @@ func (bc *bmpClient) SlPackageOptions(packageId string) (SlPackageOptionsRespons
 	return response, nil
 }
 
-func (bc *bmpClient) Tasks(latest int) (TasksResponse, error) {
+func (bc *bmpClient) Tasks(latest uint) (TasksResponse, error) {
 	path := fmt.Sprintf("tasks?latest=%d", latest)
 	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
 	if err != nil {
@@ -286,4 +293,16 @@ func (bc *bmpClient) CreateBaremetal(createBaremetalInfo CreateBaremetalInfo, dr
 	}
 
 	return response, nil
+}
+
+// Private methods
+
+func analyseURL(url string) (bool, string) {
+	subStrings := strings.Split(url, "://")
+	scheme, url := subStrings[0], subStrings[1]
+	if scheme == "https" {
+		return true, url
+	}
+
+	return false, url
 }

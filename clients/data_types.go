@@ -80,9 +80,9 @@ type StemcellsResponse struct {
 type Task struct {
 	Id          int    `json:"id"`
 	Description string `json:"description"`
-	Start_time  string `json:"start_time"`
+	StartTime   string `json:"start_time"`
 	Status      string `json:"status"`
-	End_time    string `json:"end_time"`
+	EndTime     string `json:"end_time"`
 }
 
 type TasksResponse struct {

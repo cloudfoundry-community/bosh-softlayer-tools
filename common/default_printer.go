@@ -1,6 +1,9 @@
 package common
 
-import "github.com/olekukonko/tablewriter"
+import (
+	"github.com/olekukonko/tablewriter"
+	"os"
+)
 
 type defaultPrinter struct {
 	Ui      UI
@@ -31,9 +34,20 @@ func (p defaultPrinter) Println(args ...interface{}) (int, error) {
 }
 
 func (p defaultPrinter) PrintTable(table *tablewriter.Table) (int, error) {
-	if p.Verbose {
-		table.Render()
-	}
+	table.Render()
 
 	return 0, nil
+}
+
+func (p defaultPrinter) PrintfInfo(msg string, args ...interface{}) (int, error) {
+	return p.Ui.PrintfInfo(msg, args)
+}
+
+func (p defaultPrinter) PrintlnInfo(args ...interface{}) (int, error) {
+	return p.Ui.PrintlnInfo(args)
+}
+
+func (p defaultPrinter) NewTableWriter() *tablewriter.Table {
+	table := tablewriter.NewWriter(os.Stdout)
+	return table
 }
