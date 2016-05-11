@@ -140,7 +140,7 @@ func executeSlPackageOptions(cmd slCommand, packageOptions string) (int, error) 
 	}
 
 	if len(slPackageOptionsResponse.Data.Datacenter) > 0 {
-		cmd.ui.Printf("Packege %s is available in below datacenters:", packageOptions)
+		cmd.ui.Printf("Package %s is available in below datacenters:", packageOptions)
 
 		for _, datacenter := range slPackageOptionsResponse.Data.Datacenter {
 			cmd.ui.Println(datacenter)

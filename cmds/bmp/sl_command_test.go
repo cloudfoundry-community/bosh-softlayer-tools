@@ -75,7 +75,7 @@ var _ = Describe("sl command", func() {
 					}
 				})
 
-				It("validation pass without errors", func() {
+				It("passes validation without errors", func() {
 					cmd = bmp.NewSlCommand(options, fakeBmpClient)
 					validate, err := cmd.Validate()
 					Expect(validate).To(BeTrue())
@@ -91,7 +91,7 @@ var _ = Describe("sl command", func() {
 					}
 				})
 
-				It("validation pass without errors", func() {
+				It("passes validation without errors", func() {
 					cmd = bmp.NewSlCommand(options, fakeBmpClient)
 					validate, err := cmd.Validate()
 					Expect(validate).To(BeTrue())
@@ -108,7 +108,7 @@ var _ = Describe("sl command", func() {
 					}
 				})
 
-				It("validation fails with errors", func() {
+				It("fails validation with errors", func() {
 					cmd = bmp.NewSlCommand(options, fakeBmpClient)
 					validate, err := cmd.Validate()
 					Expect(validate).To(BeFalse())
@@ -124,7 +124,7 @@ var _ = Describe("sl command", func() {
 					}
 				})
 
-				It("validation fails with errors", func() {
+				It("fails validation with errors", func() {
 					cmd = bmp.NewSlCommand(options, fakeBmpClient)
 					validate, err := cmd.Validate()
 					Expect(validate).To(BeFalse())
