@@ -52,7 +52,7 @@ func (cmd targetCommand) Validate() (bool, error) {
 	cmd.printer.Printf("Validating %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
 
 	if cmd.options.Target == "" {
-		return false, nil
+		return false, errors.New("cannot have empty target")
 	}
 
 	_, err := url.ParseRequestURI(cmd.options.Target)

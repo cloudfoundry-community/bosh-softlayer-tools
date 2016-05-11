@@ -56,11 +56,9 @@ func (cmd statusCommand) Execute(args []string) (int, error) {
 		return 1, err
 	}
 
-	cmd.ui.Println("BMP server info")
-	cmd.ui.Printf(" status: %d", info.Status)
-	cmd.ui.Printf(" name: %s", info.Data.Name)
-	cmd.ui.Printf(" version: %s", info.Data.Version)
-	cmd.ui.Println()
+	cmd.ui.PrintlnInfo("BMP server info")
+	cmd.ui.PrintlnInfo(" name:    ", info.Data.Name)
+	cmd.ui.PrintlnInfo(" version: ", info.Data.Version)
 
 	return 0, nil
 }

@@ -1,13 +1,11 @@
 package bmp
 
 import (
-	"os"
 	"strconv"
 
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
-	tablewriter "github.com/olekukonko/tablewriter"
 )
 
 type tasksCommand struct {
@@ -65,7 +63,7 @@ func (cmd tasksCommand) Execute(args []string) (int, error) {
 		return tasksResponse.Status, nil
 	}
 
-	table := tablewriter.NewWriter(os.Stdout)
+	table := cmd.ui.NewTableWriter()
 	table.SetHeader([]string{"Task ID", "Status", "Description", "Start", "End"})
 
 	length := len(tasksResponse.Data)
@@ -83,7 +81,7 @@ func (cmd tasksCommand) Execute(args []string) (int, error) {
 		table.Append(value)
 	}
 
-	cmd.ui.Println(table)
-	cmd.ui.Println("Tasks total:", length)
+	cmd.ui.PrintTable(table)
+	cmd.ui.PrintlnInfo("Tasks total:", length)
 	return 0, nil
 }
