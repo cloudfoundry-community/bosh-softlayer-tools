@@ -9,7 +9,7 @@ type Options struct {
 
 	Latest uint `long:"latest" description:"The latest task number to use" default:"50"`
 
-	Packages       string `long:"packages" description:"List SL packages"`
+	Packages       bool   `long:"packages" description:"List SL packages"`
 	PackageOptions string `long:"package-options" description:"List SL package options"`
 
 	Username string `long:"username" short:"u" description:"the username for login in"`
