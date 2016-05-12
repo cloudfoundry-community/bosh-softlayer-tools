@@ -65,7 +65,6 @@ func (cmd stemcellsCommand) Execute(args []string) (int, error) {
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Stemcell"})
-
 	length := len(stemcellsResponse.Stemcell)
 	content := make([][]string, length)
 	for i, stemcell := range stemcellsResponse.Stemcell {
@@ -76,8 +75,8 @@ func (cmd stemcellsCommand) Execute(args []string) (int, error) {
 		table.Append(value)
 	}
 
-	cmd.ui.Println(table)
-	cmd.ui.Println("Stemcells total:", length)
+	cmd.ui.PrintTable(table)
+	cmd.ui.PrintlnInfo("Stemcells total: ", length)
 
 	return 0, nil
 }

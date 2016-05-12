@@ -4,11 +4,15 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"time"
 
-	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gexec"
+)
+
+const (
+	SESSION_TIMEOUT = 3 * time.Second
 )
 
 func RunBmp(args ...string) *Session {
@@ -29,11 +33,7 @@ func RunBmpLogin() *Session {
 
 	session := RunBmp("login", "--username", Username, "--password", Password)
 	Expect(session.ExitCode()).To(Equal(0))
-
-	c := config.NewConfig("")
-	configInfo, err := c.LoadConfig()
-	Expect(configInfo.Username).To(Equal(Username))
-	Expect(configInfo.Password).To(Equal(Password))
+	Expect(session.Wait().Out.Contents()).Should(ContainSubstring("Login Successful!"))
 
 	return session
 }
@@ -47,7 +47,7 @@ func RunCommand(cmd string, args ...string) *Session {
 
 	session, err := Start(command, GinkgoWriter, GinkgoWriter)
 	Expect(err).NotTo(HaveOccurred())
-	session.Wait()
+	session.Wait(SESSION_TIMEOUT)
 
 	return session
 }
@@ -71,5 +71,15 @@ func GetCredential() (string, string, error) {
 	if Password == "" {
 		return "", "", errors.New("BMP_PASSWORD environment must be set")
 	}
+
 	return Username, Password, nil
+}
+
+func GetDeployment() (string, error) {
+	Deployment := os.Getenv("DEPLOYMENT")
+	if Deployment == "" {
+		return "", errors.New("DEPLOYMENT environment must be set")
+	}
+
+	return Deployment, nil
 }

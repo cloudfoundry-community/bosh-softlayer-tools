@@ -216,15 +216,15 @@ var _ = Describe("BMP client", func() {
 			Expect(tasksResponse.Data[0]).To(Equal(clients.Task{
 				Id:          0,
 				Description: "fake-description-0",
-				Start_time:  "fake-start-time-0",
+				StartTime:   "fake-start-time-0",
 				Status:      "fake-status-0",
-				End_time:    "fake-end-time-0"}))
+				EndTime:     "fake-end-time-0"}))
 			Expect(tasksResponse.Data[1]).To(Equal(clients.Task{
 				Id:          1,
 				Description: "fake-description-1",
-				Start_time:  "fake-start-time-1",
+				StartTime:   "fake-start-time-1",
 				Status:      "fake-status-1",
-				End_time:    "fake-end-time-1"}))
+				EndTime:     "fake-end-time-1"}))
 		})
 
 		It("fails when BMP server /tasks?latest= fails", func() {
