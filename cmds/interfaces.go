@@ -5,7 +5,7 @@ type Options struct {
 
 	Verbose bool `short:"v" long:"verbose" description:"Show verbose debug information"`
 
-	DryRun bool `long:"dry-run" description:"Runs command in a dry-run fashion (i.e., fake)"`
+	DryRun bool `long:"dryrun" description:"Runs command in a dry-run fashion (i.e., fake)"`
 
 	Latest uint `long:"latest" description:"The latest task number to use" default:"50"`
 

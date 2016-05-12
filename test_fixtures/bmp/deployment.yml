@@ -1,2 +1,42 @@
 ---
 name: fake-name
+resource_pools:
+
+- name: coreNode
+  network: default
+  size: 13
+  stemcell:
+    name: fake-stemcell-name-0
+    version: latest
+  cloud_properties:
+    Bosh_ip: 10.10.10.3
+    StartCpus:  4
+    MaxMemory:  8192
+    HourlyBillingFlag: true
+    Datacenter: fake-name
+    PrimaryNetworkComponent: fake-id
+    PrimaryBackendNetworkComponent: fake-id
+    VmNamePrefix:  fake
+    EphemeralDiskSize: 25
+
+- name: coreNode-bm
+  network: default
+  size: 1
+  stemcell:
+    name: fake-stemcell-name-1
+    version: latest
+  cloud_properties:
+    image_id: fake-image-id
+    bosh_ip: 10.10.10.4
+    datacenter: fake-datacenter-name
+    server_spec:
+      package: 255
+      server: 50399
+      ram: 50389
+      disk0: 50043
+      port_speed: 24713
+      public_vlan_id: 524954
+      private_vlan_id: 524942
+      hourly: false
+    name_prefix: fake-name-prefix
+    baremetal: true

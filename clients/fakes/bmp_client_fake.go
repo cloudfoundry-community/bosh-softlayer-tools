@@ -38,8 +38,8 @@ type FakeBmpClient struct {
 	LoginResponse clients.LoginResponse
 	LoginErr      error
 
-	CreateBaremetalResponse clients.CreateBaremetalResponse
-	CreateBaremetalErr      error
+	CreateBaremetalsResponse clients.CreateBaremetalsResponse
+	CreateBaremetalsErr      error
 }
 
 func NewFakeBmpClient(username, password, url string, configPath string) *FakeBmpClient {
@@ -91,6 +91,6 @@ func (bc *FakeBmpClient) Login(username string, password string) (clients.LoginR
 	return bc.LoginResponse, bc.LoginErr
 }
 
-func (bc *FakeBmpClient) CreateBaremetal(createBaremetalInfo clients.CreateBaremetalInfo, dryRun bool) (clients.CreateBaremetalResponse, error) {
-	return bc.CreateBaremetalResponse, bc.CreateBaremetalErr
+func (bc *FakeBmpClient) CreateBaremetals(createBaremetalsInfo clients.CreateBaremetalsInfo, dryRun bool) (clients.CreateBaremetalsResponse, error) {
+	return bc.CreateBaremetalsResponse, bc.CreateBaremetalsErr
 }

@@ -15,12 +15,12 @@ import (
 var _ = Describe("BMP client", func() {
 
 	var (
-		err                     error
-		bmpClient               clients.BmpClient
-		fakeHttpClient          *slclientfakes.FakeHttpClient
-		fakeServerSpec          clients.ServerSpec
-		fakeCloudProperty       []clients.CloudProperty
-		fakeCreateBaremetalInfo clients.CreateBaremetalInfo
+		err                      error
+		bmpClient                clients.BmpClient
+		fakeHttpClient           *slclientfakes.FakeHttpClient
+		fakeServerSpec           clients.ServerSpec
+		fakeCloudProperty        []clients.CloudProperty
+		fakeCreateBaremetalsInfo clients.CreateBaremetalsInfo
 	)
 
 	BeforeEach(func() {
@@ -302,9 +302,9 @@ var _ = Describe("BMP client", func() {
 		})
 	})
 
-	Describe("#CreateBaremetal", func() {
+	Describe("#CreateBaremetals", func() {
 		BeforeEach(func() {
-			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "CreateBaremetal.json")
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "CreateBaremetals.json")
 			Expect(err).ToNot(HaveOccurred())
 
 			fakeServerSpec = clients.ServerSpec{
@@ -328,26 +328,26 @@ var _ = Describe("BMP client", func() {
 					ServerSpec: fakeServerSpec,
 				}}
 
-			fakeCreateBaremetalInfo = clients.CreateBaremetalInfo{
+			fakeCreateBaremetalsInfo = clients.CreateBaremetalsInfo{
 				BaremetalSpecs: fakeCloudProperty,
 				Deployment:     "fake-name",
 			}
 		})
 
 		It("returns an task ID", func() {
-			createBaremetalResponse, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo, false)
+			createBaremetalsResponse, err := bmpClient.CreateBaremetals(fakeCreateBaremetalsInfo, false)
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(createBaremetalResponse.Status).To(Equal(201))
+			Expect(createBaremetalsResponse.Status).To(Equal(201))
 
-			Expect(createBaremetalResponse.Data).To(Equal(clients.TaskInfo{
+			Expect(createBaremetalsResponse.Data).To(Equal(clients.TaskInfo{
 				TaskId: 10}))
 		})
 
-		It("fails when BMP create baremetal fails", func() {
+		It("fails when BMP create baremetals fails", func() {
 			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
 
-			_, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo, false)
+			_, err := bmpClient.CreateBaremetals(fakeCreateBaremetalsInfo, false)
 			Expect(err).To(HaveOccurred())
 		})
 	})

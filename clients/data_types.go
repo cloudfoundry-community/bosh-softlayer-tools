@@ -115,41 +115,55 @@ type TaskInfo struct {
 	TaskId int `json:"task_id"`
 }
 
-type CreateBaremetalResponse struct {
+type CreateBaremetalsResponse struct {
 	Status int      `json:"status"`
 	Data   TaskInfo `json:"data"`
 }
 
 type ServerSpec struct {
-	Package       string `json:"package"`
-	Server        string `json:"server"`
-	Ram           string `json:"ram"`
-	Disk0         string `json:"disk0"`
-	PortSpeed     string `json:"port_speed"`
-	PublicVlanId  string `json:"public_vlan_id"`
-	PrivateVlanId string `json:"private_vlan_id"`
-	Hourly        bool   `json:"hourly"`
+	Package       string `json:"package" yaml:"package"`
+	Server        string `json:"server" yaml:"server"`
+	Ram           string `json:"ram" yaml:"ram"`
+	Disk0         string `json:"disk0" yaml:"disk0"`
+	PortSpeed     string `json:"port_speed" yaml:"port_speed"`
+	PublicVlanId  string `json:"public_vlan_id" yaml:"public_vlan_id"`
+	PrivateVlanId string `json:"private_vlan_id" yaml:"private_vlan_id"`
+	Hourly        bool   `json:"hourly" yaml:"hourly"`
 }
 
 type CloudProperty struct {
-	ImageId    string     `json:"image_id"`
-	BoshIP     string     `json:"bosh_ip"`
-	Datacenter string     `json:"datacenter"`
-	NamePrefix string     `json:"name_prefix"`
-	Baremetal  bool       `json:"baremetal"`
-	ServerSpec ServerSpec `json:"server_spec"`
+	ImageId    string     `json:"image_id" yaml:"image_id"`
+	BoshIP     string     `json:"bosh_ip" yaml:"bosh_ip"`
+	Datacenter string     `json:"datacenter" yaml:"datacenter"`
+	NamePrefix string     `json:"name_prefix" yaml:"name_prefix"`
+	Baremetal  bool       `json:"baremetal" yaml:"baremetal"`
+	ServerSpec ServerSpec `json:"server_spec" yaml:"server_spec"`
 }
 
-type CreateBaremetalParameters struct {
-	Parameters CreateBaremetalInfo `json:"parameters"`
+type CreateBaremetalsParameters struct {
+	Parameters CreateBaremetalsInfo `json:"parameters"`
 }
 
-type CreateBaremetalInfo struct {
+type CreateBaremetalsInfo struct {
 	BaremetalSpecs []CloudProperty `json:"baremetal_specs"`
 	Deployment     string          `json:"deployment"`
 }
 
+type Stemcell struct {
+	Name    string `yaml:"name"`
+	Version string `yaml:"version"`
+}
+
+type Resource struct {
+	Name          string        `yaml:"name"`
+	Network       string        `yaml:"network"`
+	Size          uint          `yaml:"size"`
+	Stemcell      Stemcell      `yaml:"stemcell"`
+	CloudProperty CloudProperty `yaml:"cloud_properties"`
+}
+
 // deployment
 type Deployment struct {
-	Name string `json:"name"`
+	Name          string     `yaml:"name"`
+	ResourcePools []Resource `yaml:"resource_pools"`
 }
