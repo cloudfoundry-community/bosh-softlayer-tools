@@ -16,7 +16,7 @@ import (
 	"github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
 
-const VERSION = "v0.0.1"
+const VERSION = "v0.0.2"
 
 var stemcellsOptions common.Options
 
@@ -159,7 +159,7 @@ func init() {
 func usage() {
 	usageString := `
 usage: sl-stemcells -c import-image [--name <template-name>] [--note <import note>]
-       --os-ref-code <OsRefCode> --uri <swiftURI> --public
+       --os-ref-code <OsRefCode> --uri <swiftURI> --public [--public-name <public template-name>] [--public-note <public import note>]
 
   -h | --help   prints the usage
 
@@ -168,8 +168,6 @@ usage: sl-stemcells -c import-image [--name <template-name>] [--note <import not
   -c import-image  the import image command
   --name           the group name to be applied to the imported template
   --note           the note to be applied to the imported template
-  --public-name    the group name of public image to be imported
-  --public-note    the note and summary of public image to be imported
   --os-ref-code    the referenceCode of the operating system software 
                    description for the imported VHD 
                    available options: CENTOS_6_32, CENTOS_6_64, CENTOS_7_64, 
@@ -180,6 +178,8 @@ usage: sl-stemcells -c import-image [--name <template-name>] [--note <import not
   --uri            the URI for an object storage object (.vhd/.iso file)
                    swift://<ObjectStorageAccountName>@<clusterName>/<containerName>/<fileName.(vhd|iso)>
   --public         the image will be made as public if this argument is specified
+  --public-name    the group name of public image to be imported
+  --public-note    the note and summary of public image to be imported
     `
 
 	fmt.Println(fmt.Sprintf("%s\nVersion %s", usageString, VERSION))
