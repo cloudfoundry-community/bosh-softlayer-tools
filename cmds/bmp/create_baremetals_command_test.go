@@ -2,6 +2,8 @@ package bmp_test
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -14,18 +16,20 @@ import (
 var _ = Describe("create-baremetals command", func() {
 
 	var (
-		args    []string
-		options cmds.Options
-		cmd     cmds.Command
-
+		args          []string
+		options       cmds.Options
+		cmd           cmds.Command
+		deployment    string
 		fakeBmpClient *fakes.FakeBmpClient
 	)
 
 	BeforeEach(func() {
 		args = []string{"bmp", "create-baremetals"}
+		wd, _ := os.Getwd()
+		deployment = filepath.Join(wd, "../..", "test_fixtures/bmp", "deployment.yml")
 		options = cmds.Options{
 			Verbose:    false,
-			Deployment: "../../test_fixtures/bmp/deployment.yml",
+			Deployment: deployment,
 			DryRun:     false,
 		}
 
@@ -65,7 +69,7 @@ var _ = Describe("create-baremetals command", func() {
 		It("returns the options of a CreateBaremetalsCommand", func() {
 			Expect(cmds.EqualOptions(cmd.Options(), options)).To(BeTrue())
 			Expect(cmd.Options().Deployment).ToNot(Equal(""))
-			Expect(cmd.Options().Deployment).To(Equal("../../test_fixtures/bmp/deployment.yml"))
+			Expect(cmd.Options().Deployment).To(ContainSubstring("test_fixtures/bmp/deployment.yml"))
 		})
 	})
 
@@ -76,7 +80,7 @@ var _ = Describe("create-baremetals command", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 
-		Context("validates a bad CreateBaremetalsCommand", func() {
+		Context("when validating a bad CreateBaremetalsCommand", func() {
 			BeforeEach(func() {
 				options = cmds.Options{
 					Verbose:    false,
@@ -84,7 +88,7 @@ var _ = Describe("create-baremetals command", func() {
 				}
 			})
 
-			It("fails validation when deployment file not existed", func() {
+			It("fails validation when deployment file not exists", func() {
 				cmd = bmp.NewCreateBaremetalsCommand(options, fakeBmpClient)
 				validate, err := cmd.Validate()
 				Expect(validate).To(BeFalse())
@@ -94,34 +98,34 @@ var _ = Describe("create-baremetals command", func() {
 	})
 
 	Describe("#Execute", func() {
-		Context("executes a good CreateBaremetalsCommand", func() {
-			Context("when executes CreateBaremetalsCommand without --dryrun", func() {
+		Context("when executing a good CreateBaremetalsCommand", func() {
+			Context("when executing CreateBaremetalsCommand without --dryrun", func() {
 				BeforeEach(func() {
 					fakeBmpClient.CreateBaremetalsResponse.Status = 200
 					fakeBmpClient.CreateBaremetalsErr = nil
 				})
 
 				It("executes with no error", func() {
-					args = []string{"bmp", "create-baremetals", "-d", "../../test_fixtures/bmp/deployment.yml"}
+					args = []string{"bmp", "create-baremetals", "-d", deployment}
 					rc, err := cmd.Execute(args)
 					Expect(rc).To(Equal(0))
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
 
-			Context("when executes CreateBaremetalsCommand with --dryrun", func() {
+			Context("when executing CreateBaremetalsCommand with --dryrun", func() {
 				BeforeEach(func() {
 					fakeBmpClient.CreateBaremetalsResponse.Status = 200
 					fakeBmpClient.CreateBaremetalsErr = nil
 					options = cmds.Options{
 						Verbose:    false,
-						Deployment: "../../test_fixtures/bmp/deployment.yml",
+						Deployment: deployment,
 						DryRun:     true,
 					}
 				})
 
 				It("executes with no error", func() {
-					args = []string{"bmp", "create-baremetals", "-d", "../../test_fixtures/bmp/deployment.yml", "--dryrun"}
+					args = []string{"bmp", "create-baremetals", "-d", deployment, "--dryrun"}
 					rc, err := cmd.Execute(args)
 					Expect(rc).To(Equal(0))
 					Expect(err).ToNot(HaveOccurred())
@@ -129,7 +133,7 @@ var _ = Describe("create-baremetals command", func() {
 			})
 		})
 
-		Context("executes a bad CreateBaremetalsCommand", func() {
+		Context("when executing a bad CreateBaremetalsCommand", func() {
 			Context("when CreateBaremetalsCommand fails", func() {
 				BeforeEach(func() {
 					fakeBmpClient.CreateBaremetalsResponse.Status = 500
@@ -137,20 +141,20 @@ var _ = Describe("create-baremetals command", func() {
 				})
 
 				It("executes with errors", func() {
-					args = []string{"bmp", "create-baremetals", "-d", "../../test_fixtures/bmp/deployment.yml"}
+					args = []string{"bmp", "create-baremetals", "-d", deployment}
 					rc, err := cmd.Execute(args)
 					Expect(rc).To(Equal(1))
 					Expect(err).To(HaveOccurred())
 				})
 			})
 
-			Context("when CreateBaremetalsCommand response different than 200", func() {
+			Context("when CreateBaremetalsCommand response is different than 200", func() {
 				BeforeEach(func() {
 					fakeBmpClient.CreateBaremetalsResponse.Status = 404
 				})
 
 				It("executes without errors", func() {
-					args = []string{"bmp", "create-baremetals", "-d", "../../test_fixtures/bmp/deployment.yml"}
+					args = []string{"bmp", "create-baremetals", "-d", deployment}
 					rc, err := cmd.Execute(args)
 					Expect(rc).To(Equal(404))
 					Expect(err).ToNot(HaveOccurred())

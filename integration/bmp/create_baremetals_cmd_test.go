@@ -19,7 +19,7 @@ var _ = Describe("`$bmp create-baremetals` integration tests", func() {
 	})
 
 	Describe("$bmp create-baremetals", func() {
-		Context("when executes create-baremetals", func() {
+		Context("when executing create-baremetals", func() {
 			BeforeEach(func() {
 				deployment, err := GetDeployment()
 				Expect(err).ToNot(HaveOccurred())
@@ -36,7 +36,7 @@ var _ = Describe("`$bmp create-baremetals` integration tests", func() {
 			})
 		})
 
-		Context("when executes create-baremetals --dryrun", func() {
+		Context("when executing create-baremetals --dryrun", func() {
 			BeforeEach(func() {
 				deployment, err := GetDeployment()
 				Expect(err).ToNot(HaveOccurred())

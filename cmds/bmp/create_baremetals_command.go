@@ -69,7 +69,6 @@ func (cmd createBaremetalsCommand) Execute(args []string) (int, error) {
 
 	filename, _ := filepath.Abs(cmd.options.Deployment)
 	yamlFile, err := ioutil.ReadFile(filename)
-
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: could not read File %s, error message %s", filename, err.Error())
 		return 1, errors.New(errorMessage)
@@ -83,8 +82,9 @@ func (cmd createBaremetalsCommand) Execute(args []string) (int, error) {
 		return 1, errors.New(errorMessage)
 	}
 
-	createBaremetalsInfo := clients.CreateBaremetalsInfo{}
-	createBaremetalsInfo.Deployment = deploymentInfo.Name
+	createBaremetalsInfo := clients.CreateBaremetalsInfo{
+		Deployment: deploymentInfo.Name,
+	}
 	for _, resource := range deploymentInfo.ResourcePools {
 		if resource.CloudProperty.Baremetal {
 			createBaremetalsInfo.BaremetalSpecs = append(createBaremetalsInfo.BaremetalSpecs,
@@ -101,8 +101,7 @@ func (cmd createBaremetalsCommand) Execute(args []string) (int, error) {
 		return createBaremetalsResponse.Status, nil
 	}
 
-	taskId := createBaremetalsResponse.Data.TaskId
-	cmd.ui.Printf("Run command: bmp task %d to get the status of the task", taskId)
+	cmd.ui.Printf("Run command: bmp task %d to get the status of the task", createBaremetalsResponse.Data.TaskId)
 
 	return 0, nil
 }
