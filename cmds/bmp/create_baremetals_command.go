@@ -101,7 +101,7 @@ func (cmd createBaremetalsCommand) Execute(args []string) (int, error) {
 		return createBaremetalsResponse.Status, nil
 	}
 
-	cmd.ui.Printf("Run command: bmp task %d to get the status of the task", createBaremetalsResponse.Data.TaskId)
+	cmd.ui.PrintfInfo("Run command: bmp task --task_id=%d to get the status of the task", createBaremetalsResponse.Data.TaskId)
 
 	return 0, nil
 }

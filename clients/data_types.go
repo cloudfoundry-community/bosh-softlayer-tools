@@ -121,23 +121,23 @@ type CreateBaremetalsResponse struct {
 }
 
 type ServerSpec struct {
-	Package       string `json:"package" yaml:"package"`
-	Server        string `json:"server" yaml:"server"`
-	Ram           string `json:"ram" yaml:"ram"`
-	Disk0         string `json:"disk0" yaml:"disk0"`
-	PortSpeed     string `json:"port_speed" yaml:"port_speed"`
-	PublicVlanId  string `json:"public_vlan_id" yaml:"public_vlan_id"`
-	PrivateVlanId string `json:"private_vlan_id" yaml:"private_vlan_id"`
-	Hourly        bool   `json:"hourly" yaml:"hourly"`
+	Package       string `yaml:"package"`
+	Server        string `yaml:"server"`
+	Ram           string `yaml:"ram"`
+	Disk0         string `yaml:"disk0"`
+	PortSpeed     string `yaml:"port_speed"`
+	PublicVlanId  string `yaml:"public_vlan_id"`
+	PrivateVlanId string `yaml:"private_vlan_id"`
+	Hourly        bool   `yaml:"hourly"`
 }
 
 type CloudProperty struct {
-	ImageId    string     `json:"image_id" yaml:"image_id"`
-	BoshIP     string     `json:"bosh_ip" yaml:"bosh_ip"`
-	Datacenter string     `json:"datacenter" yaml:"datacenter"`
-	NamePrefix string     `json:"name_prefix" yaml:"name_prefix"`
-	Baremetal  bool       `json:"baremetal" yaml:"baremetal"`
-	ServerSpec ServerSpec `json:"server_spec" yaml:"server_spec"`
+	ImageId    string     `yaml:"image_id"`
+	BoshIP     string     `yaml:"bosh_ip"`
+	Datacenter string     `yaml:"datacenter"`
+	NamePrefix string     `yaml:"name_prefix"`
+	Baremetal  bool       `yaml:"baremetal"`
+	ServerSpec ServerSpec `yaml:"server_spec"`
 }
 
 type CreateBaremetalsParameters struct {
