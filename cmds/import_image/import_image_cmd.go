@@ -11,7 +11,6 @@ import (
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	"github.com/maximilien/softlayer-go/softlayer"
 	"github.com/pivotal-golang/clock"
-	"time"
 )
 
 var (
@@ -128,7 +127,7 @@ func (cmd *ImportImageCmd) Run() error {
 				return false, nil
 			})
 		timeService := clock.NewClock()
-		timeoutRetryStrategy := boshretry.NewTimeoutRetryStrategy(5*time.Minute, 30*time.Second, execStmtRetryable, timeService, boshlog.NewLogger(boshlog.LevelInfo))
+		timeoutRetryStrategy := boshretry.NewTimeoutRetryStrategy(common.TIMEOUT, common.POLLING_INTERVAL, execStmtRetryable, timeService, boshlog.NewLogger(boshlog.LevelInfo))
 		err = timeoutRetryStrategy.Try()
 		if err != nil {
 			return errors.New(fmt.Sprintf("Problem occurred when making image template public: `%s`", err.Error()))
