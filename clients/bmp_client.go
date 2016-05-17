@@ -258,15 +258,15 @@ func (bc *bmpClient) Login(username string, password string) (LoginResponse, err
 	return response, nil
 }
 
-func (bc *bmpClient) CreateBaremetal(createBaremetalInfo CreateBaremetalInfo, dryRun bool) (CreateBaremetalResponse, error) {
-	createBaremetalParameters := CreateBaremetalParameters{
-		Parameters: createBaremetalInfo,
+func (bc *bmpClient) CreateBaremetals(createBaremetalsInfo CreateBaremetalsInfo, dryRun bool) (CreateBaremetalsResponse, error) {
+	createBaremetalsParameters := CreateBaremetalsParameters{
+		Parameters: createBaremetalsInfo,
 	}
 
-	requestBody, err := json.Marshal(createBaremetalParameters)
+	requestBody, err := json.Marshal(createBaremetalsParameters)
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to encode Json File, error message '%s'", err.Error())
-		return CreateBaremetalResponse{}, errors.New(errorMessage)
+		return CreateBaremetalsResponse{}, errors.New(errorMessage)
 	}
 
 	path := "baremetals"
@@ -277,19 +277,19 @@ func (bc *bmpClient) CreateBaremetal(createBaremetalInfo CreateBaremetalInfo, dr
 	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "POST", bytes.NewBuffer(requestBody))
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: could not calls /baremetals on BMP server, error message %s", err.Error())
-		return CreateBaremetalResponse{}, errors.New(errorMessage)
+		return CreateBaremetalsResponse{}, errors.New(errorMessage)
 	}
 
 	if slcommon.IsHttpErrorCode(errorCode) {
 		errorMessage := fmt.Sprintf("bmp: could not call /baremetals on BMP server, HTTP error code: %d", errorCode)
-		return CreateBaremetalResponse{}, errors.New(errorMessage)
+		return CreateBaremetalsResponse{}, errors.New(errorMessage)
 	}
 
-	response := CreateBaremetalResponse{}
+	response := CreateBaremetalsResponse{}
 	err = json.Unmarshal(responseBytes, &response)
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
-		return CreateBaremetalResponse{}, errors.New(errorMessage)
+		return CreateBaremetalsResponse{}, errors.New(errorMessage)
 	}
 
 	return response, nil
