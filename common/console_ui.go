@@ -9,6 +9,7 @@ import (
 
 type consoleUi struct {
 	verbose bool
+	ut      bool
 }
 
 func NewConsoleUi(verbose bool) UI {
@@ -34,19 +35,46 @@ func (ui consoleUi) Println(args ...interface{}) (int, error) {
 }
 
 func (ui consoleUi) PrintTable(table *tablewriter.Table) (int, error) {
-	table.Render()
+	if !isUT() {
+		table.Render()
+	}
+
 	return 0, nil
 }
 
 func (ui consoleUi) PrintfInfo(msg string, args ...interface{}) (int, error) {
-	return fmt.Printf(msg, args...)
+	if !isUT() {
+		return fmt.Printf(msg, args...)
+	}
+
+	return 0, nil
 }
 
 func (ui consoleUi) PrintlnInfo(args ...interface{}) (int, error) {
-	return fmt.Println(args...)
+	if !isUT() {
+		return fmt.Println(args...)
+	}
+
+	return 0, nil
 }
 
 func (ui consoleUi) NewTableWriter() *tablewriter.Table {
 	table := tablewriter.NewWriter(os.Stdout)
 	return table
+}
+
+// private method
+
+func isUT() bool {
+	bmpUT := os.Getenv("RUN_BMPUT")
+	switch bmpUT {
+	case "true":
+		return true
+	case "TRUE":
+		return true
+	case "True":
+		return true
+	}
+
+	return false
 }
