@@ -16,19 +16,9 @@ import (
 var (
 	locations = []sldatatypes.SoftLayer_Location{
 		{
-			265592,
-			"Amsterdam 1",
-			"ams01",
-		},
-		{
 			358694,
 			"London 2",
 			"lon02",
-		},
-		{
-			449494,
-			"Dallas 9",
-			"dal09",
 		},
 	}
 )
