@@ -35,7 +35,7 @@ func (ui consoleUi) Println(args ...interface{}) (int, error) {
 }
 
 func (ui consoleUi) PrintTable(table *tablewriter.Table) (int, error) {
-	if !isUT() {
+	if printOutput() {
 		table.Render()
 	}
 
@@ -43,7 +43,7 @@ func (ui consoleUi) PrintTable(table *tablewriter.Table) (int, error) {
 }
 
 func (ui consoleUi) PrintfInfo(msg string, args ...interface{}) (int, error) {
-	if !isUT() {
+	if printOutput() {
 		return fmt.Printf(msg, args...)
 	}
 
@@ -51,7 +51,7 @@ func (ui consoleUi) PrintfInfo(msg string, args ...interface{}) (int, error) {
 }
 
 func (ui consoleUi) PrintlnInfo(args ...interface{}) (int, error) {
-	if !isUT() {
+	if printOutput() {
 		return fmt.Println(args...)
 	}
 
@@ -65,16 +65,16 @@ func (ui consoleUi) NewTableWriter() *tablewriter.Table {
 
 // private method
 
-func isUT() bool {
-	bmpUT := os.Getenv("RUN_BMPUT")
-	switch bmpUT {
-	case "true":
-		return true
-	case "TRUE":
-		return true
-	case "True":
-		return true
+func printOutput() bool {
+	output := os.Getenv("BMP_UT_OUTPUT")
+	switch output {
+	case "false":
+		return false
+	case "False":
+		return false
+	case "FALSE":
+		return false
 	}
 
-	return false
+	return true
 }

@@ -14,7 +14,7 @@
   trap printStatus EXIT
   export GOPATH=$(godep path):$GOPATH
 
-  export RUN_BMPUT=TRUE
+  export BMP_UT_OUTPUT=False
 
   echo -e "\n Cleaning build artifacts..."
   go clean
