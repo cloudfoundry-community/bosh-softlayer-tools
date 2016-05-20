@@ -2,13 +2,11 @@ package bmp
 
 import (
 	"errors"
-	"os"
 	"strconv"
 
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
-	"github.com/olekukonko/tablewriter"
 )
 
 type slCommand struct {
@@ -86,7 +84,7 @@ func executeSlPackages(cmd slCommand) (int, error) {
 		return slPackagesResponse.Status, nil
 	}
 
-	table := tablewriter.NewWriter(os.Stdout)
+	table := cmd.ui.NewTableWriter()
 	table.SetHeader([]string{"Package ID", "Name"})
 
 	length := len(slPackagesResponse.Data.Packages)
@@ -102,7 +100,8 @@ func executeSlPackages(cmd slCommand) (int, error) {
 	}
 
 	cmd.ui.PrintTable(table)
-	cmd.ui.Println("Packages total:", length)
+	cmd.ui.PrintlnInfo("")
+	cmd.ui.PrintfInfo("Packages total: %d", length)
 
 	return 0, nil
 }
@@ -118,10 +117,9 @@ func executeSlPackageOptions(cmd slCommand, packageOptions string) (int, error) 
 	}
 
 	for _, category := range slPackageOptionsResponse.Data.Category {
-		cmd.ui.Printf("Category Code: %s, Name: %s, Required: %t", category.Code, category.Name, category.Required)
-		cmd.ui.Println("")
+		cmd.ui.PrintfInfo("Category Code: %s, Name: %s, Required: %t\n", category.Code, category.Name, category.Required)
 
-		table := tablewriter.NewWriter(os.Stdout)
+		table := cmd.ui.NewTableWriter()
 		table.SetHeader([]string{"ID", "Description"})
 
 		length := len(category.Options)
@@ -137,13 +135,14 @@ func executeSlPackageOptions(cmd slCommand, packageOptions string) (int, error) 
 		}
 
 		cmd.ui.PrintTable(table)
+		cmd.ui.PrintlnInfo("")
 	}
 
 	if len(slPackageOptionsResponse.Data.Datacenter) > 0 {
-		cmd.ui.Printf("Package %s is available in below datacenters:", packageOptions)
+		cmd.ui.PrintfInfo("Package %s is available in below datacenters:\n", packageOptions)
 
 		for _, datacenter := range slPackageOptionsResponse.Data.Datacenter {
-			cmd.ui.Println(datacenter)
+			cmd.ui.PrintlnInfo(datacenter)
 		}
 	}
 

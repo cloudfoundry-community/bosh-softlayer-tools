@@ -115,7 +115,8 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 		table.Append(value)
 	}
 	cmd.ui.PrintTable(table)
-	cmd.ui.PrintlnInfo("Baremetals total: ", length)
+	cmd.ui.PrintlnInfo("")
+	cmd.ui.PrintfInfo("Baremetals total: %d", length)
 
 	return 0, nil
 }
