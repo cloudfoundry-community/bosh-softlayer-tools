@@ -2,8 +2,8 @@ resources:
 - name: bosh-softlayer-tools
   type: git
   source:
-    uri: https://github.com/zhanggbj/bosh-softlayer-tools.git
-    branch: WIP-pipeline
+    uri: https://github.com/cloudfoundry-community/bosh-softlayer-tools.git
+    branch: master
 
 - name: version-semver
   type: semver
