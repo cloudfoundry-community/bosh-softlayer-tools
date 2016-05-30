@@ -86,6 +86,6 @@ func (cmd loginCommand) Execute(args []string) (int, error) {
 		return 1, err
 	}
 
-	cmd.ui.PrintfInfo("Login Successful!")
+	cmd.ui.PrintfInfo("Login Successful!\n")
 	return 0, nil
 }

@@ -3,7 +3,6 @@ package bmp_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
 
 	. "github.com/cloudfoundry-community/bosh-softlayer-tools/integration/test_helpers"
@@ -22,7 +21,7 @@ var _ = Describe("`$bmp bms --deployment` integration tests", func() {
 
 	Describe("$bmp bms --deployment", func() {
 		BeforeEach(func() {
-			deployment := GetDeployment()
+			deployment, _ := GetDeployment()
 			session = RunBmp("bms", "--deployment", deployment)
 		})
 

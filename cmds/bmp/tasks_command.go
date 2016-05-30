@@ -83,7 +83,7 @@ func (cmd tasksCommand) Execute(args []string) (int, error) {
 
 	cmd.ui.PrintTable(table)
 	cmd.ui.PrintlnInfo("")
-	cmd.ui.PrintfInfo("Tasks total: %d", length)
+	cmd.ui.PrintfInfo("Tasks total: %d\n", length)
 
 	return 0, nil
 }

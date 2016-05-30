@@ -73,7 +73,7 @@ func (cmd taskCommand) Execute(args []string) (int, error) {
 		return taskOutputResponse.Status, nil
 	}
 
-	cmd.ui.PrintfInfo("Task output for ID %d with %s level", cmd.options.TaskID, level)
+	cmd.ui.PrintfInfo("Task output for ID %d with %s level\n", cmd.options.TaskID, level)
 	for _, value := range taskOutputResponse.Data {
 		cmd.ui.PrintlnInfo(value)
 	}
