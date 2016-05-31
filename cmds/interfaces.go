@@ -21,6 +21,9 @@ type Options struct {
 	Debug  bool `long:"debug" description:"Show debug information of a task"`
 
 	Deployment string `long:"deployment" short:"d" description:"The deployment file"`
+
+	Server string `long:"server" description:"the ID for a baremetal server"`
+	State  string `long:"state" description:"the baremetal server state"`
 }
 
 type Command interface {

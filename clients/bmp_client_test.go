@@ -260,23 +260,23 @@ var _ = Describe("BMP client", func() {
 		})
 	})
 
-	Describe("#updateStatus", func() {
+	Describe("#updateState", func() {
 		BeforeEach(func() {
-			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "UpdateStatus.json")
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "UpdateState.json")
 			Expect(err).ToNot(HaveOccurred())
 		})
 
-		It("returns an status after updating status", func() {
-			updateStatusResponse, err := bmpClient.UpdateStatus("fake-id", "fake-status")
+		It("returns an status after updating state", func() {
+			updateStateResponse, err := bmpClient.UpdateState("fake-id", "fake-state")
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(updateStatusResponse.Status).To(Equal(200))
+			Expect(updateStateResponse.Status).To(Equal(200))
 		})
 
-		It("fails when BMP server /baremetal/{serverId}/{staus} fails", func() {
+		It("fails when BMP server /baremetal/{serverId}/{state} fails", func() {
 			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
 
-			_, err := bmpClient.UpdateStatus("fake-id", "fake-status")
+			_, err := bmpClient.UpdateState("fake-id", "fake-state")
 			Expect(err).To(HaveOccurred())
 		})
 	})

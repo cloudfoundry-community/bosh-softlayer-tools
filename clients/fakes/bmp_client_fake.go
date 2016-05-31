@@ -32,8 +32,8 @@ type FakeBmpClient struct {
 	TaskOutputResponse clients.TaskOutputResponse
 	TaskOutputErr      error
 
-	UpdateStatusResponse clients.UpdateStatusResponse
-	UpdateStatusErr      error
+	UpdateStateResponse clients.UpdateStateResponse
+	UpdateStateErr      error
 
 	LoginResponse clients.LoginResponse
 	LoginErr      error
@@ -83,8 +83,8 @@ func (bc *FakeBmpClient) TaskOutput(taskID uint, level string) (clients.TaskOutp
 	return bc.TaskOutputResponse, bc.TaskOutputErr
 }
 
-func (bc *FakeBmpClient) UpdateStatus(serverId string, status string) (clients.UpdateStatusResponse, error) {
-	return bc.UpdateStatusResponse, bc.UpdateStatusErr
+func (bc *FakeBmpClient) UpdateState(serverId string, status string) (clients.UpdateStateResponse, error) {
+	return bc.UpdateStateResponse, bc.UpdateStateErr
 }
 
 func (bc *FakeBmpClient) Login(username string, password string) (clients.LoginResponse, error) {
