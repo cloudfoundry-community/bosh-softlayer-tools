@@ -10,6 +10,7 @@ type Printer interface {
 	PrintTable(table *tablewriter.Table) (int, error)
 	PrintfInfo(msg string, args ...interface{}) (int, error)
 	PrintlnInfo(args ...interface{}) (int, error)
+	Scanln(args ...interface{}) (int, error)
 	NewTableWriter() *tablewriter.Table
 }
 
