@@ -24,6 +24,13 @@ type BaremetalInfo struct {
 	Provision_date     string `json:"provision_date"`
 }
 
+// /baremetal/spec/${server_name}/${stemcell}/${netboot_image}
+type ProvisioningBaremetalInfo struct {
+	VmNamePrefix      string    `json:"vmNamePrefix,omitempty"`
+	Bm_stemcell       string    `json:"bm_stemcell,omitempty"`
+	Bm_netboot_image  string    `json:"bm_netboot_image,omitempty"`
+}
+
 type BmsResponse struct {
 	Status int             `json:"Status"`
 	Data   []BaremetalInfo `json:"data"`
@@ -95,6 +102,11 @@ type TasksResponse struct {
 type TaskOutputResponse struct {
 	Status int      `json:"status"`
 	Data   []string `json:"data"`
+}
+
+type TaskJsonResponse struct {
+	Status int      `json:"status"`
+	Data   map[string]interface{} `json:"data"`
 }
 
 // /baremetal/${serverId}/${status}
