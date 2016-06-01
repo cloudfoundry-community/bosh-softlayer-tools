@@ -94,7 +94,7 @@ type TasksResponse struct {
 
 type TaskOutputResponse struct {
 	Status int      `json:"status"`
-	Data   []string `json:"data`
+	Data   []string `json:"data"`
 }
 
 // /baremetal/${serverId}/${status}
@@ -132,12 +132,13 @@ type ServerSpec struct {
 }
 
 type CloudProperty struct {
-	ImageId    string     `yaml:"image_id"`
-	BoshIP     string     `yaml:"bosh_ip"`
-	Datacenter string     `yaml:"datacenter"`
-	NamePrefix string     `yaml:"name_prefix"`
-	Baremetal  bool       `yaml:"baremetal"`
-	ServerSpec ServerSpec `yaml:"server_spec"`
+	BoshIP         string     `yaml:"bosh_ip"`
+	Datacenter     string     `yaml:"Datacenter"`
+	ServerSpec     ServerSpec `yaml:"server_spec"`
+	VmNamePrefix   string     `yaml:"VmNamePrefix"`
+	Baremetal      bool       `yaml:"baremetal"`
+	BmStemcell     string     `yaml:"bm_stemcell"`
+	BmNetbootImage string     `yaml:"bm_netboot_image"`
 }
 
 type CreateBaremetalsParameters struct {
