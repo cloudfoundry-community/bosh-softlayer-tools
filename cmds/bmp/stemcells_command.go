@@ -74,7 +74,7 @@ func (cmd stemcellsCommand) Execute(args []string) (int, error) {
 
 	cmd.ui.PrintTable(table)
 	cmd.ui.PrintlnInfo("")
-	cmd.ui.PrintfInfo("Stemcells total: %d", length)
+	cmd.ui.PrintfInfo("Stemcells total: %d\n", length)
 
 	return 0, nil
 }

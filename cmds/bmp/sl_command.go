@@ -101,7 +101,7 @@ func executeSlPackages(cmd slCommand) (int, error) {
 
 	cmd.ui.PrintTable(table)
 	cmd.ui.PrintlnInfo("")
-	cmd.ui.PrintfInfo("Packages total: %d", length)
+	cmd.ui.PrintfInfo("Packages total: %d\n", length)
 
 	return 0, nil
 }

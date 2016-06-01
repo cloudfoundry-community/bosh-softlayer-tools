@@ -58,7 +58,7 @@ func (cmd statusCommand) Execute(args []string) (int, error) {
 
 	cmd.ui.PrintlnInfo("BMP server info")
 	cmd.ui.PrintfInfo(" name:    %s\n", info.Data.Name)
-	cmd.ui.PrintfInfo(" version: %s", info.Data.Version)
+	cmd.ui.PrintfInfo(" version: %s\n", info.Data.Version)
 
 	return 0, nil
 }
