@@ -15,13 +15,13 @@ import (
 var _ = Describe("BMP client", func() {
 
 	var (
-		err                     error
-		bmpClient               clients.BmpClient
-		fakeHttpClient          *slclientfakes.FakeHttpClient
-		fakeServerSpec          clients.ServerSpec
-		fakeCloudProperty       []clients.CloudProperty
-		fakeCreateBaremetalInfo clients.CreateBaremetalInfo
-	        fakeProvisioningBaremetalInfo clients.ProvisioningBaremetalInfo
+		err                           error
+		bmpClient                     clients.BmpClient
+		fakeHttpClient                *slclientfakes.FakeHttpClient
+		fakeServerSpec                clients.ServerSpec
+		fakeCloudProperty             []clients.CloudProperty
+		fakeCreateBaremetalInfo       clients.CreateBaremetalInfo
+		fakeProvisioningBaremetalInfo clients.ProvisioningBaremetalInfo
 	)
 
 	BeforeEach(func() {
@@ -327,53 +327,53 @@ var _ = Describe("BMP client", func() {
 	})
 
 	Describe("#CreateBaremetal", func() {
-			BeforeEach(func() {
-				fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "CreateBaremetal.json")
-				Expect(err).ToNot(HaveOccurred())
+		BeforeEach(func() {
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "CreateBaremetal.json")
+			Expect(err).ToNot(HaveOccurred())
 
-				fakeServerSpec = clients.ServerSpec{
-					Package:       "fake-package",
-					Server:        "fake-server",
-					Ram:           "fake-ram",
-					Disk0:         "fake-disk0",
-					PortSpeed:     "fake-portSpeed",
-					PublicVlanId:  "fake-publicvlanid",
-					PrivateVlanId: "fake-privatevlanid",
-					Hourly:        true,
-				}
+			fakeServerSpec = clients.ServerSpec{
+				Package:       "fake-package",
+				Server:        "fake-server",
+				Ram:           "fake-ram",
+				Disk0:         "fake-disk0",
+				PortSpeed:     "fake-portSpeed",
+				PublicVlanId:  "fake-publicvlanid",
+				PrivateVlanId: "fake-privatevlanid",
+				Hourly:        true,
+			}
 
-				fakeCloudProperty = []clients.CloudProperty{
-					clients.CloudProperty{
-						ImageId:    "fake-id",
-						BoshIP:     "fake-boship",
-						Datacenter: "fake-datacenter",
-						NamePrefix: "fake-nameprefix",
-						Baremetal:  true,
-						ServerSpec: fakeServerSpec,
-					}}
+			fakeCloudProperty = []clients.CloudProperty{
+				clients.CloudProperty{
+					ImageId:    "fake-id",
+					BoshIP:     "fake-boship",
+					Datacenter: "fake-datacenter",
+					NamePrefix: "fake-nameprefix",
+					Baremetal:  true,
+					ServerSpec: fakeServerSpec,
+				}}
 
-				fakeCreateBaremetalInfo = clients.CreateBaremetalInfo{
-					BaremetalSpecs: fakeCloudProperty,
-					Deployment:     "fake-name",
-				}
-			})
+			fakeCreateBaremetalInfo = clients.CreateBaremetalInfo{
+				BaremetalSpecs: fakeCloudProperty,
+				Deployment:     "fake-name",
+			}
+		})
 
-			It("returns an task ID", func() {
-				createBaremetalResponse, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo, false)
-				Expect(err).ToNot(HaveOccurred())
+		It("returns an task ID", func() {
+			createBaremetalResponse, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo, false)
+			Expect(err).ToNot(HaveOccurred())
 
-				Expect(createBaremetalResponse.Status).To(Equal(201))
+			Expect(createBaremetalResponse.Status).To(Equal(201))
 
-				Expect(createBaremetalResponse.Data).To(Equal(clients.TaskInfo{
-					TaskId: 10}))
-			})
+			Expect(createBaremetalResponse.Data).To(Equal(clients.TaskInfo{
+				TaskId: 10}))
+		})
 
-			It("fails when BMP create baremetal fails", func() {
-				fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
+		It("fails when BMP create baremetal fails", func() {
+			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
 
-				_, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo, false)
-				Expect(err).To(HaveOccurred())
-			})
+			_, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo, false)
+			Expect(err).To(HaveOccurred())
+		})
 	})
 
 	Describe("#ProvisioningBaremetal", func() {
@@ -382,8 +382,8 @@ var _ = Describe("BMP client", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			fakeProvisioningBaremetalInfo = clients.ProvisioningBaremetalInfo{
-				VmNamePrefix: "fake-vmprefix",
-				Bm_stemcell:     "fake-bm-stemcell",
+				VmNamePrefix:     "fake-vmprefix",
+				Bm_stemcell:      "fake-bm-stemcell",
 				Bm_netboot_image: "fake-bm-netboot-image",
 			}
 		})

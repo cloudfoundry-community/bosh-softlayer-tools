@@ -14,5 +14,5 @@ type BmpClient interface {
 	UpdateState(serverId string, status string) (UpdateStateResponse, error)
 	Login(username string, password string) (LoginResponse, error)
 	CreateBaremetal(createBaremetalInfo CreateBaremetalInfo, dryRun bool) (CreateBaremetalResponse, error)
-	ProvisioningBaremetal(createBaremetalInfo CreateBaremetalInfo) (CreateBaremetalResponse, error)
+	ProvisioningBaremetal(provisioningBaremetalInfo ProvisioningBaremetalInfo) (CreateBaremetalResponse, error)
 }
