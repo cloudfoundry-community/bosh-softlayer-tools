@@ -1,12 +1,9 @@
 package bmp
 
 import (
-	"os"
-
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
-	tablewriter "github.com/olekukonko/tablewriter"
 )
 
 type stemcellsCommand struct {
@@ -63,7 +60,7 @@ func (cmd stemcellsCommand) Execute(args []string) (int, error) {
 		return stemcellsResponse.Status, nil
 	}
 
-	table := tablewriter.NewWriter(os.Stdout)
+	table := cmd.ui.NewTableWriter()
 	table.SetHeader([]string{"Stemcell"})
 	length := len(stemcellsResponse.Stemcell)
 	content := make([][]string, length)
@@ -76,7 +73,8 @@ func (cmd stemcellsCommand) Execute(args []string) (int, error) {
 	}
 
 	cmd.ui.PrintTable(table)
-	cmd.ui.PrintlnInfo("Stemcells total: ", length)
+	cmd.ui.PrintlnInfo("")
+	cmd.ui.PrintfInfo("Stemcells total: %d\n", length)
 
 	return 0, nil
 }

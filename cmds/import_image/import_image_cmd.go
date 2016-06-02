@@ -4,20 +4,36 @@ import (
 	"errors"
 	"fmt"
 
-	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 
+	boshlog "github.com/cloudfoundry/bosh-utils/logger"
+	boshretry "github.com/cloudfoundry/bosh-utils/retrystrategy"
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
-	softlayer "github.com/maximilien/softlayer-go/softlayer"
+	"github.com/maximilien/softlayer-go/softlayer"
+	"github.com/pivotal-golang/clock"
+)
+
+var (
+	locations = []sldatatypes.SoftLayer_Location{
+		{
+			358694,
+			"London 2",
+			"lon02",
+		},
+	}
 )
 
 type ImportImageCmd struct {
 	options common.Options
 	client  softlayer.Client
 
-	Name      string
-	Note      string
-	OsRefCode string
-	Uri       string
+	Public     bool
+	Name       string
+	Note       string
+	PublicName string
+	PublicNote string
+	OsRefCode  string
+	Uri        string
 
 	Id   int
 	Uuid string
@@ -28,10 +44,13 @@ func NewImportImageCmd(options common.Options, client softlayer.Client) (*Import
 		options: options,
 		client:  client,
 
-		Name:      options.NameFlag,
-		Note:      options.NoteFlag,
-		OsRefCode: options.OsRefCodeFlag,
-		Uri:       options.UriFlag,
+		Public:     options.PublicFlag,
+		Name:       options.NameFlag,
+		Note:       options.NoteFlag,
+		PublicName: options.PublicNameFlag,
+		PublicNote: options.PublicNoteFlag,
+		OsRefCode:  options.OsRefCodeFlag,
+		Uri:        options.UriFlag,
 	}, nil
 }
 
@@ -83,6 +102,29 @@ func (cmd *ImportImageCmd) Run() error {
 
 	cmd.Id = vgbdtgObject.Id
 	cmd.Uuid = vgbdtgObject.GlobalIdentifier
+
+	if cmd.Public {
+		execStmtRetryable := boshretry.NewRetryable(
+			func() (bool, error) {
+				id, err := vgbdtgService.CreatePublicArchiveTransaction(cmd.Id, cmd.PublicName, cmd.PublicNote, cmd.PublicNote, locations)
+				if err != nil {
+					return true, errors.New(fmt.Sprintf("There would be an active transaction in progress."))
+				}
+
+				cmd.Id = id
+				cmd.Uuid = ""
+
+				return false, nil
+			})
+		timeService := clock.NewClock()
+		timeoutRetryStrategy := boshretry.NewTimeoutRetryStrategy(common.TIMEOUT, common.POLLING_INTERVAL, execStmtRetryable, timeService, boshlog.NewLogger(boshlog.LevelInfo))
+		err = timeoutRetryStrategy.Try()
+		if err != nil {
+			return errors.New(fmt.Sprintf("Problem occurred when making image template public: `%s`", err.Error()))
+		} else {
+			return nil
+		}
+	}
 
 	return nil
 }

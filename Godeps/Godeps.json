@@ -18,42 +18,42 @@
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/client",
-			"Comment": "v0.6.0",
-			"Rev": "85659debe44fab5792fc92cf755c04b115b9dc19"
+			"Comment": "v0.6.0-13-g8a11b38",
+			"Rev": "8a11b389c85d84dd32721a8ce1901b9bbe67b885"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/client/fakes",
-			"Comment": "v0.6.0",
-			"Rev": "85659debe44fab5792fc92cf755c04b115b9dc19"
+			"Comment": "v0.6.0-13-g8a11b38",
+			"Rev": "8a11b389c85d84dd32721a8ce1901b9bbe67b885"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/common",
-			"Comment": "v0.6.0",
-			"Rev": "85659debe44fab5792fc92cf755c04b115b9dc19"
+			"Comment": "v0.6.0-13-g8a11b38",
+			"Rev": "8a11b389c85d84dd32721a8ce1901b9bbe67b885"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/data_types",
-			"Comment": "v0.6.0",
-			"Rev": "85659debe44fab5792fc92cf755c04b115b9dc19"
+			"Comment": "v0.6.0-13-g8a11b38",
+			"Rev": "8a11b389c85d84dd32721a8ce1901b9bbe67b885"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/services",
-			"Comment": "v0.6.0",
-			"Rev": "85659debe44fab5792fc92cf755c04b115b9dc19"
+			"Comment": "v0.6.0-13-g8a11b38",
+			"Rev": "8a11b389c85d84dd32721a8ce1901b9bbe67b885"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/softlayer",
-			"Comment": "v0.6.0",
-			"Rev": "85659debe44fab5792fc92cf755c04b115b9dc19"
+			"Comment": "v0.6.0-13-g8a11b38",
+			"Rev": "8a11b389c85d84dd32721a8ce1901b9bbe67b885"
 		},
 		{
 			"ImportPath": "github.com/maximilien/softlayer-go/test_helpers",
-			"Comment": "v0.6.0",
-			"Rev": "85659debe44fab5792fc92cf755c04b115b9dc19"
+			"Comment": "v0.6.0-13-g8a11b38",
+			"Rev": "8a11b389c85d84dd32721a8ce1901b9bbe67b885"
 		},
 		{
 			"ImportPath": "github.com/olekukonko/tablewriter",
-			"Rev": "c9c819c8d9cafaeff4dc99f1686394dcd274b66b"
+			"Rev": "279fecc91ba77130f753d073259d7f9e246acdda"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
@@ -132,73 +132,73 @@
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/format",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/gbytes",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/gexec",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/internal/assertion",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/internal/asyncassertion",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/internal/oraclematcher",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/internal/testingtsupport",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/matchers",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/matchers/support/goraph/bipartitegraph",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/matchers/support/goraph/edge",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/matchers/support/goraph/node",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/matchers/support/goraph/util",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/types",
-			"Comment": "v1.0-91-g7ce781e",
-			"Rev": "7ce781ea776b2fd506491011353bded2e40c8467"
+			"Comment": "v1.0-97-gc73e516",
+			"Rev": "c73e51675ad2455a4515b6213eb7145eaade4824"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",

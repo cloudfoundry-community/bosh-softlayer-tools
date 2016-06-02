@@ -101,8 +101,8 @@ func (bc *FakeBmpClient) Login(username string, password string) (clients.LoginR
 	return bc.LoginResponse, bc.LoginErr
 }
 
-func (bc *FakeBmpClient) CreateBaremetal(createBaremetalInfo clients.CreateBaremetalInfo, dryRun bool) (clients.CreateBaremetalResponse, error) {
-	return bc.CreateBaremetalResponse, bc.CreateBaremetalErr
+func (bc *FakeBmpClient) CreateBaremetals(CreateBaremetalsInfo clients.CreateBaremetalsInfo, DryRun bool) (clients.CreateBaremetalsResponse, error) {
+	return bc.CreateBaremetalsResponse, bc.CreateBaremetalsErr
 }
 
 func (bc *FakeBmpClient) ProvisioningBaremetal(provisioningBaremetalInfo clients.ProvisioningBaremetalInfo) (clients.CreateBaremetalResponse, error) {

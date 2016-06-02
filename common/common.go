@@ -10,9 +10,15 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"time"
 
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
+)
+
+var (
+	TIMEOUT          time.Duration
+	POLLING_INTERVAL time.Duration
 )
 
 func CreateTarball(tarballFilePath string, filePaths []string) error {

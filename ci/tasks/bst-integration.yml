@@ -1,0 +1,10 @@
+---
+platform: linux
+image: docker:///posijon/slci
+
+inputs:
+  - name: bosh-softlayer-tools
+    path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
+
+run:
+  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/tasks/bst-integration.sh

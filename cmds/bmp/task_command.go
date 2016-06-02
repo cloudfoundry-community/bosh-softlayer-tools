@@ -3,7 +3,6 @@ package bmp
 import (
 	"errors"
 
-	"fmt"
 	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
@@ -74,9 +73,9 @@ func (cmd taskCommand) Execute(args []string) (int, error) {
 		return taskOutputResponse.Status, nil
 	}
 
-	fmt.Printf("Task output for ID %d with %s level", cmd.options.TaskID, level)
+	cmd.ui.PrintfInfo("Task output for ID %d with %s level\n", cmd.options.TaskID, level)
 	for _, value := range taskOutputResponse.Data {
-		fmt.Println(value)
+		cmd.ui.PrintlnInfo(value)
 	}
 
 	return 0, nil

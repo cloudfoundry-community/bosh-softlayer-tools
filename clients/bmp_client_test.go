@@ -6,8 +6,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
-	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 
 	slclientfakes "github.com/maximilien/softlayer-go/client/fakes"
 )
@@ -326,9 +326,9 @@ var _ = Describe("BMP client", func() {
 		})
 	})
 
-	Describe("#CreateBaremetal", func() {
+	Describe("#CreateBaremetals", func() {
 		BeforeEach(func() {
-			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "CreateBaremetal.json")
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "CreateBaremetals.json")
 			Expect(err).ToNot(HaveOccurred())
 
 			fakeServerSpec = clients.ServerSpec{
@@ -352,26 +352,26 @@ var _ = Describe("BMP client", func() {
 					ServerSpec: fakeServerSpec,
 				}}
 
-			fakeCreateBaremetalInfo = clients.CreateBaremetalInfo{
+			fakeCreateBaremetalsInfo = clients.CreateBaremetalsInfo{
 				BaremetalSpecs: fakeCloudProperty,
 				Deployment:     "fake-name",
 			}
 		})
 
 		It("returns an task ID", func() {
-			createBaremetalResponse, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo, false)
+			createBaremetalsResponse, err := bmpClient.CreateBaremetals(fakeCreateBaremetalsInfo, false)
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(createBaremetalResponse.Status).To(Equal(201))
+			Expect(createBaremetalsResponse.Status).To(Equal(201))
 
-			Expect(createBaremetalResponse.Data).To(Equal(clients.TaskInfo{
+			Expect(createBaremetalsResponse.Data).To(Equal(clients.TaskInfo{
 				TaskId: 10}))
 		})
 
-		It("fails when BMP create baremetal fails", func() {
+		It("fails when BMP create baremetals fails", func() {
 			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
 
-			_, err := bmpClient.CreateBaremetal(fakeCreateBaremetalInfo, false)
+			_, err := bmpClient.CreateBaremetals(fakeCreateBaremetalsInfo, false)
 			Expect(err).To(HaveOccurred())
 		})
 	})
