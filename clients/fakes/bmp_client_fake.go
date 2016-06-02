@@ -41,10 +41,10 @@ type FakeBmpClient struct {
 	LoginResponse clients.LoginResponse
 	LoginErr      error
 
-	CreateBaremetalResponse clients.CreateBaremetalResponse
-	CreateBaremetalErr      error
+	CreateBaremetalsResponse clients.CreateBaremetalsResponse
+	CreateBaremetalsErr      error
 
-	ProvisioningBaremetalResponse clients.CreateBaremetalResponse
+	ProvisioningBaremetalResponse clients.CreateBaremetalsResponse
 	ProvisioningBaremetalErr      error
 }
 
@@ -105,6 +105,6 @@ func (bc *FakeBmpClient) CreateBaremetals(CreateBaremetalsInfo clients.CreateBar
 	return bc.CreateBaremetalsResponse, bc.CreateBaremetalsErr
 }
 
-func (bc *FakeBmpClient) ProvisioningBaremetal(provisioningBaremetalInfo clients.ProvisioningBaremetalInfo) (clients.CreateBaremetalResponse, error) {
+func (bc *FakeBmpClient) ProvisioningBaremetal(provisioningBaremetalInfo clients.ProvisioningBaremetalInfo) (clients.CreateBaremetalsResponse, error) {
 	return bc.ProvisioningBaremetalResponse, bc.ProvisioningBaremetalErr
 }

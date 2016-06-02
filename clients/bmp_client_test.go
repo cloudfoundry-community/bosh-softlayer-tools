@@ -20,7 +20,7 @@ var _ = Describe("BMP client", func() {
 		fakeHttpClient                *slclientfakes.FakeHttpClient
 		fakeServerSpec                clients.ServerSpec
 		fakeCloudProperty             []clients.CloudProperty
-		fakeCreateBaremetalInfo       clients.CreateBaremetalInfo
+		fakeCreateBaremetalsInfo      clients.CreateBaremetalsInfo
 		fakeProvisioningBaremetalInfo clients.ProvisioningBaremetalInfo
 	)
 

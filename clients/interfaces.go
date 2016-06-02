@@ -13,6 +13,6 @@ type BmpClient interface {
 	Tasks(latest uint) (TasksResponse, error)
 	UpdateState(serverId string, status string) (UpdateStateResponse, error)
 	Login(username string, password string) (LoginResponse, error)
-	CreateBaremetal(createBaremetalInfo CreateBaremetalInfo, dryRun bool) (CreateBaremetalResponse, error)
-	ProvisioningBaremetal(provisioningBaremetalInfo ProvisioningBaremetalInfo) (CreateBaremetalResponse, error)
+	CreateBaremetals(createBaremetalsInfo CreateBaremetalsInfo, dryRun bool) (CreateBaremetalsResponse, error)
+	ProvisioningBaremetal(provisioningBaremetalInfo ProvisioningBaremetalInfo) (CreateBaremetalsResponse, error)
 }
