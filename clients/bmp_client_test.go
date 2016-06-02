@@ -20,7 +20,7 @@ var _ = Describe("BMP client", func() {
 		fakeHttpClient                *slclientfakes.FakeHttpClient
 		fakeServerSpec                clients.ServerSpec
 		fakeCloudProperty             []clients.CloudProperty
-		fakeCreateBaremetalInfo       clients.CreateBaremetalInfo
+		fakeCreateBaremetalsInfo      clients.CreateBaremetalsInfo
 		fakeProvisioningBaremetalInfo clients.ProvisioningBaremetalInfo
 	)
 
@@ -378,7 +378,7 @@ var _ = Describe("BMP client", func() {
 
 	Describe("#ProvisioningBaremetal", func() {
 		BeforeEach(func() {
-			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "CreateBaremetal.json")
+			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "CreateBaremetals.json")
 			Expect(err).ToNot(HaveOccurred())
 
 			fakeProvisioningBaremetalInfo = clients.ProvisioningBaremetalInfo{
