@@ -212,7 +212,7 @@ func (bc *bmpClient) TaskOutput(taskId uint, level string) (TaskOutputResponse, 
 	return response, nil
 }
 
-func (bc *bmpClient) TaskJsonOutput(taskId uint, level string) (TaskJsonResponse, error) {
+func (bc *bmpClient) TaskJsonOutput(taskId int, level string) (TaskJsonResponse, error) {
 	path := fmt.Sprintf("task/%d/json/%s", taskId, level)
 	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
 	if err != nil {
