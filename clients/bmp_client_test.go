@@ -287,6 +287,7 @@ var _ = Describe("BMP client", func() {
 	Describe("#updateState", func() {
 		BeforeEach(func() {
 			fakeHttpClient.DoRawHttpRequestResponse, err = common.ReadJsonTestFixtures("..", "bmp", "UpdateState.json")
+
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -344,12 +345,13 @@ var _ = Describe("BMP client", func() {
 
 			fakeCloudProperty = []clients.CloudProperty{
 				clients.CloudProperty{
-					ImageId:    "fake-id",
-					BoshIP:     "fake-boship",
-					Datacenter: "fake-datacenter",
-					NamePrefix: "fake-nameprefix",
-					Baremetal:  true,
-					ServerSpec: fakeServerSpec,
+					BoshIP:         "1.2.3.4",
+					Datacenter:     "fake-datacenter",
+					ServerSpec:     fakeServerSpec,
+					VmNamePrefix:   "fake-namePrefix",
+					Baremetal:      true,
+					BmStemcell:     "fake-stemcell",
+					BmNetbootImage: "fake-netbootImage",
 				}}
 
 			fakeCreateBaremetalsInfo = clients.CreateBaremetalsInfo{

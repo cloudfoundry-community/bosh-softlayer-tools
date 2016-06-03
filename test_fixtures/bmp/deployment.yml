@@ -26,9 +26,8 @@ resource_pools:
     name: fake-stemcell-name-1
     version: latest
   cloud_properties:
-    image_id: fake-image-id
     bosh_ip: 10.10.10.4
-    datacenter: fake-datacenter-name
+    Datacenter: fake-datacenter-name
     server_spec:
       package: 255
       server: 50399
@@ -38,5 +37,7 @@ resource_pools:
       public_vlan_id: 524954
       private_vlan_id: 524942
       hourly: false
-    name_prefix: fake-name-prefix
+    VmNamePrefix: fake-NamePrefix
     baremetal: true
+    bm_stemcell: fake-stemcell
+    bm_netboot_image: fake-netbootImage
