@@ -18,6 +18,10 @@ type FakeUi struct {
 
 	PrintlnRc  int
 	PrintlnErr error
+
+	ScanlnRc  int
+	ScanlnErr error
+	UserInput string
 }
 
 func NewFakeUi() *FakeUi {
@@ -52,7 +56,6 @@ func (fakeUi *FakeUi) PrintTable(table *tablewriter.Table) (int, error) {
 }
 
 func (fakeUi *FakeUi) PrintfInfo(msg string, args ...interface{}) (int, error) {
-	fmt.Print("in fakeUI PrintfInfo ")
 	fakeUi.Msg = msg
 	fakeUi.Args = args
 
@@ -67,6 +70,14 @@ func (fakeUi *FakeUi) PrintlnInfo(args ...interface{}) (int, error) {
 	fakeUi.Output = fmt.Sprintln(args...)
 
 	return fakeUi.PrintlnRc, fakeUi.PrintlnErr
+}
+
+func (fakeUi *FakeUi) Scanln(args ...interface{}) (int, error) {
+	fakeUi.Args = args
+
+	fmt.Sscanln(fakeUi.UserInput, args[0])
+
+	return fakeUi.ScanlnRc, fakeUi.ScanlnErr
 }
 
 func (fakeUi *FakeUi) NewTableWriter() *tablewriter.Table {

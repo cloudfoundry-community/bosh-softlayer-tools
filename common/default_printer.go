@@ -47,6 +47,10 @@ func (p defaultPrinter) PrintlnInfo(args ...interface{}) (int, error) {
 	return p.Ui.PrintlnInfo(args)
 }
 
+func (p defaultPrinter) Scanln(args ...interface{}) (int, error) {
+	return p.Ui.Scanln(args...)
+}
+
 func (p defaultPrinter) NewTableWriter() *tablewriter.Table {
 	table := tablewriter.NewWriter(os.Stdout)
 	return table

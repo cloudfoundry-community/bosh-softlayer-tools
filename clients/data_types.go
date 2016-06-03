@@ -99,7 +99,7 @@ type TaskOutputResponse struct {
 
 // /baremetal/${serverId}/${status}
 
-type UpdateStatusResponse struct {
+type UpdateStateResponse struct {
 	Status int `json:"status"`
 }
 

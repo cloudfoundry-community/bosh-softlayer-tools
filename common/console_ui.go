@@ -58,6 +58,10 @@ func (ui consoleUi) PrintlnInfo(args ...interface{}) (int, error) {
 	return 0, nil
 }
 
+func (ui consoleUi) Scanln(args ...interface{}) (int, error) {
+	return fmt.Scanln(args...)
+}
+
 func (ui consoleUi) NewTableWriter() *tablewriter.Table {
 	table := tablewriter.NewWriter(os.Stdout)
 	return table
