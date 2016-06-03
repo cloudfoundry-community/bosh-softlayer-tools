@@ -158,7 +158,7 @@ type Stemcell struct {
 type Resource struct {
 	Name          string        `yaml:"name"`
 	Network       string        `yaml:"network"`
-	Size          uint          `yaml:"size"`
+	Size          int           `yaml:"size"`
 	Stemcell      Stemcell      `yaml:"stemcell"`
 	CloudProperty CloudProperty `yaml:"cloud_properties"`
 }

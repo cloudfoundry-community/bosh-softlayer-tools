@@ -75,11 +75,11 @@ func (bc *FakeBmpClient) SlPackageOptions(packageId string) (clients.SlPackageOp
 	return bc.SlPackageOptionsResponse, bc.SlPackageOptionsErr
 }
 
-func (bc *FakeBmpClient) Tasks(latest uint) (clients.TasksResponse, error) {
+func (bc *FakeBmpClient) Tasks(latest int) (clients.TasksResponse, error) {
 	return bc.TasksResponse, bc.TasksErr
 }
 
-func (bc *FakeBmpClient) TaskOutput(taskID uint, level string) (clients.TaskOutputResponse, error) {
+func (bc *FakeBmpClient) TaskOutput(taskID int, level string) (clients.TaskOutputResponse, error) {
 	return bc.TaskOutputResponse, bc.TaskOutputErr
 }
 
