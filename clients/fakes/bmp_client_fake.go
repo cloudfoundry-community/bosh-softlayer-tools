@@ -89,7 +89,7 @@ func (bc *FakeBmpClient) TaskOutput(taskID int, level string) (clients.TaskOutpu
 	return bc.TaskOutputResponse, bc.TaskOutputErr
 }
 
-func (bc *FakeBmpClient) TaskJsonOutput(taskID uint, level string) (clients.TaskJsonResponse, error) {
+func (bc *FakeBmpClient) TaskJsonOutput(taskID int, level string) (clients.TaskJsonResponse, error) {
 	return bc.TaskJsonResponse, bc.TaskJsonOutputErr
 }
 
