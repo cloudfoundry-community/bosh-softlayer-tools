@@ -7,7 +7,7 @@ type Options struct {
 
 	DryRun bool `long:"dryrun" description:"Runs command in a dry-run fashion (i.e., fake)"`
 
-	Latest uint `long:"latest" description:"The latest task number to use" default:"50"`
+	Latest int `long:"latest" description:"The latest task number to use" default:"50"`
 
 	Packages       bool   `long:"packages" description:"List SL packages"`
 	PackageOptions string `long:"package-options" description:"List SL package options"`
@@ -17,7 +17,7 @@ type Options struct {
 
 	Target string `long:"target" short:"t" description:"the target URL"`
 
-	TaskID uint `long:"task_id" description:"The ID of a task"`
+	TaskID int  `long:"task_id" description:"The ID of a task"`
 	Debug  bool `long:"debug" description:"Show debug information of a task"`
 
 	Deployment string `long:"deployment" short:"d" description:"The deployment file"`
