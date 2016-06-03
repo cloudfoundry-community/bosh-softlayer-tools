@@ -16,7 +16,7 @@ resources:
 - name: bosh-softlayer-tools-artifacts
   type: s3
   source:
-    regexp: bosh-softlayer-tools\.tar
+    regexp: bosh-softlayer-tools\.tgz
     bucket: {{s3_bosh_softlayer_tools_bucket}}
     access_key_id: {{s3_access_key_id}}
     secret_access_key: {{s3_secret_access_key}}
@@ -30,6 +30,10 @@ jobs:
 
   - task: bst-unit
     file: bosh-softlayer-tools/ci/tasks/bst-unit.yml
+    config:
+      params:
+        SL_USERNAME: fake-username
+        SL_API_KEY: fake-api-key
 
 - name: bst-integration
   plan:
@@ -65,7 +69,7 @@ jobs:
     params: {file: version-semver/number}
 
   - put: bosh-softlayer-tools-artifacts
-    params: {from: promoted/.*\.tar}
+    params: {from: promoted/.*\.tgz}
 
 groups:
 - name: bosh-softlayer-tools
