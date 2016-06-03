@@ -9,7 +9,7 @@ type BmpClient interface {
 	Stemcells() (StemcellsResponse, error)
 	SlPackageOptions(packageId string) (SlPackageOptionsResponse, error)
 	TaskOutput(taskId uint, level string) (TaskOutputResponse, error)
-	TaskJsonOutput(taskId uint, level string) (TaskJsonResponse, error)
+	TaskJsonOutput(taskId int, level string) (TaskJsonResponse, error)
 	Tasks(latest uint) (TasksResponse, error)
 	UpdateState(serverId string, status string) (UpdateStateResponse, error)
 	Login(username string, password string) (LoginResponse, error)
