@@ -1,0 +1,14 @@
+---
+platform: linux
+image: docker:///posijon/slci
+
+inputs:
+  - name: bosh-softlayer-tools
+    path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
+  - name: stemcell-info
+  - name: stemcell-version
+outputs:
+  - name: new-light-stemcell
+
+run:
+  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/tasks/create-light-stemcell

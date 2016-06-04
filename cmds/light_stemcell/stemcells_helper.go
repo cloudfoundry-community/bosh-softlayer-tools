@@ -13,7 +13,7 @@ import (
 )
 
 func GenerateStemcellName(info LightStemcellInfo) string {
-	return fmt.Sprintf("light-bosh-stemcell-%s-%s-%s-%s-go_agent",
+	return fmt.Sprintf("light-bosh-stemcell-%s-%s-%s-%s-go_agent-public",
 		info.Version,
 		info.Infrastructure,
 		info.Hypervisor,

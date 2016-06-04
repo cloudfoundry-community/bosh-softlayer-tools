@@ -11,6 +11,7 @@ import (
 	sldatatypes "github.com/maximilien/softlayer-go/data_types"
 	"github.com/maximilien/softlayer-go/softlayer"
 	"github.com/pivotal-golang/clock"
+	"time"
 )
 
 var (
@@ -102,6 +103,9 @@ func (cmd *ImportImageCmd) Run() error {
 
 	cmd.Id = vgbdtgObject.Id
 	cmd.Uuid = vgbdtgObject.GlobalIdentifier
+
+	common.TIMEOUT = 300 * time.Second
+	common.POLLING_INTERVAL = 30 * time.Second
 
 	if cmd.Public {
 		execStmtRetryable := boshretry.NewRetryable(

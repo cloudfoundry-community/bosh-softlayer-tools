@@ -3,60 +3,110 @@ resources:
   type: git
   source:
     uri: https://github.com/jianqiu/bosh.git
-    branch: softlayer_stemcell
+    branch: softlayer_stemcell2
+    private_key: {{private-repo-key}}
+
+- name: bosh-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry/bosh
+
+- name: bosh-softlayer-cpi
+  type: git
+  source:
+    uri: https://github.com/mattcui/bosh-softlayer-cpi/
+    branch: bm_beta
+    private_key: {{private-repo-key}}
+
+- name: s3-vsphere-stemcell
+  type: s3
+  source:
+    regexp: bosh-stemcell-(.*)-softlayer-hyperv-ubuntu-trusty-go_agent\.tgz
+    bucket: {{s3-bucket}}
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: light-stemcell
+  type: s3
+  source:
+    regexp: light-bosh-stemcell-\d+-softlayer-.*\.tgz
+    bucket: {{s3-bucket}}
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: bosh-softlayer-cpi-release
+  type: git
+  source:
+    uri: git@github.com:jianqiu/bosh-softlayer-cpi-release.git
+    branch: master
     private_key: {{private-repo-key}}
 
 - name: bosh-softlayer-private
   type: git
   source:
-    uri: git@github.com:maximilien/bosh-softlayer-private.git
-    branch: master
+    uri: git@github.com:cloudfoundry-community/bosh-softlayer-private.git
+    branch: jianqiu
     private_key: {{private-repo-key}}
 
-- name: bosh-softlayer-stemcells
+- name: bosh-softlayer-tools
   type: git
   source:
-    uri: git@github.com:maximilien/bosh-softlayer-stemcells.git
-    branch: master
+    uri: git@github.com:cloudfoundry-community/bosh-softlayer-tools.git
+    branch: bosh-init
     private_key: {{private-repo-key}}
 
 - name: bosh-stemcell-softlayer-image
   type: s3
   source:
-    bucket: bosh-softlayer-cpi-stemcells
     regexp: bosh-stemcell-softlayer.vhd
+    bucket: {{s3-bucket}}
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
-- name: final-release
+- name: bosh-softlayer-cpi-final-release
   type: s3
   source:
-    bucket: bosh-softlayer-cpi-stemcells
     regexp: bosh-softlayer-cpi-release-(.*).tgz
+    bucket: {{s3-bucket}}
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
+
+- name: softlayer-go
+  type: git
+  source:
+    uri: https://github.com/jianqiu/softlayer-go.git
+    branch: jianqiu-master
+    private_key: {{private-repo-key}}
 
 - name: version
   type: semver
   source:
-    bucket: bosh-softlayer-cpi-stemcells
+    bucket: {{s3-bucket}}
     key: current-version
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
     initial_version: 1.0.0
 
+- name: stemcell-version
+  type: s3
+  source:
+    bucket: {{s3-bucket}}
+    versioned_file: stemcell-version
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
 - name: softlayer-stemcell
   type: s3
   source:
-    bucket: bosh-softlayer-cpi-stemcells
-    regexp: bosh-stemcell-(.*)-vsphere-(.*).tgz
+    bucket: {{s3-bucket}}
+    regexp: bosh-stemcell-(.*)-softlayer-(.*).tgz
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
 - name: stemcell-info
   type: s3
   source:
-    bucket: bosh-softlayer-cpi-stemcells
+    bucket: {{s3-bucket}}
     versioned_file: stemcell-info.json
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
@@ -67,101 +117,290 @@ resources:
     name: bosh-vsphere-esxi-ubuntu-trusty-go_agent
     tarball: false
 
+- name: timer-2weeks
+  type: time
+  source:
+    interval: 336h
+
+- name: director-info
+  type: s3
+  source:
+    bucket: {{s3-bucket}}
+    versioned_file: director-info
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
 jobs:
 - name: bosh-stemcell
   plan:
   - aggregate:
     - get: bosh
-    - get: bosh-softlayer-stemcells
+    - get: bosh-softlayer-tools
     - get: bosh-softlayer-private
     - get: vsphere-stemcell
-      trigger: true
   - task: bosh-stemcell
-    file: bosh-softlayer-stemcells/ci/bosh-stemcell.yml
+    file: bosh-softlayer-tools/ci/bosh-stemcell.yml
     config:
       params:
-        BOSH_AWS_ACCESS_KEY_ID: {{BOSH_AWS_ACCESS_KEY_ID}}
-        BOSH_AWS_SECRET_ACCESS_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
-        BOSH_VAGRANT_KEY_PATH: ../../bosh-softlayer-private/bosh.pem
-        AWS_ACCESS_KEY: {{BOSH_AWS_ACCESS_KEY_ID}}
-        AWS_SECRET_KEY: {{BOSH_AWS_SECRET_ACCESS_KEY}}
-        S3_ACCESS_KEY: {{s3-access-key-id}}
-        S3_SECRET_KEY: {{s3-secret-access-key}}
+        BOSH_AWS_ACCESS_KEY_ID:     {{aws_builder_access_key}}
+        BOSH_AWS_SECRET_ACCESS_KEY: {{aws_builder_secret_access_key}}
+        BOSH_AWS_SECURITY_GROUP:    {{aws_builder_sec_group}}
+        BOSH_KEYPAIR_NAME:          {{aws_builder_keypair_name}}
+        BOSH_PRIVATE_KEY:           {{aws_builder_private_key}}
+        IAAS: softlayer
+        HYPERVISOR: esxi
+        OS_NAME: ubuntu
+        OS_VERSION: trusty
+  - aggregate:
+    - put: stemcell-version
+      params: {from: out/stemcell-version}
+    - put: s3-vsphere-stemcell
+      params: {from: out/bosh-stemcell-.*-softlayer-.*\.tgz}
 
 - name: convert-stemcell
   plan:
-  - get: bosh-softlayer-stemcells
+  - get: s3-vsphere-stemcell
     trigger: true
     passed: [bosh-stemcell]
-  - get: bosh-softlayer-stemcells
+  - get: bosh-softlayer-tools
+  - get: stemcell-version
     trigger: true
+    passed: [bosh-stemcell]
   - task: convert-stemcell
-    file: bosh-softlayer-stemcells/ci/convert-stemcell.yml
+    file: bosh-softlayer-tools/ci/convert-stemcell.yml
     config:
       params:
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
         SWIFT_API_KEY: {{SL_API_KEY}}
         SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
-        S3_ACCESS_KEY: {{s3-access-key-id}}
-        S3_SECRET_KEY: {{s3-secret-access-key}}
+        SWIFT_CONTAINER: {{SWIFT_CONTAINER}}
 
-- name: create-light-stemcell
+- name: cpi-unit
+  public: true
   plan:
-  - aggregate:
-    - get: bosh-softlayer-stemcells
-      passed: [import-stemcell]
-    - get: stemcell-info
-      trigger: true
-      passed: [import-stemcell]
-  - task: create-light-stemcell
-    file: bosh-softlayer-stemcells/ci/create-light-stemcell.yml
+  - get: bosh-softlayer-cpi
+  - task: unit
+    file: bosh-softlayer-cpi/ci/unit.yml
+    config:
+      params:
+        SL_USERNAME: fake-username
+        SL_API_KEY: fake-api-key
+
+- name: cpi-integration
+  plan:
+  - get: bosh-softlayer-cpi
+    trigger: true
+    passed: [cpi-unit]
+  - task: build
+    file: bosh-softlayer-cpi/ci/build.yml
+  - task: integration
+    file: bosh-softlayer-cpi/ci/integration.yml
     config:
       params:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
-        S3_ACCESS_KEY: {{s3-access-key-id}}
-        S3_SECRET_KEY: {{s3-secret-access-key}}
+        SL_DATACENTER: {{SL_DATACENTER}}
+        SWIFT_USERNAME: {{SWIFT_USERNAME}}
+        SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
+        SWIFT_CONTAINER: {{SWIFT_CONTAINER}}
+
+- name: cpi-build
+  plan:
+  - get: bosh-softlayer-cpi
+    trigger: true
+    passed: [cpi-integration]
+  - task: build
+    file: bosh-softlayer-cpi/ci/build.yml
+
+- name: cpi-release-rc
+  serial: true
+  plan:
+  - get: bosh-softlayer-cpi-release
+    trigger: true
+  - get: version
+    params: {bump: minor, pre: rc}
+  - put: version
+    params: {file: version/number}
+
+- name: cpi-release-shipit
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-softlayer-private
+    - get: bosh-softlayer-tools
+    - get: bosh-softlayer-cpi
+      passed: [cpi-build]
+      trigger: true
+    - get: bosh-softlayer-cpi-release
+      passed: [cpi-release-rc]
+      params: {submodules: none}
+    - get: version
+      passed: [cpi-release-rc]
+      params: {bump: final}
+  - task: create-final-release
+    file: bosh-softlayer-tools/ci/cpi-release-shipit.yml
+  - aggregate:  
+    - put: bosh-softlayer-cpi-final-release
+      params: {from: create-final-release/bosh-softlayer-cpi-release-.*.tgz}
+    - put: version
+      params: {file: version/number}
+
+- name: create-light-stemcell
+  plan:
+  - aggregate:
+    - get: bosh-softlayer-tools
+      passed: [import-stemcell]
+      trigger: true
+    - get: stemcell-info
+      trigger: true
+      passed: [import-stemcell]
+    - get: stemcell-version
+      passed: [import-stemcell]
+  - task: create-light-stemcell
+    file: bosh-softlayer-tools/ci/create-light-stemcell.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
+  - put: light-stemcell
+    params: {from: .*\.tgz}
+
+- name: bosh-init
+  plan:
+  - aggregate:
+    - get: bosh-softlayer-tools
+    - get: bosh-release
+    - get: light-stemcell
+      passed:
+      - create-light-stemcell
+      trigger: true
+    - get: bosh-softlayer-cpi-final-release
+      passed: [cpi-release-shipit]
+      trigger: true
+    - get: stemcell-version
+  - task: bosh-init
+    file: bosh-softlayer-tools/ci/bosh-init.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
+        SL_DATACENTER: {{BOSH_INIT_DATACENTER}}
+        SL_VLAN_PUBLIC: {{BOSH_INIT_VLAN_PUBLIC}}
+        SL_VLAN_PRIVATE: {{BOSH_INIT_VLAN_PRIVATE}}
+  - put: director-info
+    params: {from: bosh-init/director-info}
+
+- name: bats
+  plan:
+  - aggregate:
+    - get: bosh-softlayer-cpi-final-release
+      passed: [bosh-init]
+    - get: bosh-softlayer-tools
+    - get: bosh
+    - get: light-stemcell
+      passed: [bosh-init]
+      trigger: true
+    - get: stemcell-version
+      trigger: true
+      passed: [bosh-init]
+    - get: director-info
+      passed: [bosh-init]
+      trigger: true
+  - task: bats
+    file: bosh-softlayer-tools/ci/bats.yml
 
 - name: remove-expiration-tag
   plan:
-  - get: bosh-softlayer-stemcells
-    trigger: true
-    passed: [create-light-stemcell]
+  - get: bosh-softlayer-tools
+    passed: [shipit]
   - task: remove-expiration-tag-vhd
-    file: bosh-softlayer-stemcells/ci/remove-expiration.yml
+    file: bosh-softlayer-tools/ci/remove-expiration.yml
     config:
       params:
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
-        SWIFT_API_KEY:  {{SL_API_KEY}}
+        SWIFT_API_KEY:  {{SWIFT_API_KEY}}
         SWIFT_CLUSTER:  {{SWIFT_CLUSTER}}
+        SWIFT_CONTAINER: {{SWIFT_CONTAINER}}
         S3_ACCESS_KEY:  {{s3-access-key-id}}
         S3_SECRET_KEY:  {{s3-secret-access-key}}
 
 - name: import-stemcell
   plan:
-  - get: bosh-softlayer-stemcells
+  - get: bosh-softlayer-tools
+  - get: stemcell-version
     trigger: true
     passed: [convert-stemcell]
   - task: import-stemcell-image
-    file: bosh-softlayer-stemcells/ci/import-stemcell.yml
+    file: bosh-softlayer-tools/ci/import-stemcell.yml
     config:
       params:
         SL_USERNAME: {{SL_USERNAME}}
         SL_API_KEY: {{SL_API_KEY}}
         SWIFT_USERNAME: {{SWIFT_USERNAME}}
         SWIFT_CLUSTER: {{SWIFT_CLUSTER}}
-        S3_ACCESS_KEY: {{s3-access-key-id}}
-        S3_SECRET_KEY: {{s3-secret-access-key}}
+        SWIFT_CONTAINER: {{SWIFT_CONTAINER}}
   - put: stemcell-info
     params: {from: import-stemcell-image/stemcell-info.json}
 
 - name: stemcells-unit
   public: true
   plan:
-  - get: bosh-softlayer-stemcells
+  - get: bosh-softlayer-tools
     trigger: true
   - task: unit
-    file: bosh-softlayer-stemcells/ci/unit.yml
+    file: bosh-softlayer-tools/ci/unit.yml
+
+- name: sl-go-unit
+  public: true
+  plan:
+  - get: softlayer-go
+    trigger: true
+  - task: unit
+    file: softlayer-go/ci/unit.yml
+    config:
+      params:
+        SL_USERNAME: fake-username
+        SL_API_KEY: fake-api-key
+
+- name: sl-go-integration
+  plan:
+  - get: softlayer-go
+    trigger: true
+    passed: [sl-go-unit]
+  - task: integration
+    file: softlayer-go/ci/integration.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
+        SL_DATACENTER: {{SL_DATACENTER}}
+
+- name: cleanup-stemcells
+  plan:
+  - get: bosh-softlayer-tools
+  - get: timer-2weeks
+  - task: cleanup-stemcells-VGBTG
+    file: bosh-softlayer-tools/ci/cleanup-stemcells.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
+
+- name: shipit
+  plan:
+  - get: bosh-softlayer-tools
+  - get: bosh-softlayer-cpi-final-release
+    passed: [bats]
+  - get: version
+  - get: stemcell-info
+  - task: shipit-stemcells-and-cpi
+    file: bosh-softlayer-tools/ci/shipit.yml
+    config:
+      params:
+        SL_USERNAME: {{SL_USERNAME}}
+        SL_API_KEY: {{SL_API_KEY}}
+        S3_ACCESS_KEY: {{s3-access-key-id}}
+        S3_SECRET_KEY: {{s3-secret-access-key}}
 
 groups:
 - name: all
@@ -169,13 +408,52 @@ groups:
   - bosh-stemcell
   - convert-stemcell
   - create-light-stemcell
+  - cpi-unit
+  - cpi-integration
+  - cpi-build
+  - cpi-release-rc
+  - cpi-release-shipit
   - import-stemcell
   - stemcells-unit
+  - sl-go-unit
+  - sl-go-integration
+  - cleanup-stemcells
+  - remove-expiration-tag
+  - bosh-init
+  - bats
+  - shipit
 
-- name: bosh-softlayer-stemcells
+- name: bosh-softlayer-cpi
+  jobs:
+  - cpi-unit
+  - cpi-integration
+  - cpi-build
+
+- name: bosh-softlayer-cpi-release
+  jobs:
+  - cpi-release-rc
+  - cpi-release-shipit
+
+- name: bosh-softlayer-tools
   jobs:
   - bosh-stemcell
   - convert-stemcell
   - create-light-stemcell
   - import-stemcell
   - stemcells-unit
+
+- name: softlayer-go
+  jobs:
+  - sl-go-unit
+  - sl-go-integration
+
+- name: shipit
+  jobs:
+  - shipit
+  - remove-expiration-tag
+  - cleanup-stemcells
+
+- name: bosh-init
+  jobs:
+  - bosh-init
+  - bats

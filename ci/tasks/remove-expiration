@@ -1,0 +1,20 @@
+#!/bin/bash
+
+(
+  set -e -x
+  
+  echo -e "\n Get stemcell version..."
+  STEMCELL_VERSION=$(cat stemcell-version/number | cut -f1 -d.)
+
+  
+  echo -e "\n Removing Expiration Tag."
+  AUTH_TOKEN=`curl -i -H "X-Auth-User: $SWIFT_USERNAME " -H "X-Auth-Key: $SWIFT_API_KEY" https://$SWIFT_CLUSTER.objectstorage.softlayer.net/auth/v1.0/ | grep X-Auth-Token  | cut -d ":" -f2`
+  AUTH_URL=`curl -i -H "X-Auth-User: $SWIFT_USERNAME " -H "X-Auth-Key: $SWIFT_API_KEY " https://$SWIFT_CLUSTER.objectstorage.softlayer.net/auth/v1.0/ | grep X-Storage-Url:  | cut -d ":" -f3`
+  AUTH_URL=$(echo $AUTH_URL|tr -d '\r')
+  AUTH_TOKEN=`echo $AUTH_TOKEN | tr -d '\r'| cut -d ' ' -f2`
+
+  curl -i https:$AUTH_URL/${SWIFT_CONTAINER}/bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd -X POST -H "X-Delete-After: " -H "X-Auth-Token: $AUTH_TOKEN"
+
+  echo -e "To change the Expiration date, please change the value of the X-Delete-After or X-Delete-At option for the object, or change through the customer portal for Softlayer"
+
+)

@@ -1,0 +1,11 @@
+---
+platform: linux
+image: docker:///boshcpi/azure-cpi-release
+inputs:
+  - name: bosh-softlayer-tools
+  - name: bosh-init
+  - name: deployment
+run:
+  path: bosh-softlayer-tools/ci/tasks/teardown-director.sh
+params:
+  BOSH_INIT_LOG_LEVEL:        warn

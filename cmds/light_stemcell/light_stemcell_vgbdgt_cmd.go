@@ -181,10 +181,11 @@ func (cmd *LightStemcellVGBDTGCmd) buildLightStemcellWithVirtualGuestBlockDevice
 	}
 
 	lightStemcellMF := LightStemcellMF{
-		Name:         GenerateStemcellName(cmd.lightStemcellInfo),
-		Version:      cmd.lightStemcellInfo.Version,
-		BoshProtocol: 1, //Must be defaulted to 1 for legacy reasons (no other values supported)
-		Sha1:         base64.StdEncoding.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%d:%s", vgdtgGroup.Id, vgdtgGroup.GlobalIdentifier)))),
+		Name:            GenerateStemcellName(cmd.lightStemcellInfo),
+		Version:         cmd.lightStemcellInfo.Version,
+		BoshProtocol:    1, //Must be defaulted to 1 for legacy reasons (no other values supported)
+		Sha1:            base64.StdEncoding.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%d:%s", vgdtgGroup.Id, vgdtgGroup.GlobalIdentifier)))),
+		OperatingSystem: cmd.lightStemcellInfo.OsName,
 		CloudProperties: CloudProperties{
 			Infrastructure:       cmd.lightStemcellInfo.Infrastructure,
 			Architecture:         cmd.lightStemcellInfo.Architecture,
