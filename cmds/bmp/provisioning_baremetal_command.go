@@ -87,20 +87,20 @@ func (cmd provisioningBaremetalCommand) Execute(args []string) (int, error) {
 			Bm_netboot_image: cmd.options.NetbootImage,
 		}
 
-		updateStateResponse, err := cmd.bmpClient.ProvisioningBaremetal(provisioningBaremetalInfo)
+		provisioningBaremetalResponse, err := cmd.bmpClient.ProvisioningBaremetal(provisioningBaremetalInfo)
 		if err != nil {
 			return 1, err
 		}
 
-		if updateStateResponse.Status != 200 {
-			return updateStateResponse.Status, nil
+		if provisioningBaremetalResponse.Status != 200 {
+			return provisioningBaremetalResponse.Status, nil
 		}
 
-		cmd.ui.PrintlnInfo("Update Successful!")
+		cmd.ui.PrintlnInfo("Provisioning Successful!")
 
 		return 0, nil
 	} else {
-		return 1, errors.New("Update Cancelled!")
+		return 1, errors.New("Provisioning Cancelled!")
 	}
 }
 
@@ -108,7 +108,7 @@ func (cmd provisioningBaremetalCommand) Execute(args []string) (int, error) {
 
 func (cmd provisioningBaremetalCommand) isConfirmed() bool {
 	var userInput string
-	cmd.ui.PrintfInfo("Continue to update? (type 'yes' to continue)")
+	cmd.ui.PrintfInfo("Continue to provisioning? (type 'yes' to continue)")
 	_, err := cmd.ui.Scanln(&userInput)
 	if err != nil {
 		return false

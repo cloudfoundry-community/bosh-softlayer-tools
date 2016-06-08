@@ -5,6 +5,8 @@ type Options struct {
 
 	Verbose bool `short:"v" long:"verbose" description:"Show verbose debug information"`
 
+	JSON bool `long:"json" description:"Show information with JSON format"`
+
 	DryRun bool `long:"dryrun" description:"Runs command in a dry-run fashion (i.e., fake)"`
 
 	Latest int `long:"latest" description:"The latest task number to use" default:"50"`
