@@ -276,7 +276,7 @@ var _ = Describe("BMP client", func() {
 			Expect(taskOutputResponse.Data["info"]).ToNot(BeNil())
 		})
 
-		It("fails when BMP server /task/{taskid}/txt/{level} fails", func() {
+		It("fails when BMP server /task/{taskid}/json/{level} fails", func() {
 			fakeHttpClient.DoRawHttpRequestError = errors.New("fake-error")
 
 			_, err := bmpClient.TaskOutput(10, "event")
