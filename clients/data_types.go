@@ -26,9 +26,9 @@ type BaremetalInfo struct {
 
 // /baremetal/spec/${server_name}/${stemcell}/${netboot_image}
 type ProvisioningBaremetalInfo struct {
-	VmNamePrefix      string    `json:"vmNamePrefix,omitempty"`
-	Bm_stemcell       string    `json:"bm_stemcell,omitempty"`
-	Bm_netboot_image  string    `json:"bm_netboot_image,omitempty"`
+	VmNamePrefix     string `json:"vmNamePrefix,omitempty"`
+	Bm_stemcell      string `json:"bm_stemcell,omitempty"`
+	Bm_netboot_image string `json:"bm_netboot_image,omitempty"`
 }
 
 type BmsResponse struct {
@@ -105,7 +105,7 @@ type TaskOutputResponse struct {
 }
 
 type TaskJsonResponse struct {
-	Status int      `json:"status"`
+	Status int                    `json:"status"`
 	Data   map[string]interface{} `json:"data"`
 }
 

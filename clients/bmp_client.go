@@ -212,30 +212,28 @@ func (bc *bmpClient) TaskOutput(taskId uint, level string) (TaskOutputResponse, 
 	return response, nil
 }
 
-
 func (bc *bmpClient) TaskJsonOutput(taskId uint, level string) (TaskJsonResponse, error) {
 	path := fmt.Sprintf("task/%d/json/%s", taskId, level)
 	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: could not calls /task/%d/json/%s on BMP server, error message %s", taskId, level, err.Error())
-		return TaskOutputResponse{}, errors.New(errorMessage)
+		return TaskJsonResponse{}, errors.New(errorMessage)
 	}
 
 	if slcommon.IsHttpErrorCode(errorCode) {
 		errorMessage := fmt.Sprintf("bmp: could not call /task/%d/json/%s on BMP server, HTTP error code: %d", taskId, level, errorCode)
-		return TaskOutputResponse{}, errors.New(errorMessage)
+		return TaskJsonResponse{}, errors.New(errorMessage)
 	}
 
 	response := TaskJsonResponse{}
 	err = json.Unmarshal(responseBytes, &response)
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message %s", err.Error())
-		return TaskOutputResponse{}, errors.New(errorMessage)
+		return TaskJsonResponse{}, errors.New(errorMessage)
 	}
 
 	return response, nil
 }
-
 
 func (bc *bmpClient) UpdateState(serverId string, status string) (UpdateStateResponse, error) {
 	path := fmt.Sprintf("baremetal/%s/%s", serverId, status)
