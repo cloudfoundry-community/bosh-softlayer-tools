@@ -152,8 +152,8 @@ var _ = Describe("provisioning-baremetal command", func() {
 	Describe("#Execute", func() {
 		Context("when executing a good ProvisioningBaremetalCommand", func() {
 			BeforeEach(func() {
-				fakeBmpClient.UpdateStateResponse.Status = 200
-				fakeBmpClient.UpdateStateErr = nil
+				fakeBmpClient.ProvisioningBaremetalResponse.Status = 200
+				fakeBmpClient.ProvisioningBaremetalErr = nil
 				userInput = "yes"
 				cmd = bmp.NewFakeProvisioningBaremetalCommand(options, fakeBmpClient, userInput)
 			})
@@ -181,8 +181,8 @@ var _ = Describe("provisioning-baremetal command", func() {
 
 			Context("when executing ProvisioningBaremetalCommand with error", func() {
 				BeforeEach(func() {
-					fakeBmpClient.UpdateStateResponse.Status = 500
-					fakeBmpClient.UpdateStateErr = errors.New("500")
+					fakeBmpClient.ProvisioningBaremetalResponse.Status = 500
+					fakeBmpClient.ProvisioningBaremetalErr = errors.New("500")
 					userInput = "yes"
 					cmd = bmp.NewFakeProvisioningBaremetalCommand(options, fakeBmpClient, userInput)
 				})
@@ -196,7 +196,7 @@ var _ = Describe("provisioning-baremetal command", func() {
 
 			Context("when ProvisioningBaremetalCommand response different than 200", func() {
 				BeforeEach(func() {
-					fakeBmpClient.UpdateStateResponse.Status = 404
+					fakeBmpClient.ProvisioningBaremetalResponse.Status = 404
 					userInput = "yes"
 					cmd = bmp.NewFakeProvisioningBaremetalCommand(options, fakeBmpClient, userInput)
 				})
