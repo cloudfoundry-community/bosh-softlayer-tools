@@ -24,6 +24,10 @@ type Options struct {
 
 	Server string `long:"server" description:"the ID for a baremetal server"`
 	State  string `long:"state" description:"the baremetal server state"`
+
+	VMPrefix     string `long:"vmprefix" description:"vmprefix for provisioning a baremetal"`
+	Stemecell    string `long:"stemcell" description:"stemcell for provisioning a baremetal"`
+	NetbootImage string `long:"netbootimage" description:"netboot image for provisioning a baremetal"`
 }
 
 type Command interface {
