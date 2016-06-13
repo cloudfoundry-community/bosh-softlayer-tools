@@ -12,62 +12,62 @@ type FakeBmpClient struct {
 	ConfigPathString string
 
 	InfoResponsesIndex int
-	InfoResponses []clients.InfoResponse
-	InfoResponse clients.InfoResponse
-	InfoErr      error
+	InfoResponses      []clients.InfoResponse
+	InfoResponse       clients.InfoResponse
+	InfoErr            error
 
 	BmsResponsesIndex int
-	BmsResponses []clients.BmsResponse
-	BmsResponse clients.BmsResponse
-	BmsErr      error
+	BmsResponses      []clients.BmsResponse
+	BmsResponse       clients.BmsResponse
+	BmsErr            error
 
 	SlPackagesResponsesIndex int
-	SlPackagesResponses []clients.SlPackagesResponse
-	SlPackagesResponse clients.SlPackagesResponse
-	SlPackagesErr      error
+	SlPackagesResponses      []clients.SlPackagesResponse
+	SlPackagesResponse       clients.SlPackagesResponse
+	SlPackagesErr            error
 
 	StemcellsResponsesIndex int
-	StemcellsResponses []clients.StemcellsResponse
-	StemcellsResponse clients.StemcellsResponse
-	StemcellsErr      error
+	StemcellsResponses      []clients.StemcellsResponse
+	StemcellsResponse       clients.StemcellsResponse
+	StemcellsErr            error
 
 	SlPackageOptionsResponsesIndex int
-	SlPackageOptionsResponses []clients.SlPackageOptionsResponse
-	SlPackageOptionsResponse clients.SlPackageOptionsResponse
-	SlPackageOptionsErr      error
+	SlPackageOptionsResponses      []clients.SlPackageOptionsResponse
+	SlPackageOptionsResponse       clients.SlPackageOptionsResponse
+	SlPackageOptionsErr            error
 
 	TasksResponsesIndex int
-	TasksResponses []clients.TasksResponse
-	TasksResponse clients.TasksResponse
-	TasksErr      error
+	TasksResponses      []clients.TasksResponse
+	TasksResponse       clients.TasksResponse
+	TasksErr            error
 
 	TaskOutputResponsesIndex int
-	TaskOutputResponses []clients.TaskOutputResponse
-	TaskOutputResponse clients.TaskOutputResponse
-	TaskOutputErr      error
+	TaskOutputResponses      []clients.TaskOutputResponse
+	TaskOutputResponse       clients.TaskOutputResponse
+	TaskOutputErr            error
 
 	TaskJsonResponsesIndex int
-	TaskJsonResponses  []clients.TaskJsonResponse
-	TaskJsonResponse  clients.TaskJsonResponse
-	TaskJsonOutputErr error
+	TaskJsonResponses      []clients.TaskJsonResponse
+	TaskJsonResponse       clients.TaskJsonResponse
+	TaskJsonOutputErr      error
 
 	UpdateStateResponsesIndex int
-	UpdateStateResponses []clients.UpdateStateResponse
-	UpdateStateResponse clients.UpdateStateResponse
-	UpdateStateErr      error
+	UpdateStateResponses      []clients.UpdateStateResponse
+	UpdateStateResponse       clients.UpdateStateResponse
+	UpdateStateErr            error
 
 	LoginResponse clients.LoginResponse
 	LoginErr      error
 
 	CreateBaremetalsResponsesIndex int
-	CreateBaremetalsResponses []clients.CreateBaremetalsResponse
-	CreateBaremetalsResponse clients.CreateBaremetalsResponse
-	CreateBaremetalsErr      error
+	CreateBaremetalsResponses      []clients.CreateBaremetalsResponse
+	CreateBaremetalsResponse       clients.CreateBaremetalsResponse
+	CreateBaremetalsErr            error
 
 	ProvisioningBaremetalResponsesIndex int
-	ProvisioningBaremetalResponses []clients.CreateBaremetalsResponse
-	ProvisioningBaremetalResponse clients.CreateBaremetalsResponse
-	ProvisioningBaremetalErr      error
+	ProvisioningBaremetalResponses      []clients.CreateBaremetalsResponse
+	ProvisioningBaremetalResponse       clients.CreateBaremetalsResponse
+	ProvisioningBaremetalErr            error
 }
 
 func NewFakeBmpClient(username, password, url string, configPath string) *FakeBmpClient {
@@ -229,4 +229,3 @@ func (bc *FakeBmpClient) ProvisioningBaremetal(provisioningBaremetalInfo clients
 		return bc.ProvisioningBaremetalResponses[bc.ProvisioningBaremetalResponsesIndex-1], bc.ProvisioningBaremetalErr
 	}
 }
-
