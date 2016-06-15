@@ -9,7 +9,7 @@ import (
 
 	slclient "github.com/maximilien/softlayer-go/client"
 	slcommon "github.com/maximilien/softlayer-go/common"
-	softlayer "github.com/maximilien/softlayer-go/softlayer"
+	"github.com/maximilien/softlayer-go/softlayer"
 )
 
 type bmpClient struct {
@@ -166,7 +166,7 @@ func (bc *bmpClient) SlPackageOptions(packageId string) (SlPackageOptionsRespons
 	return response, nil
 }
 
-func (bc *bmpClient) Tasks(latest uint) (TasksResponse, error) {
+func (bc *bmpClient) Tasks(latest int) (TasksResponse, error) {
 	path := fmt.Sprintf("tasks?latest=%d", latest)
 	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
 	if err != nil {
@@ -189,7 +189,7 @@ func (bc *bmpClient) Tasks(latest uint) (TasksResponse, error) {
 	return response, nil
 }
 
-func (bc *bmpClient) TaskOutput(taskId uint, level string) (TaskOutputResponse, error) {
+func (bc *bmpClient) TaskOutput(taskId int, level string) (TaskOutputResponse, error) {
 	path := fmt.Sprintf("task/%d/txt/%s", taskId, level)
 	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
 	if err != nil {
@@ -207,6 +207,29 @@ func (bc *bmpClient) TaskOutput(taskId uint, level string) (TaskOutputResponse, 
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message %s", err.Error())
 		return TaskOutputResponse{}, errors.New(errorMessage)
+	}
+
+	return response, nil
+}
+
+func (bc *bmpClient) TaskJsonOutput(taskId int, level string) (TaskJsonResponse, error) {
+	path := fmt.Sprintf("task/%d/json/%s", taskId, level)
+	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "GET", &bytes.Buffer{})
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: could not calls /task/%d/json/%s on BMP server, error message %s", taskId, level, err.Error())
+		return TaskJsonResponse{}, errors.New(errorMessage)
+	}
+
+	if slcommon.IsHttpErrorCode(errorCode) {
+		errorMessage := fmt.Sprintf("bmp: could not call /task/%d/json/%s on BMP server, HTTP error code: %d", taskId, level, errorCode)
+		return TaskJsonResponse{}, errors.New(errorMessage)
+	}
+
+	response := TaskJsonResponse{}
+	err = json.Unmarshal(responseBytes, &response)
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message %s", err.Error())
+		return TaskJsonResponse{}, errors.New(errorMessage)
 	}
 
 	return response, nil
@@ -289,6 +312,29 @@ func (bc *bmpClient) CreateBaremetals(createBaremetalsInfo CreateBaremetalsInfo,
 	err = json.Unmarshal(responseBytes, &response)
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message '%s'", err.Error())
+		return CreateBaremetalsResponse{}, errors.New(errorMessage)
+	}
+
+	return response, nil
+}
+
+func (bc *bmpClient) ProvisioningBaremetal(provisioningBaremetalInfo ProvisioningBaremetalInfo) (CreateBaremetalsResponse, error) {
+	path := fmt.Sprintf("baremetal/spec/%s/%s/%s", provisioningBaremetalInfo.VmNamePrefix, provisioningBaremetalInfo.Bm_stemcell, provisioningBaremetalInfo.Bm_netboot_image)
+	responseBytes, errorCode, err := bc.httpClient.DoRawHttpRequest(path, "PUT", &bytes.Buffer{})
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: could not calls /baremetal/spec/%s/%s/%s on BMP server, error message %s", provisioningBaremetalInfo.VmNamePrefix, provisioningBaremetalInfo.Bm_stemcell, provisioningBaremetalInfo.Bm_netboot_image, err.Error())
+		return CreateBaremetalsResponse{}, errors.New(errorMessage)
+	}
+
+	if slcommon.IsHttpErrorCode(errorCode) {
+		errorMessage := fmt.Sprintf("bmp: could not call /baremetal/spec/%s/%s/%s on BMP server, HTTP error code: %d", provisioningBaremetalInfo.VmNamePrefix, provisioningBaremetalInfo.Bm_stemcell, provisioningBaremetalInfo.Bm_netboot_image, errorCode)
+		return CreateBaremetalsResponse{}, errors.New(errorMessage)
+	}
+
+	response := CreateBaremetalsResponse{}
+	err = json.Unmarshal(responseBytes, &response)
+	if err != nil {
+		errorMessage := fmt.Sprintf("bmp: failed to decode JSON response, err message %s", err.Error())
 		return CreateBaremetalsResponse{}, errors.New(errorMessage)
 	}
 

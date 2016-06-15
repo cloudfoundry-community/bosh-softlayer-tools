@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"time"
 
-	clients "github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
-	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/clients"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 )
 
 var (

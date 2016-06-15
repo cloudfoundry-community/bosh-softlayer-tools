@@ -32,6 +32,9 @@ type FakeBmpClient struct {
 	TaskOutputResponse clients.TaskOutputResponse
 	TaskOutputErr      error
 
+	TaskJsonResponse  clients.TaskJsonResponse
+	TaskJsonOutputErr error
+
 	UpdateStateResponse clients.UpdateStateResponse
 	UpdateStateErr      error
 
@@ -40,6 +43,9 @@ type FakeBmpClient struct {
 
 	CreateBaremetalsResponse clients.CreateBaremetalsResponse
 	CreateBaremetalsErr      error
+
+	ProvisioningBaremetalResponse clients.CreateBaremetalsResponse
+	ProvisioningBaremetalErr      error
 }
 
 func NewFakeBmpClient(username, password, url string, configPath string) *FakeBmpClient {
@@ -75,12 +81,16 @@ func (bc *FakeBmpClient) SlPackageOptions(packageId string) (clients.SlPackageOp
 	return bc.SlPackageOptionsResponse, bc.SlPackageOptionsErr
 }
 
-func (bc *FakeBmpClient) Tasks(latest uint) (clients.TasksResponse, error) {
+func (bc *FakeBmpClient) Tasks(latest int) (clients.TasksResponse, error) {
 	return bc.TasksResponse, bc.TasksErr
 }
 
-func (bc *FakeBmpClient) TaskOutput(taskID uint, level string) (clients.TaskOutputResponse, error) {
+func (bc *FakeBmpClient) TaskOutput(taskID int, level string) (clients.TaskOutputResponse, error) {
 	return bc.TaskOutputResponse, bc.TaskOutputErr
+}
+
+func (bc *FakeBmpClient) TaskJsonOutput(taskID int, level string) (clients.TaskJsonResponse, error) {
+	return bc.TaskJsonResponse, bc.TaskJsonOutputErr
 }
 
 func (bc *FakeBmpClient) UpdateState(serverId string, status string) (clients.UpdateStateResponse, error) {
@@ -93,4 +103,8 @@ func (bc *FakeBmpClient) Login(username string, password string) (clients.LoginR
 
 func (bc *FakeBmpClient) CreateBaremetals(CreateBaremetalsInfo clients.CreateBaremetalsInfo, DryRun bool) (clients.CreateBaremetalsResponse, error) {
 	return bc.CreateBaremetalsResponse, bc.CreateBaremetalsErr
+}
+
+func (bc *FakeBmpClient) ProvisioningBaremetal(provisioningBaremetalInfo clients.ProvisioningBaremetalInfo) (clients.CreateBaremetalsResponse, error) {
+	return bc.ProvisioningBaremetalResponse, bc.ProvisioningBaremetalErr
 }
