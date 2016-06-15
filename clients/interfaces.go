@@ -10,7 +10,9 @@ type BmpClient interface {
 	SlPackageOptions(packageId string) (SlPackageOptionsResponse, error)
 	UpdateState(serverId string, status string) (UpdateStateResponse, error)
 	TaskOutput(taskId int, level string) (TaskOutputResponse, error)
+	TaskJsonOutput(taskId int, level string) (TaskJsonResponse, error)
 	Tasks(latest int) (TasksResponse, error)
 	Login(username string, password string) (LoginResponse, error)
 	CreateBaremetals(createBaremetalsInfo CreateBaremetalsInfo, dryRun bool) (CreateBaremetalsResponse, error)
+	ProvisioningBaremetal(provisioningBaremetalInfo ProvisioningBaremetalInfo) (CreateBaremetalsResponse, error)
 }

@@ -35,7 +35,7 @@ func (cmd taskCommand) Name() string {
 }
 
 func (cmd taskCommand) Description() string {
-	return `Show the output of the task: \"option --debug, Get the debug info of the task\"`
+	return `Show the output of the task: \"option --debug, Get the debug info of the task; --json, show info with JSON format\"`
 }
 
 func (cmd taskCommand) Usage() string {
@@ -64,19 +64,38 @@ func (cmd taskCommand) Execute(args []string) (int, error) {
 		level = "debug"
 	}
 
-	taskOutputResponse, err := cmd.bmpClient.TaskOutput(cmd.options.TaskID, level)
-	if err != nil {
-		return 1, err
-	}
+	if cmd.options.JSON {
+		taskJsonResponse, err := cmd.bmpClient.TaskJsonOutput(cmd.options.TaskID, level)
+		if err != nil {
+			return 1, err
+		}
 
-	if taskOutputResponse.Status != 200 {
-		return taskOutputResponse.Status, nil
-	}
+		if taskJsonResponse.Status != 200 {
+			return taskJsonResponse.Status, nil
+		}
 
-	cmd.ui.PrintfInfo("Task output for ID %d with %s level\n", cmd.options.TaskID, level)
-	for _, value := range taskOutputResponse.Data {
-		cmd.ui.PrintlnInfo(value)
-	}
+		cmd.ui.PrintfInfo("Task output for ID %d with %s level\n", cmd.options.TaskID, level)
+		for _, value := range taskJsonResponse.Data {
+			cmd.ui.PrintlnInfo(value)
+		}
 
-	return 0, nil
+		return 0, nil
+
+	} else {
+		taskTxtResponse, err := cmd.bmpClient.TaskOutput(cmd.options.TaskID, level)
+		if err != nil {
+			return 1, err
+		}
+
+		if taskTxtResponse.Status != 200 {
+			return taskTxtResponse.Status, nil
+		}
+
+		cmd.ui.PrintfInfo("Task output for ID %d with %s level\n", cmd.options.TaskID, level)
+		for _, value := range taskTxtResponse.Data {
+			cmd.ui.PrintlnInfo(value)
+		}
+
+		return 0, nil
+	}
 }

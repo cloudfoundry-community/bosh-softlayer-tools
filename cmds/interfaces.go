@@ -5,6 +5,8 @@ type Options struct {
 
 	Verbose bool `short:"v" long:"verbose" description:"Show verbose debug information"`
 
+	JSON bool `long:"json" description:"Show information with JSON format"`
+
 	DryRun bool `long:"dryrun" description:"Runs command in a dry-run fashion (i.e., fake)"`
 
 	Latest int `long:"latest" description:"The latest task number to use" default:"50"`
@@ -24,6 +26,10 @@ type Options struct {
 
 	Server string `long:"server" description:"the ID for a baremetal server"`
 	State  string `long:"state" description:"the baremetal server state"`
+
+	VMPrefix     string `long:"vmprefix" description:"vmprefix for provisioning a baremetal"`
+	Stemecell    string `long:"stemcell" description:"stemcell for provisioning a baremetal"`
+	NetbootImage string `long:"netbootimage" description:"netboot image for provisioning a baremetal"`
 }
 
 type Command interface {

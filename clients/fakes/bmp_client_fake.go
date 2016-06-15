@@ -32,6 +32,9 @@ type FakeBmpClient struct {
 	TaskOutputResponse clients.TaskOutputResponse
 	TaskOutputErr      error
 
+	TaskJsonResponse  clients.TaskJsonResponse
+	TaskJsonOutputErr error
+
 	UpdateStateResponse clients.UpdateStateResponse
 	UpdateStateErr      error
 
@@ -40,6 +43,9 @@ type FakeBmpClient struct {
 
 	CreateBaremetalsResponse clients.CreateBaremetalsResponse
 	CreateBaremetalsErr      error
+
+	ProvisioningBaremetalResponse clients.CreateBaremetalsResponse
+	ProvisioningBaremetalErr      error
 }
 
 func NewFakeBmpClient(username, password, url string, configPath string) *FakeBmpClient {
@@ -83,6 +89,10 @@ func (bc *FakeBmpClient) TaskOutput(taskID int, level string) (clients.TaskOutpu
 	return bc.TaskOutputResponse, bc.TaskOutputErr
 }
 
+func (bc *FakeBmpClient) TaskJsonOutput(taskID int, level string) (clients.TaskJsonResponse, error) {
+	return bc.TaskJsonResponse, bc.TaskJsonOutputErr
+}
+
 func (bc *FakeBmpClient) UpdateState(serverId string, status string) (clients.UpdateStateResponse, error) {
 	return bc.UpdateStateResponse, bc.UpdateStateErr
 }
@@ -93,4 +103,8 @@ func (bc *FakeBmpClient) Login(username string, password string) (clients.LoginR
 
 func (bc *FakeBmpClient) CreateBaremetals(CreateBaremetalsInfo clients.CreateBaremetalsInfo, DryRun bool) (clients.CreateBaremetalsResponse, error) {
 	return bc.CreateBaremetalsResponse, bc.CreateBaremetalsErr
+}
+
+func (bc *FakeBmpClient) ProvisioningBaremetal(provisioningBaremetalInfo clients.ProvisioningBaremetalInfo) (clients.CreateBaremetalsResponse, error) {
+	return bc.ProvisioningBaremetalResponse, bc.ProvisioningBaremetalErr
 }
