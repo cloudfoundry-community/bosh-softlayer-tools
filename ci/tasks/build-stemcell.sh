@@ -26,11 +26,6 @@ build_num=$(cat stemcell-version/number | sed 's/\.0$//;s/\.0$//')
 
 pushd bosh-src
 
-# todo check out correct version of bosh-src for that stemcell
-# git checkout stable-${build_num}
-# git submodule update --init --recursive
-# git clean -fdx
-
 bundle
 
 cd bosh-stemcell
