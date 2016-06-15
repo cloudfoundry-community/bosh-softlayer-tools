@@ -4,7 +4,8 @@
     "info": {
       "id": 73,
       "description": "load stemcell",
-      "status": "completed"
+      "start_time": "2016-06-15 07:59:42 +0000",
+      "status": "running"
     }
   }
 }
