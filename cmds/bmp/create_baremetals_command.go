@@ -86,7 +86,8 @@ func (cmd createBaremetalsCommand) Execute(args []string) (int, error) {
 		Deployment: deploymentInfo.Name,
 	}
 	for _, resource := range deploymentInfo.ResourcePools {
-		if resource.CloudProperty.Baremetal {
+		if resource.CloudProperty.Baremetal && resource.Size != 0 {
+			resource.CloudProperty.Size = resource.Size
 			createBaremetalsInfo.BaremetalSpecs = append(createBaremetalsInfo.BaremetalSpecs,
 				resource.CloudProperty)
 		}

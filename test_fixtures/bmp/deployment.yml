@@ -27,17 +27,17 @@ resource_pools:
     version: latest
   cloud_properties:
     bosh_ip: 10.10.10.4
-    Datacenter: fake-datacenter-name
+    datacenter: fake-datacenter-name
+    name_prefix: baremetal01
     server_spec:
-      package: 255
-      server: 50399
-      ram: 50389
-      disk0: 50043
-      port_speed: 24713
-      public_vlan_id: 524954
-      private_vlan_id: 524942
+      package: 123
+      server: 123
+      ram: 123
+      disk0: 12345
+      port_speed: 12345
+      public_vlan_id: 12345
+      private_vlan_id: 12345
       hourly: false
-    VmNamePrefix: fake-NamePrefix
     baremetal: true
     bm_stemcell: fake-stemcell
     bm_netboot_image: fake-netbootImage
