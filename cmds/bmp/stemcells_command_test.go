@@ -75,8 +75,8 @@ var _ = Describe("stemcells command", func() {
 	Describe("#Execute", func() {
 		Context("executes a good StemcellsCommand", func() {
 			BeforeEach(func() {
-				fakeBmpClient.StemcellResponse.Status = 200
-				fakeBmpClient.StemcellErr = nil
+				fakeBmpClient.StemcellsResponse.Status = 200
+				fakeBmpClient.StemcellsErr = nil
 			})
 
 			It("execute with no error", func() {
@@ -89,8 +89,8 @@ var _ = Describe("stemcells command", func() {
 		Context("executes a bad StemcellsCommand", func() {
 			Context("executes StemcellsCommand with error", func() {
 				BeforeEach(func() {
-					fakeBmpClient.StemcellResponse.Status = 500
-					fakeBmpClient.StemcellErr = errors.New("500")
+					fakeBmpClient.StemcellsResponse.Status = 500
+					fakeBmpClient.StemcellsErr = errors.New("500")
 				})
 
 				It("executes with error", func() {
@@ -102,7 +102,7 @@ var _ = Describe("stemcells command", func() {
 
 			Context("StemcellsCommand response different than 200", func() {
 				BeforeEach(func() {
-					fakeBmpClient.StemcellResponse.Status = 404
+					fakeBmpClient.StemcellsResponse.Status = 404
 				})
 
 				It("response code different than 200", func() {
