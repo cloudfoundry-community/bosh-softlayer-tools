@@ -186,12 +186,14 @@ func (cmd *LightStemcellVDICmd) buildLightStemcellWithVirtualDiskImage(virtualDi
 	}
 
 	lightStemcellMF := LightStemcellMF{
-		Name:         GenerateStemcellName(cmd.lightStemcellInfo),
-		Version:      cmd.lightStemcellInfo.Version,
-		BoshProtocol: 1, //Must be defaulted to 1 for legacy reasons (no other values supported)
-		Sha1:         base64.StdEncoding.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%d:%s", virtualDiskImage.Id, virtualDiskImage.Uuid)))),
+		Name:            GenerateStemcellName(cmd.lightStemcellInfo),
+		Version:         cmd.lightStemcellInfo.Version,
+		BoshProtocol:    1, //Must be defaulted to 1 for legacy reasons (no other values supported)
+		Sha1:            base64.StdEncoding.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%d:%s", virtualDiskImage.Id, virtualDiskImage.Uuid)))),
+		OperatingSystem: cmd.lightStemcellInfo.OsName,
 		CloudProperties: CloudProperties{
 			Infrastructure:       cmd.lightStemcellInfo.Infrastructure,
+			Version:              cmd.lightStemcellInfo.Version,
 			Architecture:         cmd.lightStemcellInfo.Architecture,
 			RootDeviceName:       cmd.lightStemcellInfo.RootDeviceName,
 			VirtualDiskImageId:   virtualDiskImage.Id,

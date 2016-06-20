@@ -1,0 +1,12 @@
+---
+platform: linux
+image: docker:///posijon/slci
+
+inputs:
+  - name: bosh-softlayer-tools
+    path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
+  - name: stemcell-version
+outputs:
+  - name: stemcell-image
+run:
+  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/tasks/import-stemcell

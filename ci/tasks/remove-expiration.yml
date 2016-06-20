@@ -1,0 +1,9 @@
+---
+platform: linux
+image: docker:///swayr/slci
+
+inputs:
+  - name: bosh-softlayer-tools
+
+run:
+  path: bosh-softlayer-tools/ci/tasks/remove-expiration

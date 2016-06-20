@@ -27,6 +27,7 @@ type LightStemcellMF struct {
 	Version         string          `json:"version" yaml:"version"`
 	BoshProtocol    int             `json:"bosh_protocol" yaml:"bosh_protocol"`
 	Sha1            string          `json:"sha1" yaml:"sha1"`
+	OperatingSystem string          `json:"operating_system" yaml:"operating_system"`
 	CloudProperties CloudProperties `json:"cloud_properties" yaml:"cloud_properties"`
 }
 
@@ -34,6 +35,7 @@ type CloudProperties struct {
 	Infrastructure string `json:"infrastructure" yaml:"infrastructure"`
 	Architecture   string `json:"architecture" yaml:"architecture"`
 	RootDeviceName string `json:"root_device_name" yaml:"root_device_name"`
+	Version        string `json:"version" yaml:"version"`
 
 	//SoftLayer-specific properties
 	VirtualDiskImageId   int    `json:"virtual-disk-image-id" yaml:"virtual-disk-image-id"`

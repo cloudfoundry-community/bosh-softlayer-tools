@@ -1,0 +1,10 @@
+---
+platform: linux
+image: docker:///mattcui/sl_stemcell
+inputs:
+  - name: published-stemcell
+  - name: bosh-softlayer-tools
+outputs:
+  - name: version
+run:
+  path: bosh-softlayer-tools/ci/tasks/make-stemcell-version.sh

@@ -1,0 +1,18 @@
+FROM swayr/slci
+
+RUN apt-get update && \
+    apt-get install -y libsqlite3-dev libmysqlclient-dev postgresql libpq-dev module-init-tools virtualbox make ed
+
+RUN mkdir -p src/github.com/cloudfoundry
+
+WORKDIR src/github.com/cloudfoundry
+
+RUN git clone https://github.com/cloudfoundry/bosh-acceptance-tests.git
+
+RUN gem update
+
+RUN cd bosh-acceptance-tests && \
+    ./write_gemfile && \
+    bundle install
+
+RUN rm -R bosh-acceptance-tests

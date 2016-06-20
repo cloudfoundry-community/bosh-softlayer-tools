@@ -1,0 +1,26 @@
+FROM ubuntu
+
+# ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update && \
+    apt-get upgrade -y
+RUN apt-get -y install apt-utils build-essential zlibc zlib1g-dev ruby ruby-dev openssl libxslt-dev libxml2-dev libssl-dev libreadline6 libreadline6-dev libyaml-dev libsqlite3-dev sqlite3 wget libmysqlclient-dev postgresql libpq-dev module-init-tools make git
+
+RUN mkdir -p src/github.com/cloudfoundry
+
+WORKDIR src/github.com/cloudfoundry
+
+RUN git clone https://github.com/cloudfoundry/bosh.git
+
+RUN gem install bundler bosh_cli --no-ri --no-rdoc
+
+RUN gem update
+
+RUN cd bosh && \
+    bundle install
+
+RUN rm -R bosh
+
+RUN wget https://s3.amazonaws.com/bosh-init-artifacts/bosh-init-0.0.80-linux-amd64 && \
+    chmod +x bosh-init-* && \
+    mv bosh-init-* /usr/local/bin/bosh-init

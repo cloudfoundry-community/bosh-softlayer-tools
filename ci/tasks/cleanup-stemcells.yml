@@ -1,0 +1,11 @@
+---
+platform: linux
+image: docker:///swayr/slci
+
+inputs:
+  - name: timer-2weeks
+  - name: bosh-softlayer-tools
+    path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
+
+run:
+  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/scripts/cleanup-stemcells
