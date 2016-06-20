@@ -101,20 +101,25 @@ func (cmd updateStateCommand) Execute(args []string) (int, error) {
 // Private Methods
 
 func (cmd updateStateCommand) isValidState(state string) bool {
-	validState := map[string]bool{
-		"bm.state.new":     true,
-		"bm.state.using":   true,
-		"bm.state.loading": true,
-		"bm.state.failed":  true,
-		"bm.state.deleted": true,
+	switch state {
+	case "bm.state.new":
+		return true
+	case "bm.state.using":
+		return true
+	case "bm.state.loading":
+		return true
+	case "bm.state.failed":
+		return true
+	case "bm.state.deleted":
+		return true
 	}
 
-	return validState[state]
+	return false
 }
 
 func (cmd updateStateCommand) isConfirmed() bool {
 	var userInput string
-	cmd.ui.PrintfInfo("Continue to update? (type 'yes' to continue)")
+	cmd.ui.PrintfInfo("Continue to update? (type 'yes' or 'y' to continue)")
 	_, err := cmd.ui.Scanln(&userInput)
 	if err != nil {
 		return false
@@ -128,13 +133,18 @@ func (cmd updateStateCommand) isConfirmed() bool {
 }
 
 func (cmd updateStateCommand) isYes(userInput string) bool {
-	yes := map[string]bool{
-		"y":   true,
-		"Y":   true,
-		"yes": true,
-		"Yes": true,
-		"YES": true,
+	switch userInput {
+	case "y":
+		return true
+	case "Y":
+		return true
+	case "yes":
+		return true
+	case "Yes":
+		return true
+	case "YES":
+		return true
 	}
 
-	return yes[userInput]
+	return false
 }
