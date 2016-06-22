@@ -56,6 +56,11 @@ var _ = Describe("light_stemcell_helper", func() {
 
 	It("GenerateStemcellName", func() {
 		name := GenerateStemcellName(lightStemcellInfo)
+		Expect(name).To(Equal("bosh-fake-infrastructure-fake-hypervisor-fake-os-name-go_agent"))
+	})
+
+	It("GenerateStemcellFileName", func() {
+		name := GenerateStemcellFilelName(lightStemcellInfo)
 		Expect(name).To(Equal("light-bosh-stemcell-fake-version-fake-infrastructure-fake-hypervisor-fake-os-name-go_agent"))
 	})
 
@@ -67,7 +72,7 @@ var _ = Describe("light_stemcell_helper", func() {
 
 		stat, err := os.Stat(tarballPath)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(stat.Name()).To(Equal(fmt.Sprintf("%s.tgz", GenerateStemcellName(lightStemcellInfo))))
+		Expect(stat.Name()).To(Equal(fmt.Sprintf("%s.tgz", GenerateStemcellFilelName(lightStemcellInfo))))
 		Expect(stat.Size()).To(BeNumerically(">", 0))
 		Expect(stat.IsDir()).To(BeFalse())
 	})

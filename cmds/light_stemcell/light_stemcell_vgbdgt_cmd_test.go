@@ -175,7 +175,7 @@ var _ = Describe("LightStemcellVGBDGTCmd", func() {
 			It("generates a stemcell name", func() {
 				name := GenerateStemcellName(lightStemcellInfo)
 				Expect(name).ToNot(Equal(""))
-				Expect(name).To(Equal("light-bosh-stemcell-fake-version-fake-infrastructure-fake-hypervisor-fake-os-name-go_agent"))
+				Expect(name).To(Equal("bosh-fake-infrastructure-fake-hypervisor-fake-os-name-go_agent"))
 			})
 		})
 

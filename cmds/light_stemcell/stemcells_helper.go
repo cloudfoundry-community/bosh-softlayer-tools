@@ -9,11 +9,18 @@ import (
 	"os"
 	"path/filepath"
 
-	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 )
 
 func GenerateStemcellName(info LightStemcellInfo) string {
-	return fmt.Sprintf("light-bosh-stemcell-%s-%s-%s-%s-go_agent-public",
+	return fmt.Sprintf("bosh-%s-%s-%s-go_agent",
+		info.Infrastructure,
+		info.Hypervisor,
+		info.OsName)
+}
+
+func GenerateStemcellFilelName(info LightStemcellInfo) string {
+	return fmt.Sprintf("light-bosh-stemcell-%s-%s-%s-%s-go_agent",
 		info.Version,
 		info.Infrastructure,
 		info.Hypervisor,
@@ -35,7 +42,7 @@ func GenerateLightStemcellTarball(lightStemcellMF LightStemcellMF, lightStemcell
 		return "", errors.New(fmt.Sprintf("Could not create image file, error: `%s`", err.Error()))
 	}
 
-	lightStemcellFilePath := filepath.Join(lightStemcellsPath, fmt.Sprintf("%s.tgz", GenerateStemcellName(lightStemcellInfo)))
+	lightStemcellFilePath := filepath.Join(lightStemcellsPath, fmt.Sprintf("%s.tgz", GenerateStemcellFilelName(lightStemcellInfo)))
 	err = common.CreateTarball(lightStemcellFilePath, []string{lightStemcellMFFilePath, imageFilePath})
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Could not create tarball file, error: `%s`", err.Error()))
