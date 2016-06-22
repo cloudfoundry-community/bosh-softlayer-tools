@@ -67,12 +67,10 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-softlayer-tools
-      passed: [import-stemcell]
     - get: stemcell-info
       passed: [import-stemcell]
       trigger: true
     - get: stemcell-version
-      passed: [import-stemcell]
   - task: create-light-stemcell
     file: bosh-softlayer-tools/ci/tasks/create-light-stemcell.yml
     params:
