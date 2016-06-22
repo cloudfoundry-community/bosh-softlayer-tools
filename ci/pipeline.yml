@@ -133,7 +133,7 @@ resources:
   type: git
   source:
     uri: https://github.com/jianqiu/bosh.git
-    branch: master
+    branch: 256.x-softlayer
     private_key: {{github_promote_private_key}}
 
 - name: published-stemcell

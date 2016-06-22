@@ -56,7 +56,7 @@ var _ = Describe("light_stemcell_helper", func() {
 
 	It("GenerateStemcellName", func() {
 		name := GenerateStemcellName(lightStemcellInfo)
-		Expect(name).To(Equal("light-bosh-stemcell-fake-version-fake-infrastructure-fake-hypervisor-fake-os-name-go_agent"))
+		Expect(name).To(Equal("bosh-fake-infrastructure-fake-hypervisor-fake-os-name-go_agent"))
 	})
 
 	It("GenerateLightStemcellTarball", func() {

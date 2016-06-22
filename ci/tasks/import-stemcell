@@ -18,6 +18,6 @@
   echo -e "\n Softlayer create from external source..."
   IFS=':' read -ra OBJ_STORAGE_ACC_NAME <<< "$SWIFT_USERNAME"
   URI="swift://${OBJ_STORAGE_ACC_NAME}@${SWIFT_CLUSTER}/${SWIFT_CONTAINER}/bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd"
-  out/sl_stemcells -c import-image --os-ref-code UBUNTU_14_64 --uri ${URI} --public-name "light-bosh-stemcell-${STEMCELL_VERSION}-softlayer-esxi-ubuntu-trusty-go_agent-public" \
+  out/sl_stemcells -c import-image --os-ref-code UBUNTU_14_64 --uri ${URI} --public-name "light-bosh-stemcell-${STEMCELL_VERSION}-softlayer-esxi-ubuntu-trusty-go_agent" \
       --public-note "Public_light_stemcell_${STEMCELL_VERSION}" --public | tail -1 >> "${base_gopath}/../stemcell-image/stemcell-info.json"
 )

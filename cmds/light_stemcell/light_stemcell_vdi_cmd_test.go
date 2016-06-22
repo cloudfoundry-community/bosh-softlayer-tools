@@ -169,7 +169,7 @@ var _ = Describe("LightStemcellVDICmd", func() {
 		It("#GenerateStemcellName", func() {
 			name := GenerateStemcellName(lightStemcellInfo)
 			Expect(name).ToNot(Equal(""))
-			Expect(name).To(Equal("light-bosh-stemcell-fake-version-fake-infrastructure-fake-hypervisor-fake-os-name-go_agent"))
+			Expect(name).To(Equal("bosh-fake-infrastructure-fake-hypervisor-fake-os-name-go_agent"))
 		})
 
 		It("#Create", func() {

@@ -69,7 +69,7 @@ func importImageCmd() {
 	}
 
 	startTime := time.Now()
-	common.TIMEOUT = 10 * time.Millisecond
+	common.TIMEOUT = 300 * time.Second
 	common.POLLING_INTERVAL = 30 * time.Second
 
 	err = cmd.Run()
