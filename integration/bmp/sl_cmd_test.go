@@ -38,12 +38,12 @@ var _ = Describe("`$bmp sl` integration tests", func() {
 				session = RunBmp("sl", "--package-options", "100001")
 			})
 
-			It("returns 1", func() {
-				Expect(session.ExitCode()).To(Equal(1))
+			It("returns 44", func() {
+				Expect(session.ExitCode()).To(Equal(44))
 			})
 
 			It("prints error message", func() {
-				Expect(session.Wait().Out.Contents()).To(ContainSubstring("HTTP error code: 404"))
+				Expect(session.Wait().Out.Contents()).To(ContainSubstring("exit status"))
 			})
 		})
 	})
