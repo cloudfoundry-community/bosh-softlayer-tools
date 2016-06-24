@@ -48,7 +48,7 @@ var _ = Describe("`$bmp task --task_id` integration tests", func() {
 			})
 		})
 
-		Context("when execute bmp task with debug level", func() {
+		Context("when execute bmp task with json format and event level", func() {
 			BeforeEach(func() {
 				session = RunBmp("task", "--task_id=1", "--json")
 			})
@@ -58,7 +58,7 @@ var _ = Describe("`$bmp task --task_id` integration tests", func() {
 			})
 
 			It("prints task output", func() {
-				Expect(session.Wait().Out.Contents()).To(ContainSubstring("Task output for ID 1 with debug level"))
+				Expect(session.Wait().Out.Contents()).To(ContainSubstring("Task output for ID 1 with event level"))
 			})
 		})
 	})
