@@ -102,18 +102,9 @@ func (cmd updateStateCommand) Execute(args []string) (int, error) {
 
 func (cmd updateStateCommand) isValidState(state string) bool {
 	switch state {
-	case "bm.state.new":
-		return true
-	case "bm.state.using":
-		return true
-	case "bm.state.loading":
-		return true
-	case "bm.state.failed":
-		return true
-	case "bm.state.deleted":
+	case "bm.state.new", "bm.state.using", "bm.state.loading", "bm.state.failed", "bm.state.deleted":
 		return true
 	}
-
 	return false
 }
 
@@ -134,15 +125,7 @@ func (cmd updateStateCommand) isConfirmed() bool {
 
 func (cmd updateStateCommand) isYes(userInput string) bool {
 	switch userInput {
-	case "y":
-		return true
-	case "Y":
-		return true
-	case "yes":
-		return true
-	case "Yes":
-		return true
-	case "YES":
+	case "y", "Y", "yes", "Yes", "YES":
 		return true
 	}
 
