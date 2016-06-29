@@ -1,0 +1,11 @@
+---
+platform: linux
+image: docker:///mattcui/sl_stemcell
+inputs:
+  - name: stemcell-version
+  - name: bosh-softlayer-tools
+  - name: stemcell-ubuntu-trusty-raw
+outputs:
+  - name: build
+run:
+  path: bosh-softlayer-tools/ci/tasks/generate-bm-stemcell-fsa.sh

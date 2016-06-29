@@ -1,0 +1,10 @@
+---
+platform: linux
+image: docker:///mattcui/sl_stemcell
+inputs:
+  - name: stemcell-version
+  - name: bosh-softlayer-tools
+outputs:
+  - name: build
+run:
+  path: bosh-softlayer-tools/ci/tasks/build-stemcell-fake.sh
