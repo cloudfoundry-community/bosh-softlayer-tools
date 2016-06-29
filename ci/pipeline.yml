@@ -186,7 +186,7 @@ resources:
   type: git
   source:
     uri: git@github.com:mattcui/bosh-softlayer-tools.git
-    branch: bm_stemcell
+    branch: master
     private_key: {{github_promote_private_key}}
 
 - name: bosh-stemcell-softlayer-image
