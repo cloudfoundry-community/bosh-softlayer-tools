@@ -33,7 +33,17 @@ var _ = Describe("`$bmp sl` integration tests", func() {
 			})
 		})
 
-		Context("executes --package-options", func() {
+		Context("executes --package-options with incorrect id", func() {
+			BeforeEach(func() {
+				session = RunBmp("sl", "--package-options", "10001")
+			})
+
+			It("returns 44", func() {
+				Expect(session.ExitCode()).To(Equal(44))
+			})
+		})
+
+		Context("executes --package-options with correct id", func() {
 			BeforeEach(func() {
 				session = RunBmp("sl", "--package-options", "255")
 			})
