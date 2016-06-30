@@ -4,4 +4,4 @@ set -e -x
 
 [ -f published-stemcell/version ] || exit 1
 
-echo "$(cat published-stemcell/version).0.0" > version/semver
+echo "$(cat published-stemcell/version).0" > version/semver

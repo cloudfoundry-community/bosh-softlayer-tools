@@ -29,17 +29,14 @@ jobs:
       OS_VERSION: trusty
   - put: candidate-stemcell-ubuntu-trusty
     params: {from: build/bosh-stemcell-.*-softlayer-.*-go_agent.tgz}
-  - put: stemcell-ubuntu-trusty-raw
-    params: {from: build/bosh-stemcell-.*-softlayer-.*-raw.tgz}
 
 - name: convert-stemcell
   plan:
   - get: bosh-softlayer-tools
   - get: stemcell-version
-    passed: [build-ubuntu-trusty]
-    trigger: true
   - get: candidate-stemcell-ubuntu-trusty
     passed: [build-ubuntu-trusty]
+    trigger: true
   - task: convert-stemcell
     file: bosh-softlayer-tools/ci/tasks/convert-stemcell.yml
     params:
