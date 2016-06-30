@@ -26,6 +26,3 @@ popd
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${bm_sjc01} "mkdir -p /tmp/bm_stemcell; export build_num=${build_num}; mv /tmp/make-fsa-on-baremetal.sh /tmp/bm_stemcell/; chmod +x /tmp/bm_stemcell/make-fsa-on-baremetal.sh; /tmp/bm_stemcell/make-fsa-on-baremetal.sh"
 scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${bm_sjc01}:/fsarchiver/*.fsa build/
 
-service ntp stop
-ntpdate -s 0.amazon.pool.ntp.org
-service ntp start

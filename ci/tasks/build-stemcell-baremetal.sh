@@ -49,6 +49,3 @@ popd
 ssh ubuntu@${builder_ip} "sudo chroot /mnt/stemcells/softlayer/esxi/ubuntu/work/work/chroot touch /bosh-stemcell-${build_num}-softlayer-esxi-ubuntu-trusty-raw.tgz; sudo chroot /mnt/stemcells/softlayer/esxi/ubuntu/work/work/chroot tar zcvf /bosh-stemcell-${build_num}-softlayer-esxi-ubuntu-trusty-raw.tgz . --exclude proc --exclude dev; sudo mv /mnt/stemcells/softlayer/esxi/ubuntu/work/work/chroot/*.tgz /bosh/tmp"
 scp ubuntu@${builder_ip}:/bosh/tmp/*-raw.tgz build/
 
-service ntp stop
-ntpdate -s 0.amazon.pool.ntp.org
-service ntp start
