@@ -36,8 +36,8 @@ jobs:
   plan:
   - get: bosh-softlayer-tools
   - get: stemcell-version
-    trigger: true
     passed: [build-ubuntu-trusty]
+    trigger: true
   - get: candidate-stemcell-ubuntu-trusty
     passed: [build-ubuntu-trusty]
   - task: convert-stemcell
@@ -52,8 +52,8 @@ jobs:
   plan:
   - get: bosh-softlayer-tools
   - get: stemcell-version
-    trigger: true
     passed: [convert-stemcell]
+    trigger: true
   - task: import-stemcell-image
     file: bosh-softlayer-tools/ci/tasks/import-stemcell.yml
     params:
