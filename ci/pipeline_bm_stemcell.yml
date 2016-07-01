@@ -58,7 +58,7 @@ jobs:
     params:
       bm_stemcell_private_key:  {{bm_stemcell_private_key}}
       bm_root_password: {{bm_root_password}}
-      bm_sjc01: 10.112.249.91
+      bm_sjc01: {{bm_sjc01}}
   - put: stemcell-ubuntu-trusty-bm-fsa
     params: {from: build/bosh-stemcell-.*-softlayer-baremetal.fsa}
 
