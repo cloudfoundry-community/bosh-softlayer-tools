@@ -1,0 +1,180 @@
+---
+jobs:
+- name: new-version
+  plan:
+  - get: published-stemcell
+  - get: bosh-softlayer-tools
+  - task: make-version
+    file: bosh-softlayer-tools/ci/tasks/make-stemcell-version.yml
+  - put: stemcell-version
+    params: {file: version/semver}
+
+- name: build-ubuntu-trusty-bm
+  plan:
+  - aggregate:
+    - {get: bosh-src}
+    - {get: bosh-softlayer-tools}
+    - {trigger: true, passed: [new-version], get: stemcell-version}
+  - task: build
+    file: bosh-softlayer-tools/ci/tasks/build-stemcell-baremetal.yml
+    params:
+      BOSH_AWS_ACCESS_KEY_ID:     {{aws_builder_access_key}}
+      BOSH_AWS_SECRET_ACCESS_KEY: {{aws_builder_secret_access_key}}
+      BOSH_AWS_SECURITY_GROUP:    {{aws_builder_sec_group}}
+      BOSH_KEYPAIR_NAME:          {{aws_builder_keypair_name}}
+      BOSH_PRIVATE_KEY:           {{aws_builder_private_key}}
+      IAAS: softlayer
+      HYPERVISOR: esxi
+      OS_NAME: ubuntu
+      OS_VERSION: trusty
+  - put: stemcell-ubuntu-trusty-raw
+    params: {from: build/bosh-stemcell-.*-softlayer-.*-raw.tgz}
+
+- name: build-ubuntu-trusty-fake
+  plan:
+  - aggregate:
+    - {get: bosh-softlayer-tools}
+    - {trigger: true, passed: [new-version], get: stemcell-version}
+  - task: build
+    file: bosh-softlayer-tools/ci/tasks/build-stemcell-fake.yml
+    params:
+      IAAS: softlayer
+      HYPERVISOR: esxi
+      OS_NAME: ubuntu
+      OS_VERSION: trusty
+  - put: stemcell-ubuntu-trusty-raw
+    params: {from: build/bosh-stemcell-.*-softlayer-.*-raw.tgz}
+
+- name: generate-bm-stemcell-fsa
+  plan:
+  - get: bosh-softlayer-tools
+  - get: stemcell-version
+    trigger: true
+    passed: [build-ubuntu-trusty-bm]
+  - get: stemcell-ubuntu-trusty-raw
+    passed: [build-ubuntu-trusty-bm]
+  - task: generate-bm-stemcell-fsa
+    file: bosh-softlayer-tools/ci/tasks/generate-bm-stemcell-fsa.yml
+    params:
+      bm_stemcell_private_key:  {{bm_stemcell_private_key}}
+      bm_root_password: {{bm_root_password}}
+      bm_sjc01: {{bm_sjc01}}
+  - put: stemcell-ubuntu-trusty-bm-fsa
+    params: {from: build/bosh-stemcell-.*-softlayer-baremetal.fsa}
+
+
+resources:
+- name: bosh-src
+  type: git
+  source:
+    uri: https://github.com/jianqiu/bosh.git
+    branch: baremetal_stemcell
+    private_key: {{github_promote_private_key}}
+
+- name: published-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+    tarball: false
+
+- name: stemcell-version
+  type: semver
+  source:
+    key: stemcell-version
+    bucket: {{s3_candidate_stemcell_bucket}}
+    access_key_id: {{aws_builder_access_key}}
+    secret_access_key: {{aws_builder_secret_access_key}}
+
+- name: stemcell-ubuntu-trusty-raw
+  type: s3
+  source:
+    regexp: bosh-stemcell-([0-9]+)-softlayer-esxi-ubuntu-trusty-raw.tgz
+    bucket: {{s3_candidate_stemcell_bucket}}
+    access_key_id: {{aws_builder_access_key}}
+    secret_access_key: {{aws_builder_secret_access_key}}
+
+- name: stemcell-ubuntu-trusty-bm-fsa
+  type: s3
+  source:
+    regexp: bosh-stemcell-([0-9]+)-softlayer-baremetal.fsa
+    bucket: {{s3_candidate_stemcell_bucket}}
+    access_key_id: {{aws_builder_access_key}}
+    secret_access_key: {{aws_builder_secret_access_key}}
+
+- name: light-stemcell
+  type: s3
+  source:
+    regexp: light-bosh-stemcell-\d+-softlayer-.*\.tgz
+    bucket: {{s3_candidate_stemcell_bucket}}
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: light-stemcell-final
+  type: s3
+  source:
+    regexp: light-bosh-stemcell-\d+-softlayer-.*\.tgz
+    bucket: {{s3_stemcell_bucket}}
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: bosh-softlayer-tools
+  type: git
+  source:
+    uri: git@github.com:mattcui/bosh-softlayer-tools.git
+    branch: master
+    private_key: {{github_promote_private_key}}
+
+- name: bosh-stemcell-softlayer-image
+  type: s3
+  source:
+    regexp: bosh-stemcell-softlayer.vhd
+    bucket: {{s3_candidate_stemcell_bucket}}
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: bosh-cpi-artifacts
+  type: s3
+  source:
+    regexp: bosh-softlayer-cpi-([0-9.]+)\.tgz
+    bucket: dev-bosh-softlayer-cpi-stemcells
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: stemcell-info
+  type: s3
+  source:
+    bucket: {{s3_candidate_stemcell_bucket}}
+    versioned_file: stemcell-info.json
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: bats
+  type: git
+  source:
+    uri: git@github.com:jianqiu/bosh-acceptance-tests.git
+    branch: 256.x-softlayer
+    private_key: {{github_promote_private_key}}
+
+- name: bosh-init
+  type: s3
+  source:
+    regexp: bosh-init-([0-9.]+)-linux-amd64
+    bucket: bosh-softlayer-cpi-stemcells
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: bosh-release
+  type: s3
+  source:
+      bucket: bosh-softlayer-cpi-stemcells
+      regexp: bosh-236\+dev\.([0-9.]+)\.tgz
+      access_key_id: {{s3-access-key-id}}
+      secret_access_key: {{s3-secret-access-key}}
+
+groups:
+  - name: bosh-softlayer-baremetal-stemcell
+    jobs:
+    - new-version
+    - build-ubuntu-trusty-bm
+    - generate-bm-stemcell-fsa
+    

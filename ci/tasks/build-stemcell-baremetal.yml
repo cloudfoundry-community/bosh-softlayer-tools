@@ -8,4 +8,4 @@ inputs:
 outputs:
   - name: build
 run:
-  path: bosh-softlayer-tools/ci/tasks/build-stemcell.sh
+  path: bosh-softlayer-tools/ci/tasks/build-stemcell-baremetal.sh
