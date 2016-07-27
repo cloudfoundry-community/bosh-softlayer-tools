@@ -5,7 +5,7 @@ set -e -x
 export BOSHIO_BEARER_TOKEN=$boshio_bearer_token
 export STEMCELL=`echo light-stemcell-final/light*.tgz`
 
-sha1=`sha1sum light-stemcell-final/$STEMCELL`
+sha1=`sha1sum ${STEMCELL}`
 sha1s=$(echo $sha1 | tr " " "\n")
 for eachline in $sha1s; do
     if [ -n "${eachline}"]; then
