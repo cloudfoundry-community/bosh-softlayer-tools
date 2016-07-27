@@ -1,0 +1,11 @@
+---
+platform: linux
+image: docker:///posijon/slci
+
+inputs:
+  - name: bosh-softlayer-tools
+  - name: stemcell-version
+  - name: candidate-stemcell-ubuntu-trusty
+
+run:
+  path: bosh-softlayer-tools/ci/tasks/convert-stemcell
