@@ -2,7 +2,7 @@
 
 set -e -x
 
-export BOSHIO_BEARER_TOKEN=$boshio_bearer_token
+export BOSHIO_BEARER_TOKEN="${BOSHIO_BEARER_TOKEN}"
 
 cd light-stemcell-final
 export STEMCELL=`ls light*.tgz`
