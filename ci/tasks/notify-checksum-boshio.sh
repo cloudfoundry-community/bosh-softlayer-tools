@@ -8,7 +8,7 @@ export STEMCELL=`echo light-stemcell-final/light*.tgz`
 sha1=`sha1sum ${STEMCELL}`
 sha1s=$(echo $sha1 | tr " " "\n")
 for eachline in $sha1s; do
-    if [ -n "${eachline}"]; then
+    if [ -n "${eachline}" ]; then
     	echo "The checksum (sha1) for $BAT_STEMCELL is ${eachline}, uploading to bosh.io..."
         for((i=1;i<=3;i++));do
         	# curl -X POST 'https://bosh.io/checksums/$BAT_STEMCELL' -d 'sha1=${eachline}' -H 'Authorization: bearer $BOSHIO_BEARER_TOKEN' && exit 0
