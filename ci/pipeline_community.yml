@@ -125,8 +125,6 @@ jobs:
     trigger: true
   - task: notify-checksum-boshio
     file: bosh-softlayer-tools/ci/tasks/notify-checksum-boshio.yml
-    params:
-      BOSHIO_BEARER_TOKEN: {{boshio_bearer_token}}
 
 - name: stemcells-unit
   public: true

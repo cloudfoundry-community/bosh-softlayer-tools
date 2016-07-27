@@ -4,8 +4,7 @@ image: docker:///posijon/slci
 
 inputs:
   - name: bosh-softlayer-tools
-  - name: stemcell-version
-  - name: candidate-stemcell-ubuntu-trusty
+  - name: light-stemcell-final
 
 run:
-  path: bosh-softlayer-tools/ci/tasks/convert-stemcell
+  path: bosh-softlayer-tools/ci/tasks/notify-checksum-boshio.sh
