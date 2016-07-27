@@ -28,7 +28,7 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: trusty
   - put: stemcell-ubuntu-trusty-raw
-    params: {from: build/bosh-stemcell-.*-softlayer-.*-raw.tgz}
+    params: {file: build/*.tgz}
 
 - name: build-ubuntu-trusty-fake
   plan:
@@ -43,7 +43,7 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: trusty
   - put: stemcell-ubuntu-trusty-raw
-    params: {from: build/bosh-stemcell-.*-softlayer-.*-raw.tgz}
+    params: {file: build/*.tgz}
 
 - name: generate-bm-stemcell-fsa
   plan:
@@ -60,7 +60,7 @@ jobs:
       bm_root_password: {{bm_root_password}}
       bm_sjc01: {{bm_sjc01}}
   - put: stemcell-ubuntu-trusty-bm-fsa
-    params: {from: build/bosh-stemcell-.*-softlayer-baremetal.fsa}
+    params: {file: build/*.fsa}
 
 
 resources:
@@ -88,7 +88,7 @@ resources:
 - name: stemcell-ubuntu-trusty-raw
   type: s3
   source:
-    regexp: bosh-stemcell-([0-9]+)-softlayer-esxi-ubuntu-trusty-raw.tgz
+    regexp: bosh-stemcell-(.*)-softlayer-esxi-ubuntu-trusty-raw.tgz
     bucket: {{s3_candidate_stemcell_bucket}}
     access_key_id: {{aws_builder_access_key}}
     secret_access_key: {{aws_builder_secret_access_key}}
@@ -96,7 +96,7 @@ resources:
 - name: stemcell-ubuntu-trusty-bm-fsa
   type: s3
   source:
-    regexp: bosh-stemcell-([0-9]+)-softlayer-baremetal.fsa
+    regexp: bosh-stemcell-(.*)-softlayer-baremetal.fsa
     bucket: {{s3_candidate_stemcell_bucket}}
     access_key_id: {{aws_builder_access_key}}
     secret_access_key: {{aws_builder_secret_access_key}}
