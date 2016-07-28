@@ -23,7 +23,7 @@ for eachline in $sha1s; do
         echo "Failed to notify bosh.io with checksum ${eachline} for the stemcell ${STEMCELL} after retrying 3 times"
         exit 1
     else
-        echo "Fail to generate checksum for the stemcell ${STEMCELL}"
+        echo "Failed to generate checksum for the stemcell ${STEMCELL}"
         exit 1
     fi
     exit 1
