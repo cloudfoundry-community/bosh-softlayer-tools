@@ -3,7 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"os/user"
+	"path/filepath"
 
 	flags "github.com/jessevdk/go-flags"
 
@@ -11,6 +14,7 @@ import (
 	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
+	config "github.com/cloudfoundry-community/bosh-softlayer-tools/config"
 )
 
 var bmpOptions cmds.Options
@@ -52,6 +56,24 @@ func main() {
 func createCommand(args []string, options cmds.Options) (cmds.Command, error) {
 	if len(args) < 2 {
 		return nil, errors.New("No bmp command specified")
+	}
+
+	currentUser, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+
+	configPath := filepath.Join(currentUser.HomeDir, config.CONFIG_FILE_NAME)
+	_, err = os.Stat(configPath)
+	if os.IsNotExist(err) {
+		if args[1] != "target" {
+			return nil, errors.New("Please set bmp target firstly.")
+		} else {
+			err = ioutil.WriteFile(configPath, []byte("{}"), 0666)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	bmpClient, err := common.CreateBmpClient()
