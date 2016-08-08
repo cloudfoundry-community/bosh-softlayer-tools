@@ -114,7 +114,7 @@ jobs:
   - task: teardown-director
     file: bosh-softlayer-tools/ci/tasks/teardown-director.yml
 
-  - put: light-stemcell-final
+  - put: light-stemcell-final-bluemix
     params: {file: final-stemcell/*.tgz}
 
 - name: stemcells-unit
@@ -129,8 +129,8 @@ resources:
 - name: bosh-src
   type: git
   source:
-    uri: https://github.com/jianqiu/bosh.git
-    branch: 256.x-softlayer
+    uri: https://github.com/zhanggbj/bosh.git
+    branch: stemcell_v2
     private_key: {{github_promote_private_key}}
 
 - name: published-stemcell
@@ -179,6 +179,14 @@ resources:
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
+- name: light-stemcell-final-bluemix
+  type: s3
+  source:
+    regexp: light-bosh-stemcell-(.*)-softlayer-(.*).tgz
+    bucket: {{s3_stemcell_bluemix_bucket}}
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
 - name: bosh-softlayer-tools
   type: git
   source:
@@ -214,7 +222,7 @@ resources:
   type: git
   source:
     uri: git@github.com:jianqiu/bosh-acceptance-tests.git
-    branch: bosh_v2
+    branch: master
     private_key: {{github_promote_private_key}}
 
 - name: bosh-init
