@@ -6,7 +6,10 @@
       "hostname": "hostname0",
       "private_ip_address": "private_ip_address0",
       "public_ip_address": "public_ip_address0",
-      "hardware_status": "hardware_status0",
+      "tags": [
+        "bm.state.new",
+        "bm.bps"
+      ],
       "memory": 0,
       "cpu": 0,
       "provision_date": "2016-01-01T00:00:00-00:00"
@@ -16,7 +19,10 @@
       "hostname": "hostname1",
       "private_ip_address": "private_ip_address1",
       "public_ip_address": "public_ip_address1",
-      "hardware_status": "hardware_status1",
+      "tags": [
+        "bm.state.new",
+        "bm.bps"
+      ],
       "memory": 1,
       "cpu": 1,
       "provision_date": "2016-01-01T00:00:00-00:00"

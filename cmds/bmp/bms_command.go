@@ -95,17 +95,24 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 	}
 
 	table := cmd.ui.NewTableWriter()
-	table.SetHeader([]string{"Id", "Hostname", "IPs", "Hardware_status", "Memory", "Cpu", "Provision_date"})
+	table.SetHeader([]string{"Id", "Hostname", "IPs", "state", "Memory", "Cpu", "Provision_date"})
 
 	length := len(bmsResponse.Data)
 	content := make([][]string, length)
 	for i, serverInfo := range bmsResponse.Data {
+		state := ""
+		for _, tag := range serverInfo.Tags {
+			if strings.Contains(tag, "bm.state") {
+				subString := strings.Split(tag, ".")
+				state = subString[2]
+			}
+		}
 		IPs := strings.Join([]string{serverInfo.Private_ip_address, serverInfo.Public_ip_address}, "/")
 		content[i] = []string{
 			strconv.Itoa(serverInfo.Id),
 			serverInfo.Hostname,
 			IPs,
-			serverInfo.Hardware_status,
+			state,
 			strconv.Itoa(serverInfo.Memory),
 			strconv.Itoa(serverInfo.Cpu),
 			serverInfo.Provision_date}
