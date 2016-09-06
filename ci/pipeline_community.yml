@@ -24,7 +24,7 @@ jobs:
       BOSH_KEYPAIR_NAME:          {{aws_builder_keypair_name}}
       BOSH_PRIVATE_KEY:           {{aws_builder_private_key}}
       IAAS: softlayer
-      HYPERVISOR: esxi
+      HYPERVISOR: xen
       OS_NAME: ubuntu
       OS_VERSION: trusty
   - put: candidate-stemcell-ubuntu-trusty

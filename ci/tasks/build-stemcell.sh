@@ -39,7 +39,7 @@ vagrant ssh -c "
   bundle
   export CANDIDATE_BUILD_NUMBER=$build_num
   export BOSH_MICRO_ENABLED=no
-  bundle exec rake stemcell:build[$IAAS,$HYPERVISOR,$OS_NAME,$OS_VERSION,go,bosh-os-images,bosh-$OS_NAME-$OS_VERSION-os-image.tgz]
+  bundle exec rake stemcell:build[$IAAS,esxi,$OS_NAME,$OS_VERSION,go,bosh-os-images,bosh-$OS_NAME-$OS_VERSION-os-image.tgz]
 " remote
 
 builder_ip=$(get_ip_from_vagrant_ssh_config)

@@ -24,7 +24,7 @@ jobs:
       BOSH_KEYPAIR_NAME:          {{aws_builder_keypair_name}}
       BOSH_PRIVATE_KEY:           {{aws_builder_private_key}}
       IAAS: softlayer
-      HYPERVISOR: esxi
+      HYPERVISOR: xen
       OS_NAME: ubuntu
       OS_VERSION: trusty
   - put: candidate-stemcell-ubuntu-trusty
@@ -104,6 +104,7 @@ jobs:
     file: bosh-softlayer-tools/ci/tasks/run-bats.yml
     params:
       BASE_OS:                    ubuntu
+      HYPERVISOR:                 xen
       BAT_VCAP_PASSWORD:          {{bat_vcap_password}}
       BAT_SECOND_STATIC_IP:       {{bat_second_static_ip}}
       SL_DATACENTER:              {{softlayer_datacenter}}
@@ -114,7 +115,7 @@ jobs:
   - task: teardown-director
     file: bosh-softlayer-tools/ci/tasks/teardown-director.yml
 
-  - put: light-stemcell-final-bluemix
+  - put: light-stemcell-final
     params: {file: final-stemcell/*.tgz}
 
 - name: stemcells-unit
@@ -172,14 +173,6 @@ resources:
     secret_access_key: {{s3-secret-access-key}}
 
 - name: light-stemcell-final
-  type: s3
-  source:
-    regexp: light-bosh-stemcell-(.*)-softlayer-(.*).tgz
-    bucket: {{s3_stemcell_bucket}}
-    access_key_id: {{s3-access-key-id}}
-    secret_access_key: {{s3-secret-access-key}}
-
-- name: light-stemcell-final-bluemix
   type: s3
   source:
     regexp: light-bosh-stemcell-(.*)-softlayer-(.*).tgz
