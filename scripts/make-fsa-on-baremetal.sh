@@ -15,7 +15,7 @@ rm -fr /boot/*-generic
 #wget -P /tmp http://10.113.109.244/mattcui/bosh-stemcell-${build_num}-softlayer-esxi-ubuntu-trusty-go_agent-raw.tgz
 
 ## extract the stemcell image file in /, to overwrite current OS files;
-tar -zxvf /tmp/bosh-stemcell-${build_num}-softlayer-esxi-ubuntu-trusty-raw.tgz -C /
+tar -zxvf /tmp/bosh-stemcell-${build_num}-softlayer-xen-ubuntu-trusty-raw.tgz -C /
 
 ## restore the system settings, otherwise this vm couldn't start up on reboot;
 cp /boot/grub/menu.lst.bak /boot/grub/menu.lst

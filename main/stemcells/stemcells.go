@@ -154,7 +154,7 @@ func init() {
 	flag.StringVar(&stemcellsOptions.VersionFlag, "version", "", "the light stemcell version")
 	flag.StringVar(&stemcellsOptions.StemcellInfoFilenameFlag, "stemcell-info-filename", "", "the path and filename to a JSON file containing the ID & UUID for a SoftLayer stemcell ")
 	flag.StringVar(&stemcellsOptions.InfrastructureFlag, "infrastructure", "softlayer", "the light stemcell infrastructure, defaults to softlayer")
-	flag.StringVar(&stemcellsOptions.HypervisorFlag, "hypervisor", "esxi", "the light stemcell version")
+	flag.StringVar(&stemcellsOptions.HypervisorFlag, "hypervisor", "xen", "the light stemcell version")
 	flag.StringVar(&stemcellsOptions.OsNameFlag, "os-name", "ubuntu-trusty", "the name of the operating system")
 }
 
