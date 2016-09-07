@@ -1,0 +1,79 @@
+resources:
+- name: bosh-softlayer-tools
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-community/bosh-softlayer-tools.git
+    branch: master
+
+- name: version-semver
+  type: semver
+  source:
+    key:               current-version
+    bucket:            {{s3_bosh_softlayer_tools_bucket}}
+    access_key_id:     {{s3_access_key_id}}
+    secret_access_key: {{s3_secret_access_key}}
+
+- name: bosh-softlayer-tools-artifacts
+  type: s3
+  source:
+    regexp: bosh-softlayer-tools-([0-9.]+)\.tgz
+    bucket: {{s3_bosh_softlayer_tools_bucket}}
+    access_key_id: {{s3_access_key_id}}
+    secret_access_key: {{s3_secret_access_key}}
+
+jobs:
+- name: bst-unit
+  public: true
+  plan:
+  - get: bosh-softlayer-tools
+    trigger: true
+
+  - task: bst-unit
+    file: bosh-softlayer-tools/ci/tasks/bst-unit.yml
+    config:
+      params:
+        SL_USERNAME: fake-username
+        SL_API_KEY: fake-api-key
+
+- name: bst-integration
+  plan:
+  - get: bosh-softlayer-tools
+    trigger: true
+    passed: [bst-unit]
+
+  - task: bst-integration
+    file: bosh-softlayer-tools/ci/tasks/bst-integration.yml
+    config:
+      params:
+        TARGET_URL: {{TARGET_URL}}
+        BMP_USERNAME: {{BMP_USERNAME}}
+        BMP_PASSWORD: {{BMP_PASSWORD}}
+
+- name: bst-promote-build
+  plan:
+  - aggregate:
+      - {trigger: false, get: version-semver, params: {bump: patch}, resource: version-semver}
+
+  - get: bosh-softlayer-tools
+    trigger: true
+    passed: [bst-integration]
+
+  - task: bst-promote-build
+    file: bosh-softlayer-tools/ci/tasks/bst-promote.yml
+    config:
+      params:
+        S3_ACCESS_KEY_ID: {{s3_access_key__primary}}
+        S3_SECRET_ACCESS_KEY: {{s3_secret_key__primary}}
+
+  - put: version-semver
+    params: {file: version-semver/number}
+
+  - put: bosh-softlayer-tools-artifacts
+    params: {from: promoted/.*\.tgz}
+
+groups:
+- name: bosh-softlayer-tools
+  jobs:
+  - bst-unit
+  - bst-integration
+  - bst-promote-build
