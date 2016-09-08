@@ -1,6 +1,9 @@
 ---
 platform: linux
-image: docker:///posijon/slci
+image_resource:
+  type: docker-image
+  source:
+    repository: posijon/slci
 
 inputs:
   - name: bosh-softlayer-tools
