@@ -208,6 +208,8 @@ pushd ${deployment_dir}
   ../bosh-init/bosh-init* version
 
   echo "deploying BOSH..."
+  export BOSH_INIT_LOG_LEVEL=DEBUG
+  export BOSH_INIT_LOG_PATH=bosh-init-debug.log
   ../bosh-init/bosh-init* deploy ${manifest_filename}
 
   trap - ERR

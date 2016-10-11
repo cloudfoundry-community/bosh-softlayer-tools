@@ -214,7 +214,7 @@ resources:
 - name: bats
   type: git
   source:
-    uri: git@github.com:jianqiu/bosh-acceptance-tests.git
+    uri: git@github.com:mattcui/bosh-acceptance-tests.git
     branch: master
     private_key: {{github_promote_private_key}}
 
