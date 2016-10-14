@@ -17,7 +17,7 @@ check_param SL_VM_DOMAIN
 DIRECTOR=`cat ${PWD}/deployment/director-info`
 
 source /etc/profile.d/chruby.sh
-chruby 2.1.2
+chruby 2.2.4
 
 echo "DirectorIP =" $DIRECTOR
 
@@ -29,6 +29,7 @@ export BAT_VCAP_PASSWORD=$BAT_VCAP_PASSWORD
 export BAT_INFRASTRUCTURE=softlayer
 export BAT_NETWORKING=dynamic
 export BAT_DEBUG_MODE=true
+export HYPERVISOR=${HYPERVISOR}
 
 STEMCELL_VERSION=$(cat stemcell-version/number | sed 's/\.0$//;s/\.0$//')
 
@@ -42,7 +43,7 @@ manifest_template_path: $(echo `pwd`/softlayer.yml.erb)
 properties:
   uuid: $(bosh status --uuid)
   stemcell:
-    name: bosh-softlayer-esxi-ubuntu-trusty-go_agent
+    name: bosh-softlayer-xen-ubuntu-trusty-go_agent
     version: latest
   cloud_properties:
     bosh_ip: $BAT_DIRECTOR

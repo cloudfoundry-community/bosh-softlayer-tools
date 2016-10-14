@@ -104,7 +104,6 @@ jobs:
     file: bosh-softlayer-tools/ci/tasks/run-bats.yml
     params:
       BASE_OS:                    ubuntu
-      HYPERVISOR:                 xen
       BAT_VCAP_PASSWORD:          {{bat_vcap_password}}
       BAT_SECOND_STATIC_IP:       {{bat_second_static_ip}}
       SL_DATACENTER:              {{softlayer_datacenter}}
@@ -117,6 +116,17 @@ jobs:
 
   - put: light-stemcell-final
     params: {file: final-stemcell/*.tgz}
+
+- name: notify-checksum-boshio
+  plan:
+  - get: bosh-softlayer-tools
+  - get: light-stemcell-final
+    passed: [validate-stemcell-ubuntu]
+    trigger: true
+  - task: notify-checksum-boshio
+    file: bosh-softlayer-tools/ci/tasks/notify-checksum-boshio.yml
+    params:
+      BOSHIO_BEARER_TOKEN: {{boshio_bearer_token}}
 
 - name: stemcells-unit
   public: true
@@ -131,7 +141,7 @@ resources:
   type: git
   source:
     uri: https://github.com/zhanggbj/bosh.git
-    branch: stemcell_v2
+    branch: stemcell_softlayer_community
     private_key: {{github_promote_private_key}}
 
 - name: published-stemcell
@@ -176,7 +186,7 @@ resources:
   type: s3
   source:
     regexp: light-bosh-stemcell-(.*)-softlayer-(.*).tgz
-    bucket: {{s3_stemcell_bluemix_bucket}}
+    bucket: {{s3_stemcell_bucket}}
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
@@ -214,7 +224,7 @@ resources:
 - name: bats
   type: git
   source:
-    uri: git@github.com:mattcui/bosh-acceptance-tests.git
+    uri: git@github.com:jianqiu/bosh-acceptance-tests.git
     branch: master
     private_key: {{github_promote_private_key}}
 
@@ -235,7 +245,7 @@ resources:
       secret_access_key: {{s3-secret-access-key}}
 
 groups:
-  - name: bosh-softlayer-stemcell-bluemix
+  - name: bosh-softlayer-stemcell-community
     jobs:
     - new-version
     - build-ubuntu-trusty
@@ -243,3 +253,4 @@ groups:
     - import-stemcell
     - create-light-stemcell
     - validate-stemcell-ubuntu
+    - notify-checksum-boshio

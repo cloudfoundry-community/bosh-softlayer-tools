@@ -15,7 +15,7 @@ check_param SL_VLAN_PRIVATE
 check_param BOSH_INIT_LOG_LEVEL
 
 source /etc/profile.d/chruby.sh
-chruby 2.1.2
+chruby 2.2.4
 
 cpi_release_name=bosh-softlayer-cpi
 deployment_dir="${PWD}/deployment"
@@ -208,6 +208,8 @@ pushd ${deployment_dir}
   ../bosh-init/bosh-init* version
 
   echo "deploying BOSH..."
+  export BOSH_INIT_LOG_LEVEL=DEBUG
+  export BOSH_INIT_LOG_PATH=bosh-init-debug.log
   ../bosh-init/bosh-init* deploy ${manifest_filename}
 
   trap - ERR
