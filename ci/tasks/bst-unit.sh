@@ -4,7 +4,9 @@ set -e
 
 base=$( cd "$( dirname "$( dirname "$0" )")"/.. && pwd )
 base_gopath=$( cd $base/../../../.. && pwd )
-export GOPATH=$base/Godeps/_workspace:$base_gopath:$GOPATH
+go version
+go get -t -v  github.com/onsi/ginkgo/ginkgo
+export GOPATH=$base_gopath:$GOPATH
 echo "GOPATH=" $GOPATH
 
 function printStatus {
