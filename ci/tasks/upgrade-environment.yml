@@ -8,8 +8,9 @@ inputs:
     path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
 
 run:
-  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/tasks/upgrade-stemcell.sh
+  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/tasks/upgrade-environment.sh
 params:
+  DEPLOYMENT_YML: replace-me
   BLUEMIX_DIRECTOR_IP: replace-me
   BOSH_CLI: replace-me
   BOSH_CLI_PASSWORD: replace-me

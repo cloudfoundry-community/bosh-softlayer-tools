@@ -7,11 +7,11 @@ inputs:
     path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
 
 run:
-  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/tasks/cf-push-app.sh
+  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/tasks/verify-environment.sh
 
 params:
   CF-API: replace-me
   CF-USERNAME: replace-me
   CF-PASSWORD: replace-me
   APP-API: replace-me
-  CF-NAMESERVER: replace-me
+  NAME_SERVER: replace-me

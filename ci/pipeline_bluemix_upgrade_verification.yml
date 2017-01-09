@@ -3,23 +3,7 @@ resources:
   type: git
   source:
     uri: https://github.com/zhanggbj/bosh-softlayer-tools.git
-    branch: security-ppl
-
-- name: version-semver
-  type: semver
-  source:
-    key:               current-version
-    bucket:            {{s3_bosh_softlayer_tools_bucket}}
-    access_key_id:     {{s3-access-key-id}}
-    secret_access_key: {{s3-secret-access-key}}
-
-- name: bosh-softlayer-tools-artifacts
-  type: s3
-  source:
-    regexp: bosh-softlayer-tools-([0-9.]+)\.tgz
-    bucket: {{s3_bosh_softlayer_tools_bucket}}
-    access_key_id: {{s3-access-key-id}}
-    secret_access_key: {{s3-secret-access-key}}
+    branch: WIP-security
 
 - name: light-stemcell
   type: s3
@@ -29,32 +13,46 @@ resources:
     access_key_id: {{s3-access-key-id}}
     secret_access_key: {{s3-secret-access-key}}
 
-- name: resource-web-app
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry-community/simple-go-web-app.git
-
 jobs:
-- name: upgrade-stemcell
+- name: upgrade-environment
   public: true
   plan:
   - aggregate:
-      - {trigger: true, get: stemcell, resource: light-stemcell}
+      - {trigger: false, get: stemcell, resource: light-stemcell}
       - {trigger: false, get: bosh-softlayer-tools, resource: bosh-softlayer-tools}
 
-  - task: upgrade-stemcell
-    file: bosh-softlayer-tools/ci/tasks/upgrade-stemcell.yml
+  - task: upgrade-environment
+    file: bosh-softlayer-tools/ci/tasks/upgrade-environment.yml
     config:
       params:
+        DEPLOYMENT_YML: {{deployment_yml}}
         BLUEMIX_DIRECTOR_IP: {{bluemix_director_ip}}
         BOSH_CLI: {{bosh_cli}}
         BOSH_CLI_PASSWORD: {{bosh_cli_password}}
+    on_success:
+        task: post-upgrade
+        file: bosh-softlayer-tools/ci/tasks/post-upgrade.yml
+        config:
+          params:
+            DEPLOYMENT_YML: {{deployment_yml}}
+            BLUEMIX_DIRECTOR_IP: {{bluemix_director_ip}}
+            BOSH_CLI: {{bosh_cli}}
+            BOSH_CLI_PASSWORD: {{bosh_cli_password}}
+    on_failure:
+        task: restore-environment
+        file: bosh-softlayer-tools/ci/tasks/restore-environment.yml
+        config:
+          params:
+            DEPLOYMENT_YML: {{deployment_yml}}
+            BLUEMIX_DIRECTOR_IP: {{bluemix_director_ip}}
+            BOSH_CLI: {{bosh_cli}}
+            BOSH_CLI_PASSWORD: {{bosh_cli_password}}
 
 - name: verify-security-release
   public: true
   plan:
   - aggregate:
-      - {trigger: false, passed: [upgrade-stemcell], get: bosh-softlayer-tools, resource: bosh-softlayer-tools}
+      - {trigger: false, passed: [upgrade-environment], get: bosh-softlayer-tools, resource: bosh-softlayer-tools}
 
   - task: verify-security-release
     file: bosh-softlayer-tools/ci/tasks/verify-security-release.yml
@@ -64,19 +62,18 @@ jobs:
         BOSH_CLI: {{bosh_cli}}
         BOSH_CLI_PASSWORD: {{bosh_cli_password}}
 
-- name: cf-push-app
+- name: verify-environment
   public: true
   plan:
   - aggregate:
-      - {get: resource-web-app, trigger: false}
       - {trigger: false, passed: [verify-security-release], get: bosh-softlayer-tools, resource: bosh-softlayer-tools}
 
   - task: cf-push-app
-    file: bosh-softlayer-tools/ci/tasks/cf-push-app.yml
+    file: bosh-softlayer-tools/ci/tasks/verify-environment.yml
     config:
       params:
           CF-API:                 {{cf-api}}
           CF-USERNAME:            {{cf-username}}
           CF-PASSWORD:            {{cf-password}}
           APP-API:                {{app-api}}
-          CF-NAMESERVER:             {{cf-nameserver}}
+          NAME_SERVER:            {{name-server}}
