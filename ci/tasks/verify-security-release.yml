@@ -1,0 +1,14 @@
+---
+platform: linux
+image: docker:///cloudfoundry/bosh-lite-ci
+
+inputs:
+  - name: bosh-softlayer-tools
+    path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
+
+run:
+  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/tasks/verify-security-release.sh
+params:
+  BLUEMIX_DIRECTOR_IP: replace-me
+  BOSH_CLI: replace-me
+  BOSH_CLI_PASSWORD: replace-me
