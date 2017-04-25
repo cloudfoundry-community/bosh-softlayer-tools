@@ -1,0 +1,259 @@
+resources:
+- name: director-artifacts
+  type: s3
+  source:
+    bucket: bosh-softlayer-create-cf-env
+    versioned_file: director_artifacts.tgz
+    access_key_id: {{s3-key-id}}
+    secret_access_key: {{s3-access-key}}
+- name: director-artifacts-updated
+  type: s3
+  source:
+    bucket: bosh-softlayer-create-cf-env
+    versioned_file: director_artifacts_updated.tgz
+    access_key_id: {{s3-key-id}}
+    secret_access_key: {{s3-access-key}}
+- name: cli-vm-info
+  type: s3
+  source:
+    access_key_id: {{s3-key-id}}
+    versioned_file: cli-vm-info
+    bucket: bosh-softlayer-create-cf-env
+    secret_access_key: {{s3-access-key}}
+- name: cf-template
+  type: s3
+  source:
+    access_key_id: {{s3-key-id}}
+    versioned_file: cf-template.yml
+    bucket: bosh-softlayer-create-cf-env
+    secret_access_key: {{s3-access-key}}
+- name: cf-artifacts
+  type: s3
+  source:
+    access_key_id: {{s3-key-id}}
+    versioned_file: cf_artifacts.tgz
+    bucket: bosh-softlayer-create-cf-env
+    secret_access_key: {{s3-access-key}}
+- name: cf-artifacts-updated
+  type: s3
+  source:
+    access_key_id: {{s3-key-id}}
+    versioned_file: cf_artifacts_updated.tgz
+    bucket: bosh-softlayer-create-cf-env
+    secret_access_key: {{s3-access-key}}
+- name: cf-app
+  type: s3
+  source:
+    versioned_file: IICVisit.war
+    access_key_id: {{s3-key-id}}
+    bucket: bosh-softlayer-create-cf-env
+    secret_access_key: {{s3-access-key}}
+- name: run-utils
+  type: s3
+  source:
+    versioned_file: run-utils.tgz
+    access_key_id: {{s3-key-id}}
+    bucket: bosh-softlayer-create-cf-env
+    secret_access_key: {{s3-access-key}}
+- name: bosh-cli-v2
+  type: s3
+  source:
+    bucket: bosh-cli-artifacts
+    regexp: bosh-cli-(.*)-linux-amd64
+- name: bosh-create-env-ci
+  type: git
+  source:
+    branch: {{git-bosh-softlayer-tools-branch}}
+    uri: {{git-bosh-softlayer-tools-uri}}
+    private_key: {{git-private-key}}
+
+
+jobs:
+- name: deploy-director-base
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-cli-v2
+      resource: bosh-cli-v2
+    - get: bosh-softlayer-tools
+      resource: bosh-create-env-ci
+  - task: deploy
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/deploy-director-v2.yml
+    params:
+      SL_VM_PREFIX:                        {{deployment-name}}
+      SL_USERNAME:                         {{softlayer-username}}
+      SL_API_KEY:                          {{softlayer-api-key}}
+      SL_DATACENTER:                       {{softlayer-datacenter}}
+      SL_VLAN_PUBLIC:                      {{softlayer-vlan-public}}
+      SL_VLAN_PRIVATE:                     {{softlayer-vlan-private}}
+      BOSH_RELEASE:                        {{bosh-release-base}}
+      BOSH_RELEASE_SHA1:                   {{bosh-release-base-sha1}}
+      BOSH_SOFTLAYER_CPI_RELEASE:          {{bosh-softlayer-cpi-release-base}}
+      BOSH_SOFTLAYER_CPI_RELEASE_SHA1:     {{bosh-softlayer-cpi-release-base-sha1}}
+      DIRECTOR_STEMCELL:                   {{stemcell-base-location}}
+      STEMCELL_SHA1:                       {{stemcell-base-sha1}}
+      VCAP_PASSWORD:                       {{vcap-password}}
+  - put: director-artifacts
+    params:
+      file: deploy-artifacts/director_artifacts.tgz
+
+- name: setup-cli-env
+  plan:
+  - aggregate:
+    - get: director-artifacts
+      passed:
+      - deploy-director-base
+    - get: bosh-softlayer-tools
+      resource: bosh-create-env-ci
+  - task: create-cli-env
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/setup-cli-env.yml
+    params:
+      SL_USERNAME:      {{softlayer-username}}
+      SL_API_KEY:       {{softlayer-api-key}}
+      SL_DATACENTER:    {{softlayer-datacenter}}
+  - put: cli-vm-info
+    params:
+      file: cli-vm-info/CLI_VM_INFO.tgz
+
+- name: deploy-cf-base
+  plan:
+  - aggregate:
+    - get: director-artifacts
+      resource: director-artifacts
+      passed:
+      - deploy-director-base
+    - get: bosh-softlayer-tools
+      resource: bosh-create-env-ci
+    - get: cf-template
+      resource: cf-template
+  - task: deploy-cf
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/deploy-cf.yml
+    params: 
+      deploy_name:                            {{deployment-name}}
+      data_center_name:                       {{softlayer-datacenter}}
+      public_vlan_id:                         {{softlayer-vlan-public}}
+      private_vlan_id:                        {{softlayer-vlan-private}}
+      cf_release:                             {{cf-release-name}}
+      cf_release_version:                     {{cf-release-version}}
+      stemcell_name:                          {{stemcell-base-name}}
+      stemcell_version:                       {{stemcell-base-version}}
+      stemcell_location:                      {{stemcell-base-location}}
+  - put: cf-artifacts
+    params:
+      file: cf-artifacts/cf_artifacts.tgz
+
+- name: update-dns
+  plan:
+  - aggregate:
+    - get: director-artifacts
+      resource: director-artifacts
+    - get: bosh-softlayer-tools
+      resource: bosh-create-env-ci
+    - get: run-utils
+      resource: run-utils
+    - get: cf-artifacts
+      resource: cf-artifacts
+      passed:
+      - deploy-cf-base
+  - task: update-dns
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-dns.yml
+    params:
+      VCAP_PASSWORD:                       {{vcap-password}}
+
+
+- name: verify-cf-push
+  plan:
+  - aggregate:
+    - get: cf-app
+      resource: cf-app
+    - get: bosh-softlayer-tools
+      resource: bosh-create-env-ci
+    - get: director-artifacts
+      resource: director-artifacts
+      passed:
+      - update-dns
+  - task: cf-push-app
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/verify-cf.yml
+    params: &cf-params
+      APP_API:      {{cf-app-api}}
+      CF_API:       {{cf-api}}
+      CF_PASSWORD:  {{cf-password}}
+      CF_USERNAME:  {{cf-username}}
+
+- name: update-director
+  serial: true
+  plan:
+  - get: director-artifacts
+    resource: director-artifacts
+    passed:
+    - verify-cf-push
+  - get: bosh-softlayer-tools
+    resource: bosh-create-env-ci
+  - task: deploy
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-director.yml
+    params:
+      SL_VM_PREFIX:                      {{deployment-name}}
+      SL_USERNAME:                       {{softlayer-username}}
+      SL_API_KEY:                        {{softlayer-api-key}}
+      SL_DATACENTER:                     {{softlayer-datacenter}}
+      SL_VLAN_PUBLIC:                    {{softlayer-vlan-public}}
+      SL_VLAN_PRIVATE:                   {{softlayer-vlan-private}}
+      BOSH_RELEASE:                      {{bosh-release-update}}
+      BOSH_RELEASE_SHA1:                 {{bosh-release-update-sha1}}
+      BOSH_SOFTLAYER_CPI_RELEASE:        {{bosh-softlayer-cpi-release-update}}
+      BOSH_SOFTLAYER_CPI_RELEASE_SHA1:   {{bosh-softlayer-cpi-release-update-sha1}}
+      DIRECTOR_STEMCELL:                 {{stemcell-update-location}}
+      STEMCELL_SHA1:                     {{stemcell-update-sha1}}
+
+  - put: director-artifacts-updated
+    params:
+      file: deploy-artifacts-updated/director_artifacts_updated.tgz
+
+- name: update-cf
+  plan:
+  - aggregate:
+    - get: director-artifacts-updated
+      resource: director-artifacts-updated
+      passed:
+      - update-director
+    - get: bosh-softlayer-tools
+      resource: bosh-create-env-ci
+    - get: cf-template
+      resource: cf-template
+    - get: cf-artifacts
+      resource: cf-artifacts
+  - task: deploy-cf
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-cf.yml
+    params: 
+      deploy_name:                            {{deployment-name}}
+      data_center_name:                       {{softlayer-datacenter}}
+      public_vlan_id:                         {{softlayer-vlan-public}}
+      private_vlan_id:                        {{softlayer-vlan-private}}
+      cf_release:                             {{cf-release-update-name}}
+      cf_release_version:                     {{cf-release-update-version}}
+      stemcell_name:                          {{stemcell-update-name}}
+      stemcell_version:                       {{stemcell-update-version}}
+      stemcell_location:                      {{stemcell-update-location}}
+  - put: cf-artifacts-updated
+    params:
+      file: cf-artifacts-updated/cf_artifacts_updated.tgz
+
+- name: verify-cf-push-updated
+  plan:
+  - aggregate:
+    - get: cf-app
+      resource: cf-app
+    - get: bosh-softlayer-tools
+      resource: bosh-create-env-ci
+    - get: director-artifacts-updated
+      resource: director-artifacts-updated
+      passed:
+      - update-cf
+  - task: cf-push-app
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/verify-cf-updated.yml
+    params: *cf-params
+
+
+
+
+
