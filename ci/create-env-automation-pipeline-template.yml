@@ -227,8 +227,8 @@ jobs:
     params: 
       deploy_name:                            {{deployment-name}}
       data_center_name:                       {{softlayer-datacenter}}
-      private_vlan_id:                        {{softlayer-vlan-public}}
-      public_vlan_id:                         {{softlayer-vlan-private}}
+      public_vlan_id:                         {{softlayer-vlan-public}}
+      private_vlan_id:                        {{softlayer-vlan-private}}
       cf_release:                             {{cf-release-update-name}}
       cf_release_version:                     {{cf-release-update-version}}
       stemcell_name:                          {{stemcell-update-name}}
