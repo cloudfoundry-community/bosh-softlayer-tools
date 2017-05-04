@@ -40,7 +40,7 @@ ${deployment_dir}/bosh-cli* interpolate cf-template/cf-template.yml \
 							-v data_center_name=${data_center_name}\
 							-v private_vlan_id=${private_vlan_id}\
 							-v public_vlan_id=${public_vlan_id}\
-							-v stemcell_version=${stemcell_version}\
+							-v stemcell_version=\"${stemcell_version}\"\
 						    -v stemcell_location=${stemcell_location}\
 							-v stemcell_name=${stemcell_name}\
 							-v cf-release=${cf_release}\
