@@ -31,7 +31,7 @@ ${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name} deploy ${deploymen
 
 
 # generate new cf deployment yml file for update
-${deployment_dir}/bosh-cli* interpolate cf-template/cf-template.yml \
+${deployment_dir}/bosh-cli* interpolate cf-template/${cf_template} \
 							-v director_password=${director_password} \
 							-v director_ip=${director_ip}\
 							-v director_pub_ip=${director_ip}\

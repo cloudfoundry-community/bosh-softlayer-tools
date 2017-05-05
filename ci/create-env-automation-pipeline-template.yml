@@ -24,7 +24,7 @@ resources:
   type: s3
   source:
     access_key_id: {{s3-key-id}}
-    versioned_file: cf-template.yml
+    versioned_file: {{cf-template}}
     bucket: bosh-softlayer-create-cf-env
     secret_access_key: {{s3-access-key}}
 - name: cf-artifacts
@@ -128,7 +128,8 @@ jobs:
       resource: cf-template
   - task: deploy-cf
     file: bosh-softlayer-tools/ci/tasks/create-env-automation/deploy-cf.yml
-    params: 
+    params:
+      cf_template:                            {{cf-template}}
       deploy_name:                            {{deployment-name}}
       data_center_name:                       {{softlayer-datacenter}}
       public_vlan_id:                         {{softlayer-vlan-public}}
@@ -224,7 +225,8 @@ jobs:
       resource: cf-artifacts
   - task: deploy-cf
     file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-cf.yml
-    params: 
+    params:
+      cf_template:                            {{cf-template}}
       deploy_name:                            {{deployment-name}}
       data_center_name:                       {{softlayer-datacenter}}
       public_vlan_id:                         {{softlayer-vlan-public}}

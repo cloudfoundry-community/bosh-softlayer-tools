@@ -24,7 +24,7 @@ director_ip=$(awk '{print $1}' ${deployment_dir}/director-hosts)
 director_uuid=$(grep -Po '(?<=director_id": ")[^"]*' ${deployment_dir}/director-deploy-state.json)
 
 # generate cf deployment yml file
-${deployment_dir}/bosh-cli* interpolate cf-template/cf-template.yml \
+${deployment_dir}/bosh-cli* interpolate cf-template/${cf_template} \
 							-v director_password=${director_password} \
 							-v director_ip=${director_ip}\
 							-v director_pub_ip=${director_ip}\
