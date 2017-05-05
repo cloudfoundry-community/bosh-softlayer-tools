@@ -42,10 +42,10 @@ ${deployment_dir}/bosh-cli* interpolate cf-template/${cf_template} \
 
 releases=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/cf-deploy-base.yml --path /releases |grep -Po '(?<=- location: ).*')
 
-## upload releases
-#while IFS= read -r line; do
-#${deployment_dir}/bosh-cli* -e bosh-test upload-release $line
-#done <<< "$releases"
+# upload releases
+while IFS= read -r line; do
+${deployment_dir}/bosh-cli* -e bosh-test upload-release $line
+done <<< "$releases"
 
 function stemcell_exist(){
 	stemcell_version=$1
