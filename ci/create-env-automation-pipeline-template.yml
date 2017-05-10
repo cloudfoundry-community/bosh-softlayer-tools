@@ -148,14 +148,14 @@ jobs:
   - aggregate:
     - get: director-artifacts
       resource: director-artifacts
+      passed:
+      - deploy-director-base
     - get: bosh-softlayer-tools
       resource: bosh-create-env-ci
     - get: run-utils
       resource: run-utils
     - get: cf-artifacts
       resource: cf-artifacts
-      passed:
-      - deploy-cf-base
   - task: update-dns
     file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-dns.yml
     params:
