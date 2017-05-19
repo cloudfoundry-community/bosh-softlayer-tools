@@ -20,8 +20,6 @@ tar -zxvf director-artifacts/director_artifacts.tgz -C ${deployment_dir}
 
 SL_VM_DOMAIN=${SL_VM_PREFIX}.softlayer.com
 
-
-
 mkdir -p bosh-cli-v2-softlayer
 curl -o bosh-cli-v2-softlayer/bosh-cli-v2-softlayer-linux-amd64  https://s3.amazonaws.com/bosh-softlayer-artifacts/bosh-cli-v2-softlayer-linux-amd64
 chmod +x bosh-cli-v2-softlayer/bosh-cli-v2-softlayer-linux-amd64
@@ -48,6 +46,12 @@ trap finish EXIT
 
 echo "Using bosh-cli $($bosh -v)"
 
+${deployment_dir}/bosh-cli* -e $(cat ${deployment_dir}/director-hosts |awk '{print $2}') --ca-cert <(${deployment_dir}/bosh-cli* int ${deployment_dir}/credentials.yml --path /DIRECTOR_SSL/ca ) alias-env bosh-test
+director_password=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/credentials.yml --path /DI_ADMIN_PASSWORD)
+print_title "Trying to login to director..."
+export BOSH_CLIENT=admin
+export BOSH_CLIENT_SECRET=${director_password}
+${deployment_dir}/bosh-cli* -e bosh-test login
 print_title "Ensure director is base version..."
 
 $bosh create-env  ${deployment_dir}/director-base.yml \

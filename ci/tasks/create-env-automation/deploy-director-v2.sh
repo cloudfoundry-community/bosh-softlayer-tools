@@ -16,9 +16,7 @@ check_param SL_VLAN_PRIVATE
 
 deployment_dir="${PWD}/deployment"
 mkdir -p $deployment_dir
-apt-get install -y whois
 SL_VM_DOMAIN=${SL_VM_PREFIX}.softlayer.com
-
 chmod +x bosh-cli-v2/bosh-cli* 
 
   function finish {

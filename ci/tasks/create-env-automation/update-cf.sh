@@ -31,7 +31,7 @@ ${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name} deploy ${deploymen
 
 
 # generate new cf deployment yml file for update
-${deployment_dir}/bosh-cli* interpolate cf-template/cf-template.yml \
+${deployment_dir}/bosh-cli* interpolate cf-template/${cf_template} \
 							-v director_password=${director_password} \
 							-v director_ip=${director_ip}\
 							-v director_pub_ip=${director_ip}\
@@ -40,7 +40,7 @@ ${deployment_dir}/bosh-cli* interpolate cf-template/cf-template.yml \
 							-v data_center_name=${data_center_name}\
 							-v private_vlan_id=${private_vlan_id}\
 							-v public_vlan_id=${public_vlan_id}\
-							-v stemcell_version=${stemcell_version}\
+							-v stemcell_version=\"${stemcell_version}\"\
 						    -v stemcell_location=${stemcell_location}\
 							-v stemcell_name=${stemcell_name}\
 							-v cf-release=${cf_release}\
