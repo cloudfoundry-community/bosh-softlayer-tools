@@ -52,7 +52,7 @@ jobs:
 
   templates:
   - {name: nats, release: bosh}
-  - {name: postgres, release: bosh}
+  - {name: postgres-9.4, release: bosh}
   - {name: blobstore, release: bosh}
   - {name: director, release: bosh}
   - {name: health_monitor, release: bosh}
@@ -99,6 +99,9 @@ jobs:
       cpi_job: softlayer_cpi
       enable_virtual_delete_vms: true
       db: *db
+      local_dns:
+        enabled: true
+        include_index: true
       user_management:
         provider: local
         local:
