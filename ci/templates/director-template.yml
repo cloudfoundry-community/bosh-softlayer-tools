@@ -36,6 +36,7 @@ resource_pools:
   env:
     bosh:
       keep_root_password: true
+      vcappassword: $6$KBgeJNhM$HOTjUc/wN.EgTgtiYJSKeOfe5/6L3qlPXVmBuB/OYVKMjxsqa3BaeqAERmKp10Z3PME.aD41mrsTmO3v5t26j/
 
 disk_pools:
 - name: disks
@@ -134,7 +135,9 @@ jobs:
         createIscsiVolumeTimeout: 3600
         createIscsiVolumePollingInterval: 5
 
-    agent: {mbus: "nats://nats:((NATS_PASSWORD))@((SL_VM_DOMAIN)):4222"}
+    agent:
+      mbus: "nats://nats:((NATS_PASSWORD))@((SL_VM_DOMAIN)):4222"
+      vcappassword: $6$KBgeJNhM$HOTjUc/wN.EgTgtiYJSKeOfe5/6L3qlPXVmBuB/OYVKMjxsqa3BaeqAERmKp10Z3PME.aD41mrsTmO3v5t26j/
 
     ntp: &ntp [0.pool.ntp.org, 1.pool.ntp.org]
 
@@ -145,11 +148,11 @@ cloud_provider:
 
   properties:
     softlayer: *softlayer
-    agent: {mbus: "https://admin:((DI_ADMIN_PASSWORD))@0.0.0.0:6868"}
+    agent:
+      mbus: "https://admin:((DI_ADMIN_PASSWORD))@0.0.0.0:6868"
+      vcappassword: $6$KBgeJNhM$HOTjUc/wN.EgTgtiYJSKeOfe5/6L3qlPXVmBuB/OYVKMjxsqa3BaeqAERmKp10Z3PME.aD41mrsTmO3v5t26j/
     blobstore: {provider: local, path: /var/vcap/micro_bosh/data/cache}
     ntp: *ntp
-
-
 
 variables:
 - name: DI_ADMIN_PASSWORD
