@@ -10,8 +10,6 @@ apt-get -y install expect >/dev/null 2>&1
 deployment_dir="${PWD}/deployment"
 mkdir -p $deployment_dir
 
-
-
 tar -zxvf director-artifacts/director_artifacts.tgz -C ${deployment_dir}
 tar -zxvf cf-artifacts/cf_artifacts.tgz -C ${deployment_dir}
 tar -zxvf run-utils/run-utils.tgz -C run-utils/
