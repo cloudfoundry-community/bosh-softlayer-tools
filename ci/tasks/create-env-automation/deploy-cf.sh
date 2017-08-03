@@ -24,10 +24,9 @@ director_ip=$(awk '{print $1}' ${deployment_dir}/director-hosts)
 director_uuid=$(grep -Po '(?<=director_id": ")[^"]*' ${deployment_dir}/director-deploy-state.json)
 
 # generate cf deployment yml file
-${deployment_dir}/bosh-cli* interpolate cf-template/${cf_template} \
+${deployment_dir}/bosh-cli* int cf-template/${cf_template} \
 							-v director_password=${director_password} \
 							-v director_ip=${director_ip}\
-							-v director_pub_ip=${director_ip}\
 							-v director_uuid=${director_uuid}\
 							-v deploy_name=${deploy_name}\
 							-v data_center_name=${data_center_name}\
@@ -36,11 +35,25 @@ ${deployment_dir}/bosh-cli* interpolate cf-template/${cf_template} \
 							-v stemcell_version=\"${stemcell_version}\"\
 							-v stemcell_location=${stemcell_location}\
 							-v stemcell_name=${stemcell_name}\
-							-v cf-release=${cf_release}\
-							-v cf-release-version=${cf_release_version}\
 						    > ${deployment_dir}/cf-deploy-base.yml
 
-releases=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/cf-deploy-base.yml --path /releases |grep -Po '(?<=- location: ).*')
+# generate diego deployment yml file
+${deployment_dir}/bosh-cli* int diego-template/${diego_template} \
+							-v director_password=${director_password} \
+							-v director_ip=${director_ip}\
+							-v director_uuid=${director_uuid}\
+							-v deploy_name=${deploy_name}\
+							-v data_center_name=${data_center_name}\
+							-v private_vlan_id=${private_vlan_id}\
+							-v public_vlan_id=${public_vlan_id}\
+							-v stemcell_version=\"${stemcell_version}\"\
+							-v stemcell_location=${stemcell_location}\
+							-v stemcell_name=${stemcell_name}\
+						    > ${deployment_dir}/diego-deploy-base.yml
+
+releases_cf=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/cf-deploy-base.yml --path /releases |grep -Po '(?<=- location: ).*')
+releases_diego=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/diego-deploy-base.yml --path /releases |grep -Po '(?<=- location: ).*')
+releases=`echo -e "${releases_cf}\n${releases_diego}"`
 
 # upload releases
 while IFS= read -r line; do
@@ -65,9 +78,11 @@ if ! stemcell_exist ${stemcell_version}; then
 fi
 ${deployment_dir}/bosh-cli* -e bosh-test vms > cf-artifacts/deployed-vms
 ${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name} deploy ${deployment_dir}/cf-deploy-base.yml --no-redact
+${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name}-diego deploy ${deployment_dir}/diego-deploy-base.yml --no-redact
 
 ${deployment_dir}/bosh-cli* -e bosh-test vms > cf-artifacts/deployed-vms
 cp ${deployment_dir}/cf-deploy-base.yml  cf-artifacts/cf-deploy-base.yml
+cp ${deployment_dir}/diego-deploy-base.yml  cf-artifacts/diego-deploy-base.yml
 
 pushd cf-artifacts
    tar -zcvf  /tmp/cf_artifacts.tgz ./ >/dev/null 2>&1

@@ -20,10 +20,8 @@ tar -zxvf director-artifacts/director_artifacts.tgz -C ${deployment_dir}
 
 SL_VM_DOMAIN=${SL_VM_PREFIX}.softlayer.com
 
-mkdir -p bosh-cli-v2-softlayer
-curl -o bosh-cli-v2-softlayer/bosh-cli-v2-softlayer-linux-amd64  https://s3.amazonaws.com/bosh-softlayer-artifacts/bosh-cli-v2-softlayer-linux-amd64
-chmod +x bosh-cli-v2-softlayer/bosh-cli-v2-softlayer-linux-amd64
-bosh="${PWD}/bosh-cli-v2-softlayer/bosh-cli-v2-softlayer-linux-amd64"
+chmod +x bosh-cli-v2/bosh-cli* 
+
 cat ${deployment_dir}/director-hosts >> /etc/hosts
 
 director_ip=$(awk '{print $1}' ${deployment_dir}/director-hosts)
@@ -44,20 +42,19 @@ cat ${deployment_dir}/director-deploy-state.json |jq '.+{"current_ip": $director
 
 trap finish EXIT
 
-echo "Using bosh-cli $($bosh -v)"
+echo "Using bosh-cli $(bosh-cli-v2/bosh-cli* -v)"
 
-${deployment_dir}/bosh-cli* -e $(cat ${deployment_dir}/director-hosts |awk '{print $2}') --ca-cert <(${deployment_dir}/bosh-cli* int ${deployment_dir}/credentials.yml --path /DIRECTOR_SSL/ca ) alias-env bosh-test
-director_password=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/credentials.yml --path /DI_ADMIN_PASSWORD)
+bosh-cli-v2/bosh-cli* -e $(cat ${deployment_dir}/director-hosts |awk '{print $2}') --ca-cert <(bosh-cli-v2/bosh-cli* int ${deployment_dir}/credentials.yml --path /DIRECTOR_SSL/ca ) alias-env bosh-test
+director_password=$(bosh-cli-v2/bosh-cli* int ${deployment_dir}/credentials.yml --path /DI_ADMIN_PASSWORD)
 print_title "Trying to login to director..."
 export BOSH_CLIENT=admin
 export BOSH_CLIENT_SECRET=${director_password}
-${deployment_dir}/bosh-cli* -e bosh-test login
+bosh-cli-v2/bosh-cli* -e bosh-test login
 print_title "Ensure director is base version..."
+#bosh-cli-v2/bosh-cli* create-env  ${deployment_dir}/director-base.yml \
+#                --state=${deployment_dir}/director-deploy-state.json
 
-$bosh create-env  ${deployment_dir}/director-base.yml \
-                 --state=${deployment_dir}/director-deploy-state.json
-
-$bosh int bosh-softlayer-tools/ci/templates/director-template.yml \
+bosh-cli-v2/bosh-cli* int bosh-softlayer-tools/ci/templates/director-template.yml \
                       --vars-store ${deployment_dir}/credentials.yml \
                       -v SL_VM_PREFIX=${SL_VM_PREFIX} \
                       -v SL_VM_DOMAIN=${SL_VM_DOMAIN} \
@@ -79,8 +76,8 @@ cat >remove_variables.yml <<EOF
   path: /variables
 EOF
 
-$bosh int director-update-temp.yml -o remove_variables.yml > ${deployment_dir}/director-update.yml
+bosh-cli-v2/bosh-cli* int director-update-temp.yml -o remove_variables.yml > ${deployment_dir}/director-update.yml
 print_title "Updating director..."
 
-$bosh create-env  ${deployment_dir}/director-update.yml \
+bosh-cli-v2/bosh-cli* create-env  ${deployment_dir}/director-update.yml \
                       --state=${deployment_dir}/director-deploy-state.json

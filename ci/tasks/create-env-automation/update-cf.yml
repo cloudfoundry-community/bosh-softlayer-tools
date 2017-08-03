@@ -6,6 +6,7 @@ inputs:
 - name: director-artifacts-updated
 - name: bosh-softlayer-tools
 - name: cf-template
+- name: diego-template
 - name: cf-artifacts
 
 run:

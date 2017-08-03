@@ -6,6 +6,7 @@ inputs:
 - name: director-artifacts
 - name: bosh-softlayer-tools
 - name: cf-template
+- name: diego-template
 
 run:
   path: bosh-softlayer-tools/ci/tasks/create-env-automation/deploy-cf.sh
@@ -23,7 +24,7 @@ params:
   public_vlan_id:                       replace-me
   stemcell:                             replace-me
   base_stemcell_version:                replace-me
-  update_stemcell_version:				replace-me
+  update_stemcell_version:				      replace-me
   cf_release:                           replace-me
   cf_release_version:                   replace-me
   cf_services_release:                  replace-me

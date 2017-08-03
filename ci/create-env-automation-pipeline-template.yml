@@ -20,13 +20,25 @@ resources:
     versioned_file: cli-vm-info
     bucket: bosh-softlayer-create-cf-env
     secret_access_key: {{s3-access-key}}
+
 - name: cf-template
   type: s3
   source:
-    access_key_id: {{s3-key-id}}
-    versioned_file: {{cf-template}}
-    bucket: bosh-softlayer-create-cf-env
-    secret_access_key: {{s3-access-key}}
+    bucket: bmx-automation-artifacts
+    regexp: cf-template-v(.*).yml
+    access_key_id: {{stemcell-sl-os-access-key}}
+    secret_access_key: {{stemcell-sl-os-secret-key}}
+    endpoint: {{stemcell-sl-os-endpoint}}
+
+- name: diego-template
+  type: s3
+  source:
+    bucket: bmx-automation-artifacts
+    regexp: diego-template-(.*).yml
+    access_key_id: {{stemcell-sl-os-access-key}}
+    secret_access_key: {{stemcell-sl-os-secret-key}}
+    endpoint: {{stemcell-sl-os-endpoint}}
+
 - name: cf-artifacts
   type: s3
   source:
@@ -66,7 +78,6 @@ resources:
     branch: {{git-bosh-softlayer-tools-branch}}
     uri: {{git-bosh-softlayer-tools-uri}}
     private_key: {{git-private-key}}
-
 
 jobs:
 - name: deploy-director-base
@@ -126,16 +137,17 @@ jobs:
       resource: bosh-create-env-ci
     - get: cf-template
       resource: cf-template
+    - get: diego-template
+      resource: diego-template
   - task: deploy-cf
     file: bosh-softlayer-tools/ci/tasks/create-env-automation/deploy-cf.yml
     params:
       cf_template:                            {{cf-template}}
+      diego_template:                         {{diego-template}}
       deploy_name:                            {{deployment-name}}
       data_center_name:                       {{softlayer-datacenter}}
       public_vlan_id:                         {{softlayer-vlan-public}}
       private_vlan_id:                        {{softlayer-vlan-private}}
-      cf_release:                             {{cf-release-name}}
-      cf_release_version:                     {{cf-release-version}}
       stemcell_name:                          {{stemcell-base-name}}
       stemcell_version:                       {{stemcell-base-version}}
       stemcell_location:                      {{stemcell-base-location}}
@@ -190,6 +202,8 @@ jobs:
     - verify-cf-push
   - get: bosh-softlayer-tools
     resource: bosh-create-env-ci
+  - get: bosh-cli-v2
+    resource: bosh-cli-v2
   - task: deploy
     file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-director.yml
     params:
@@ -221,18 +235,19 @@ jobs:
       resource: bosh-create-env-ci
     - get: cf-template
       resource: cf-template
+    - get: diego-template
+      resource: diego-template
     - get: cf-artifacts
       resource: cf-artifacts
   - task: deploy-cf
     file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-cf.yml
     params:
       cf_template:                            {{cf-template}}
+      diego_template:                         {{diego-template}}
       deploy_name:                            {{deployment-name}}
       data_center_name:                       {{softlayer-datacenter}}
       public_vlan_id:                         {{softlayer-vlan-public}}
       private_vlan_id:                        {{softlayer-vlan-private}}
-      cf_release:                             {{cf-release-update-name}}
-      cf_release_version:                     {{cf-release-update-version}}
       stemcell_name:                          {{stemcell-update-name}}
       stemcell_version:                       {{stemcell-update-version}}
       stemcell_location:                      {{stemcell-update-location}}
