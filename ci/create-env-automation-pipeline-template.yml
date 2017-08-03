@@ -58,8 +58,8 @@ resources:
 - name: bosh-cli-v2
   type: s3
   source:
-    bucket: bosh-cli-artifacts
-    regexp: bosh-cli-(.*)-linux-amd64
+    bucket: bosh-softlayer-artifacts
+    regexp: bosh-cli-(.*)-softlayer-linux-amd64
 - name: bosh-create-env-ci
   type: git
   source:
