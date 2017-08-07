@@ -1,0 +1,15 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: zhanggongsw/bosh
+
+inputs:
+  - name: bosh-softlayer-tools
+    path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
+  - name: stemcell-version
+outputs:
+  - name: stemcell-image
+run:
+  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/tasks/import-stemcell
