@@ -6,7 +6,6 @@ image_resource:
     repository: zhanggongsw/bosh
 
 inputs:
-  - name: timer-2weeks
   - name: bosh-softlayer-tools
     path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
 
