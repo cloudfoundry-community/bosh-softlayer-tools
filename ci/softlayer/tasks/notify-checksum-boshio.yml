@@ -1,0 +1,13 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: zhanggongsw/bosh
+
+inputs:
+  - name: bosh-softlayer-tools
+  - name: light-stemcell-final
+
+run:
+  path: bosh-softlayer-tools/ci/tasks/notify-checksum-boshio.sh

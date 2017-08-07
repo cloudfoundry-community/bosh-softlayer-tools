@@ -1,0 +1,16 @@
+#!/bin/bash
+
+(
+  base=$( cd "$( dirname "$( dirname "$( dirname "$0" )")")" && pwd )
+  base_gopath=$( cd $base/../../../.. && pwd )
+
+  export GOPATH=$base_gopath:$GOPATH
+
+  echo -e "\n Creating stemcell binary..."
+  cd "${base}"
+  go build -o out/sl_stemcells main/stemcells/stemcells.go
+
+  echo -e "\n Softlayer Issues Deletes for VGBTG files older than today"
+  out/sl_stemcells -c cleanup-stemcells --name-pattern "Template created from imported bosh-stemcell-[0-9]*-softlayer.vhd"
+
+)
