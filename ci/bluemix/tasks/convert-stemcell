@@ -3,11 +3,9 @@
 (
   set -e -x
 
-  echo -e "\n Get stemcell version..."
+  export CANDIDATE_BUILD_NUMBER=$( cat version/number | sed 's/\.0$//;s/\.0$//' )
 
-  STEMCELL_VERSION=$(cat stemcell-version/number | sed 's/\.0$//;s/\.0$//')
-
-  cd candidate-stemcell-ubuntu-trusty
+  cd stemcell
 
   echo -e "\n Unpacking tgz..."
   tar zxf *.tgz
@@ -16,10 +14,12 @@
   ls -la
 
   echo -e "\n Converting vmdk to vhd..."
-  VBoxManage clonehd *.vmdk --format VHD bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
+  stemcell_name="bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-esxi-$OS_NAME-$OS_VERSION-go_agent"
+  stemcell_vhd_filename="${stemcell_name}.vhd"
+  VBoxManage clonehd *.vmdk --format VHD ${stemcell_vhd_filename}
 
   echo -e "\n Placing object in Softlayer..."
-  swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_API_KEY upload ${SWIFT_CONTAINER} bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd
+  swift -A https://${SWIFT_CLUSTER}.objectstorage.softlayer.net/auth/v1.0/ -U $SWIFT_USERNAME -K $SWIFT_API_KEY upload ${SWIFT_CONTAINER} ${stemcell_vhd_filename}
 
   echo -e "\n Setting the Expiration Tag two weeks from now."
   AUTH_TOKEN=`curl -i -H "X-Auth-User: $SWIFT_USERNAME " -H "X-Auth-Key: $SWIFT_API_KEY" https://$SWIFT_CLUSTER.objectstorage.softlayer.net/auth/v1.0/ | grep X-Auth-Token  | cut -d ":" -f2`
@@ -27,7 +27,7 @@
   AUTH_URL=$(echo $AUTH_URL|tr -d '\r')
   AUTH_TOKEN=`echo $AUTH_TOKEN | tr -d '\r'| cut -d ' ' -f2`
 
-  curl -i https:$AUTH_URL/$SWIFT_CONTAINER/bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd -X POST -H "X-Delete-After: 1209600" -H "X-Auth-Token: $AUTH_TOKEN"
+  curl -i https:$AUTH_URL/$SWIFT_CONTAINER/${stemcell_vhd_filename} -X POST -H "X-Delete-After: 1209600" -H "X-Auth-Token: $AUTH_TOKEN"
 
   echo -e "To change the Expiration date, please change the value of the X-Delete-After or X-Delete-At option for the object, or change through the customer portal for Softlayer"
 

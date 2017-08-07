@@ -3,13 +3,21 @@
 (
   set -x
 
+  source bosh-softlayer-tools/ci/tasks/utils.sh
+
+  check_param SL_USERNAME
+  check_param SL_API_KEY
+
+  export CANDIDATE_BUILD_NUMBER=$( cat version/number | sed 's/\.0$//;s/\.0$//' )
+
   base=$( cd "$( dirname "$( dirname "$( dirname "$0" )")")" && pwd )
   base_gopath=$( cd $base/../../../.. && pwd )
 
   export GOPATH=$base_gopath:$GOPATH
 
-  echo -e "\n Get stemcell version..."
-  STEMCELL_VERSION=$(cat stemcell-version/number | sed 's/\.0$//;s/\.0$//')
+  echo -e "\n Get stemcell vhd filename..."
+  stemcell_name="bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-esxi-$OS_NAME-$OS_VERSION-go_agent"
+  stemcell_vhd_filename="${stemcell_name}.vhd"
 
   echo -e "\n Creating stemcell binary..."
   cd "${base}"
@@ -17,7 +25,13 @@
 
   echo -e "\n Softlayer create from external source..."
   IFS=':' read -ra OBJ_STORAGE_ACC_NAME <<< "$SWIFT_USERNAME"
-  URI="swift://${OBJ_STORAGE_ACC_NAME}@${SWIFT_CLUSTER}/${SWIFT_CONTAINER}/bosh-stemcell-${STEMCELL_VERSION}-softlayer.vhd"
-  out/sl_stemcells -c import-image --os-ref-code UBUNTU_14_64 --uri ${URI} --public-name "light-bosh-stemcell-${STEMCELL_VERSION}-softlayer-xen-ubuntu-trusty-go_agent" \
-      --public-note "Public_light_stemcell_${STEMCELL_VERSION}" --public | tail -1 >> "${base_gopath}/../stemcell-image/stemcell-info.json"
+  URI="swift://${OBJ_STORAGE_ACC_NAME}@${SWIFT_CLUSTER}/${SWIFT_CONTAINER}/${stemcell_vhd_filename}"
+  out/sl_stemcells -c import-image --os-ref-code UBUNTU_14_64 --uri ${URI} --infrastructure "$IAAS" --public-name "light-bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-xen-ubuntu-trusty-go_agent" \
+      --public-note "Public_light_stemcell_${CANDIDATE_BUILD_NUMBER}" --public | tail -1 >> "${base_gopath}/../stemcell-image/stemcell-info.json"
+
+  sleep 10
+  image_id=`tail -1 ${base_gopath}/../stemcell-image/stemcell-info.json | grep -Eo '[0-9]+'`
+  SL_USERNAME=`echo ${SL_USERNAME/@/%40}`
+  result=`curl -sk https://${SL_USERNAME}:${SL_API_KEY}@api.softlayer.com/rest/v3/SoftLayer_Virtual_Guest_Block_Device_Template_Group/${image_id}/setBootMode/HVM.json`
+  echo ${result} | grep true
 )

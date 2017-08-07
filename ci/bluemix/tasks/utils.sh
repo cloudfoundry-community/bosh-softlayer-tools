@@ -33,10 +33,3 @@ function add_on_exit {
     on_exit_items=("$*" "${on_exit_items[@]}")
   fi
 }
-
-function print_title () {
-  divider="==========================================================================="
-  echo ${divider}
-  echo $1
-  echo ${divider}
-}

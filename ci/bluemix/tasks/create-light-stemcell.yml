@@ -9,9 +9,10 @@ inputs:
   - name: bosh-softlayer-tools
     path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
   - name: stemcell-info
-  - name: stemcell-version
+  - name: version
+  - name: stemcell
 outputs:
-  - name: new-light-stemcell
+  - name: light-stemcell
 
 run:
-  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/tasks/create-light-stemcell
+  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/tasks/create-light-stemcell.sh

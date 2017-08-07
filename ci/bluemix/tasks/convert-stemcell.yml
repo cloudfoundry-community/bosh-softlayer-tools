@@ -7,8 +7,8 @@ image_resource:
 
 inputs:
   - name: bosh-softlayer-tools
-  - name: stemcell-version
-  - name: candidate-stemcell-ubuntu-trusty
+  - name: stemcell
+  - name: version
 
 run:
   path: bosh-softlayer-tools/ci/tasks/convert-stemcell
