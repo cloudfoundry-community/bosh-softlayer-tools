@@ -1,0 +1,18 @@
+---
+platform: linux
+image: docker:///boshcpi/azure-cpi-release
+
+inputs:
+- name: director-artifacts
+- name: bosh-softlayer-tools
+
+outputs:
+- name: cli-vm-info
+
+run:
+  path: bosh-softlayer-tools/ci/softlayer_ng/tasks/setup-cli-env.sh
+
+params:
+  SL_USERNAME:      ""
+  SL_API_KEY:       ""
+  SL_DATACENTER:		""
