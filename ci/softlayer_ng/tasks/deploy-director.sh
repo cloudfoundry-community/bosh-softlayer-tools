@@ -5,7 +5,9 @@ source /etc/profile.d/chruby.sh
 
 chruby 2.2.4
 
+: ${INFRASTRUCTURE:?}
 : ${SL_VM_PREFIX:?}
+: ${SL_VM_DOMAIN:?}
 : ${SL_USERNAME:?}
 : ${SL_API_KEY:?}
 : ${SL_DATACENTER:?}
@@ -26,27 +28,37 @@ cat >remove_variables.yml <<EOF
 - type: remove
   path: /variables
 EOF
-bosh-cli int bosh-softlayer-tools/ci/templates/director-template.yml \
-	-o remove_variables.yml \
-	--vars-store ${deployment_dir}/credentials.yml \
-	-v SL_VM_PREFIX=${SL_VM_PREFIX} \
-	-v SL_VM_DOMAIN=${SL_VM_DOMAIN} \
-	-v SL_USERNAME=${SL_USERNAME} \
-	-v SL_API_KEY=${SL_API_KEY} \
-	-v SL_DATACENTER=${SL_DATACENTER} \
-	-v SL_VLAN_PUBLIC=${SL_VLAN_PUBLIC} \
-	-v SL_VLAN_PRIVATE=${SL_VLAN_PRIVATE} \
-	-v BOSH_RELEASE=${BOSH_RELEASE} \
-	-v BOSH_RELEASE_SHA1=${BOSH_RELEASE_SHA1} \
-	-v BOSH_SOFTLAYER_CPI_RELEASE=${BOSH_SOFTLAYER_CPI_RELEASE} \
-	-v BOSH_SOFTLAYER_CPI_RELEASE_SHA1=${BOSH_SOFTLAYER_CPI_RELEASE_SHA1} \
-	-v DIRECTOR_STEMCELL=${DIRECTOR_STEMCELL} \
-	-v STEMCELL_SHA1=${STEMCELL_SHA1} \
+
+cat >remove-health-monitor.yml <<EOF
+- path: /instance_groups/name=bosh/jobs/name=health_monitor
+  type: remove
+EOF
+
+echo -e "\n\033[32m[INFO] Generating manifest director.yml.\033[0m"
+bosh-cli int bosh-deployment/bosh.yml \
+	-o bosh-deployment/$INFRASTRUCTURE/cpi.yml \
+	-o bosh-deployment/$INFRASTRUCTURE/dynamic-network.yml \
+	-o bosh-deployment/powerdns.yml \
+	-o bosh-deployment/jumpbox-user.yml \
+	-o ./remove-health-monitor.yml \
+	-v dns_recursor_ip=8.8.8.8 \
+	-v director_name=bats-director \
+	-v sl_director_fqn=$SL_VM_PREFIX.$BOSH_SL_VM_DOMAIN \
+	-v sl_datacenter=$SL_DATACENTER \
+	-v sl_vlan_public=$SL_VLAN_PUBLIC \
+	-v sl_vlan_private=$SL_VLAN_PRIVATE \
+	-v sl_vm_name_prefix=$SL_VM_PREFIX \
+	-v sl_vm_domain=$SL_VM_DOMAIN \
+	-v sl_username=$SL_USERNAME \
+	-v sl_api_key=$SL_API_KEY \
+	--vars-store ${deployment_dir}/director-deploy-creds.yml \
 	>${deployment_dir}/director-base.yml
 
 echo -e "\n\033[32m[INFO] Deploying director.\033[0m"
-bosh-cli create-env ${deployment_dir}/director-base.yml \
-	--state=${deployment_dir}/director-deploy-state.json
+bosh-cli create-env \
+	--state=${deployment_dir}/director-deploy-state.json \
+	--vars-store ${deployment_dir}/director-deploy-creds.yml \
+	${deployment_dir}/director-base.yml
 
 echo -e "\n\033[32m[INFO] Final state of director deployment:\033[0m"
 
@@ -58,6 +70,6 @@ cat /etc/hosts | grep "$SL_VM_DOMAIN" | tee ${deployment_dir}/director-hosts
 echo -e "\n\033[32m[INFO] Saving config.\033[0m"
 cp bosh-cli-v2/bosh-cli* ${deployment_dir}/
 pushd ${deployment_dir}
-  tar -zcvf /tmp/director_artifacts.tgz ./ >/dev/null 2>&1
+tar -zcvf /tmp/director_artifacts.tgz ./ >/dev/null 2>&1
 popd
 mv /tmp/director_artifacts.tgz deploy-artifacts/

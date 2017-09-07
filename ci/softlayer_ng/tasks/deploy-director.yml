@@ -5,6 +5,7 @@ image: docker:///boshcpi/azure-cpi-release
 inputs:
 - name: bosh-cli-v2
 - name: bosh-softlayer-tools
+- name: bosh-deployment
 
 outputs:
 - name: deploy-artifacts
@@ -13,8 +14,10 @@ run:
   path: bosh-softlayer-tools/ci/softlayer_ng/tasks/deploy-director.sh
 
 params:
+  INFRASTRUCTURE:       ""
   SL_VM_PREFIX:         ""
+  SL_VM_DOMAIN:         ""
   SL_API_KEY:           ""
   SL_DATACENTER:        ""
   SL_VLAN_PUBLIC:       ""
-  SL_VLAN_PRIVATE:      ""Ï
+  SL_VLAN_PRIVATE:      ""
