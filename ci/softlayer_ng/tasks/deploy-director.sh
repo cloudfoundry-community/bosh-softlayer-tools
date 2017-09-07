@@ -36,14 +36,14 @@ EOF
 
 echo -e "\n\033[32m[INFO] Generating manifest director.yml.\033[0m"
 bosh-cli int bosh-deployment/bosh.yml \
-	-o bosh-deployment/$INFRASTRUCTURE/cpi.yml \
-	-o bosh-deployment/$INFRASTRUCTURE/dynamic-network.yml \
-	-o bosh-deployment/powerdns.yml \
+	-o bosh-deployment/$INFRASTRUCTURE/cpi-base.yml \
+	-o bosh-deployment/$INFRASTRUCTURE/dynamic-director.yml \
 	-o bosh-deployment/jumpbox-user.yml \
 	-o ./remove-health-monitor.yml \
+	-v internal_ip=$SL_VM_PREFIX.$SL_VM_DOMAIN \
 	-v dns_recursor_ip=8.8.8.8 \
 	-v director_name=bats-director \
-	-v sl_director_fqn=$SL_VM_PREFIX.$BOSH_SL_VM_DOMAIN \
+	-v sl_director_fqn=$SL_VM_PREFIX.$SL_VM_DOMAIN \
 	-v sl_datacenter=$SL_DATACENTER \
 	-v sl_vlan_public=$SL_VLAN_PUBLIC \
 	-v sl_vlan_private=$SL_VLAN_PRIVATE \
