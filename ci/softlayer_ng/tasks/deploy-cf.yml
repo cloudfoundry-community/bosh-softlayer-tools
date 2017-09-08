@@ -5,8 +5,7 @@ image: docker:///boshcpi/azure-cpi-release
 inputs:
 - name: director-artifacts
 - name: bosh-softlayer-tools
-- name: cf-template
-- name: diego-template
+- name: cf-deployment
 
 run:
   path: bosh-softlayer-tools/ci/softlayer_ng/tasks/deploy-cf.sh
@@ -16,18 +15,9 @@ outputs:
 - name: deploy-status
 
 params:
-  deploy_name:                          replace-me
-  director_ip:                          replace-me
-  director_pub_ip:                      replace-me
-  data_center_name:                     replace-me
-  private_vlan_id:                      replace-me
-  public_vlan_id:                       replace-me
-  stemcell:                             replace-me
-  base_stemcell_version:                replace-me
-  update_stemcell_version:				      replace-me
-  cf_release:                           replace-me
-  cf_release_version:                   replace-me
-  cf_services_release:                  replace-me
-  cf_services_release_version:          replace-me
-  cf_services_contrib_release:          replace-me
-  cf_services_contrib_release_version:  replace-me
+  DEPLOYMENT_NAME:                       ""
+  SL_DATACENTER:                         ""
+  SL_VLAN_PUBLIC:                        ""
+  SL_VLAN_PRIVATE:                       ""
+  DEPLOY_NAME:                           ""
+  CF_PREFIX:                             ""

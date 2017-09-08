@@ -19,7 +19,6 @@ chmod +x /usr/local/bin/bosh-cli
 
 deployment_dir="${PWD}/deployment"
 mkdir -p $deployment_dir
-SL_VM_DOMAIN=${SL_VM_PREFIX}.softlayer.com
 chmod +x bosh-cli-v2/bosh-cli*
 
 echo -e "\n\033[32m[INFO] Using bosh-cli $(bosh-cli -v).\033[0m"
@@ -51,18 +50,18 @@ bosh-cli int bosh-deployment/bosh.yml \
 	-v sl_vm_domain=$SL_VM_DOMAIN \
 	-v sl_username=$SL_USERNAME \
 	-v sl_api_key=$SL_API_KEY \
-	--vars-store ${deployment_dir}/director-deploy-creds.yml \
-	>${deployment_dir}/director-base.yml
+	--vars-store ${deployment_dir}/director-creds.yml \
+	>${deployment_dir}/director.yml
 
 echo -e "\n\033[32m[INFO] Deploying director.\033[0m"
 bosh-cli create-env \
-	--state=${deployment_dir}/director-deploy-state.json \
-	--vars-store ${deployment_dir}/director-deploy-creds.yml \
-	${deployment_dir}/director-base.yml
+	--state=${deployment_dir}/director-state.json \
+	--vars-store ${deployment_dir}/director-creds.yml \
+	${deployment_dir}/director.yml
 
 echo -e "\n\033[32m[INFO] Final state of director deployment:\033[0m"
 
-cat ${deployment_dir}/director-deploy-state.json
+cat ${deployment_dir}/director-state.json
 
 echo -e "\n\033[32m[INFO] Director:\033[0m"
 cat /etc/hosts | grep "$SL_VM_DOMAIN" | tee ${deployment_dir}/director-hosts
@@ -70,6 +69,6 @@ cat /etc/hosts | grep "$SL_VM_DOMAIN" | tee ${deployment_dir}/director-hosts
 echo -e "\n\033[32m[INFO] Saving config.\033[0m"
 cp bosh-cli-v2/bosh-cli* ${deployment_dir}/
 pushd ${deployment_dir}
-tar -zcvf /tmp/director_artifacts.tgz ./ >/dev/null 2>&1
+  tar -zcvf /tmp/director_artifacts.tgz ./ >/dev/null 2>&1
 popd
 mv /tmp/director_artifacts.tgz deploy-artifacts/

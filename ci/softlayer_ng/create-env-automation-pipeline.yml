@@ -6,6 +6,13 @@ resources:
     versioned_file: director_artifacts.tgz
     access_key_id: {{aws-access-key}}
     secret_access_key: {{aws-secret-key}}
+- name: cf-artifacts
+  type: s3
+  source:
+    bucket: bosh-softlayer-create-cf-env
+    versioned_file: cf_artifacts.tgz
+    access_key_id: {{aws-access-key}}
+    secret_access_key: {{aws-secret-key}}    
 - name: bosh-cli-v2
   type: s3
   source:
@@ -22,6 +29,11 @@ resources:
   source:
     uri: https://github.com/bluebosh/bosh-deployment
     branch: new_softlayer_cpi
+- name: cf-deployment-master
+  type: git
+  source:
+    uri: https://github.com/bluebosh/cf-deployment
+    branch: master
 
 jobs:
 - name: deploy-director-base
@@ -48,3 +60,26 @@ jobs:
   - put: director-artifacts
     params:
       file: deploy-artifacts/director_artifacts.tgz
+
+- name: deploy-cf-base
+  plan:
+  - aggregate:
+    - get: director-artifacts
+      resource: director-artifacts
+      passed:
+      - deploy-director-base
+    - get: bosh-softlayer-tools
+      resource: bosh-softlayer-tools-master
+    - get: cf-deployment
+      resource: cf-deployment-master
+  - task: deploy-cf
+    file: bosh-softlayer-tools/ci/softlayer_ng/tasks/deploy-cf.yml
+    params:
+      DEPLOYMENT_NAME:                        {{deployment-name}}
+      SL_DATACENTER:                          {{softlayer-datacenter}}
+      SL_VLAN_PUBLIC:                         {{softlayer-vlan-public}}
+      SL_VLAN_PRIVATE:                        {{softlayer-vlan-private}}
+      CF_PREFIX:                              {{softlayer-cf-prefix}}
+  - put: cf-artifacts
+    params:
+      file: cf-artifacts/cf_artifacts.tgz
