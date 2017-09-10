@@ -1,0 +1,1 @@
+## New softlayer manifest
