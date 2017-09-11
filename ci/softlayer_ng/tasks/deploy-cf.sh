@@ -35,9 +35,16 @@ cat >stemcell.yml <<EOF
   value:
     - alias: default
       os: ubuntu-trusty
-      version: "latest"
+      version: "latest" 
 EOF
 
+# - type: replace
+#   path: /instance_groups/
+# stemcell:
+#     name: ((stemcell_name))
+#     version: ((stemcell_version))	 
+
+echo -e "\n\033[32m[INFO] Updating cloud-config.\033[0m"
 bosh-cli -e automation-cf vms >cf-artifacts/deployed-vms
 bosh-cli -e automation-cf -d ${DEPLOYMENT_NAME} deploy cf-deployment/cf-deployment.yml \
 	--vars-store env-repo/deployment-vars.yml \
