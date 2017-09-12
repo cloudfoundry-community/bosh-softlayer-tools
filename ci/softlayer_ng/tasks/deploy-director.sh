@@ -13,6 +13,7 @@ chruby 2.2.4
 : ${SL_DATACENTER:?}
 : ${SL_VLAN_PUBLIC:?}
 : ${SL_VLAN_PRIVATE:?}
+: ${CF_PREFIX:?}
 
 cp bosh-cli-v2/bosh-cli-* /usr/local/bin/bosh-cli
 chmod +x /usr/local/bin/bosh-cli
@@ -59,12 +60,27 @@ bosh-cli create-env \
 	--vars-store ${deployment_dir}/director-creds.yml \
 	${deployment_dir}/director.yml
 
-echo -e "\n\033[32m[INFO] Final state of director deployment:\033[0m"
-
-cat ${deployment_dir}/director-state.json
-
-echo -e "\n\033[32m[INFO] Director:\033[0m"
+echo -e "\n\033[32m[INFO] Deployed director successfully:\033[0m"
 cat /etc/hosts | grep "$SL_VM_DOMAIN" | tee ${deployment_dir}/director-hosts
+
+echo -e "\n\033[32m[INFO] Updating cloud-config.\033[0m"
+export BOSH_ENVIRONMENT=$(awk '{if ($2!="") print $2}' ${deployment_dir}/director-hosts)
+export BOSH_CLIENT=admin
+export BOSH_CLIENT_SECRET=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /admin_password)
+export BOSH_CA_CERT=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /default_ca/ca)
+
+bosh-cli update-cloud-config -n ./bosh-deployment/${INFRASTRUCTURE}/cloud-config.yml \
+	-o ./bosh-softlayer-tools/ci/softlayer_ng/ops/cloud-config-plus.yml \
+	-v sl_datacenter=${SL_DATACENTER} \
+	-v sl_vm_name_prefix=${CF_PREFIX} \
+	-v sl_vm_domain=${SL_VM_DOMAIN} \
+	-v internal_cidr=10.0.0.0/24 \
+	-v internal_gw=10.0.0.1 \
+	-v sl_vlan_public_id=${SL_VLAN_PUBLIC} \
+	-v sl_vlan_private_id=${SL_VLAN_PRIVATE}
+
+echo -e "\n\033[32m[INFO] Final state of director deployment:\033[0m"
+cat ${deployment_dir}/director-state.json
 
 echo -e "\n\033[32m[INFO] Saving config.\033[0m"
 cp bosh-cli-v2/bosh-cli* ${deployment_dir}/

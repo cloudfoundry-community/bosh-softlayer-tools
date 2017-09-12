@@ -17,6 +17,7 @@ params:
   INFRASTRUCTURE:       ""
   SL_VM_PREFIX:         ""
   SL_VM_DOMAIN:         ""
+  CF_PREFIX:            ""
   SL_API_KEY:           ""
   SL_DATACENTER:        ""
   SL_VLAN_PUBLIC:       ""

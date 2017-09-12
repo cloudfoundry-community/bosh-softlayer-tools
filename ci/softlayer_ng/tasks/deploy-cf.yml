@@ -21,3 +21,4 @@ params:
   SL_VLAN_PRIVATE:                       ""
   DEPLOY_NAME:                           ""
   CF_PREFIX:                             ""
+  CF_DOMAIN:                             ""

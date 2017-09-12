@@ -1,0 +1,128 @@
+- type: replace
+  path: /networks/name=default?
+  value:
+    name: default
+    type: dynamic
+    subnets:
+    - range: ((internal_cidr))
+      gateway: ((internal_gw))
+      azs: [z1, z2, z3]
+      dns: [8.8.8.8, 10.0.80.11, 10.0.80.12]
+      cloud_properties:
+        vlanIds: [((sl_vlan_public_id)), ((sl_vlan_private_id))]
+
+- type: replace
+  path: /networks/name=dynamic?
+  value:
+    name: dynamic
+    type: dynamic
+    subnets:
+    - cloud_properties:
+        vlanIds: [((sl_vlan_public_id)), ((sl_vlan_private_id))]
+        dns: [8.8.8.8, 10.0.80.11, 10.0.80.12]
+      azs: [z1]
+
+- type: replace
+  path: /vm_types?
+  value:
+  - name: default
+    cloud_properties:
+      startCpus:  4
+      maxMemory:  8192
+      maxNetworkSpeed: 100
+      ephemeralDiskSize: 100
+      hourlyBillingFlag: true
+      vmNamePrefix: ((sl_vm_name_prefix))
+      domain: ((sl_vm_domain))
+      datacenter: ((sl_datacenter))
+  - name: minimal
+    cloud_properties:
+      startCpus:  1
+      maxMemory:  4096
+      maxNetworkSpeed: 100
+      ephemeralDiskSize: 100
+      hourlyBillingFlag: true
+      vmNamePrefix: ((sl_vm_name_prefix))
+      domain: ((sl_vm_domain))
+      datacenter: ((sl_datacenter))
+  - name: small
+    cloud_properties:
+      startCpus:  2
+      maxMemory:  8192
+      maxNetworkSpeed: 100
+      ephemeralDiskSize: 100
+      hourlyBillingFlag: true
+      vmNamePrefix: ((sl_vm_name_prefix))
+      domain: ((sl_vm_domain))
+      datacenter: ((sl_datacenter))
+  - name: small-highmem
+    cloud_properties:
+      startCpus:  4
+      maxMemory:  32768
+      maxNetworkSpeed: 100
+      ephemeralDiskSize: 100
+      hourlyBillingFlag: true
+      vmNamePrefix: ((sl_vm_name_prefix))
+      domain: ((sl_vm_domain))
+      datacenter: ((sl_datacenter))
+  - name: sharedcpu
+    cloud_properties:
+      startCpus:  1
+      maxMemory:  2048
+      maxNetworkSpeed: 100
+      ephemeralDiskSize: 100
+      hourlyBillingFlag: true
+      vmNamePrefix: ((sl_vm_name_prefix))
+      domain: ((sl_vm_domain))
+      datacenter: ((sl_datacenter))
+
+- type: replace
+  path: /disk_types?
+  value:
+  - name: default
+    disk_size: 100_000
+    cloud_properties:
+      iops: 3000
+      snapshotSpace: 10
+  - name: small
+    disk_size: 20_000
+    cloud_properties:
+      iops: 500
+      snapshotSpace: 5
+  - name: large
+    disk_size: 250_000
+    cloud_properties:
+      iops: 3000
+      snapshotSpace: 50
+  - disk_size: 5120
+    name: 5GB
+  - disk_size: 10240
+    name: 10GB
+  - disk_size: 100240
+    name: 100GB
+
+- type: replace
+  path: /azs/name=default?
+  value:
+    name: default
+    cloud_properties:
+      datacenter: {name: ((sl_datacenter)) }
+
+- type: remove
+  path: /networks/name=dynamic_public?
+
+- type: remove
+  path: /networks/name=dynamic_private?
+
+- type: replace
+  path: /vm_extensions?
+  value:
+    - name: cf-router-network-properties
+    - name: cf-tcp-router-network-properties
+    - name: diego-ssh-proxy-network-properties
+    - name: 50GB_ephemeral_disk
+      cloud_properties:
+        disk: 51200
+    - name: 100GB_ephemeral_disk
+      cloud_properties:
+        disk: 102400
