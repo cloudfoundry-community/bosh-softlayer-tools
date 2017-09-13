@@ -27,7 +27,7 @@ bosh-cli -e automation-cf login
 echo -e "\n\033[32m[INFO] Uploading stemcell.\033[0m"
 bosh-cli us https://s3.amazonaws.com/bosh-softlayer-stemcells-candidate-container/light-bosh-stemcell-3421.11-softlayer-xen-ubuntu-trusty-go_agent.tgz
 
-echo -e "\n\033[32m[INFO] Deploying CF.\033[0m"
+echo -e "\n\033[32m[INFO] Generating cf manifest.\033[0m"
 cat >stemcell.yml <<EOF
 - type: replace
   path: /stemcells/alias=default?
@@ -45,12 +45,13 @@ bosh-cli int cf-deployment/cf-deployment.yml \
 	-v deployment_name=${DEPLOYMENT_NAME} \
 	-v system_domain=${CF_PREFIX}.${CF_DOMAIN} \
 	> ${deployment_dir}/cf.yml
+cat ${deployment_dir}/cf.yml
 
+echo -e "\n\033[32m[INFO] Deploying CF.\033[0m"
 bosh-cli -d ${DEPLOYMENT_NAME} -n deploy ${deployment_dir}/cf.yml
 
 bosh-cli vms >cf-artifacts/deployed-vms
-cp ${deployment_dir}/cf-deploy-base.yml cf-artifacts/cf-deploy-base.yml
-cp ${deployment_dir}/diego-deploy-base.yml cf-artifacts/diego-deploy-base.yml
+cp ${deployment_dir}/cf.yml cf-artifacts/cf.yml
 
 pushd cf-artifacts
   tar -zcvf /tmp/cf_artifacts.tgz ./ >/dev/null 2>&1

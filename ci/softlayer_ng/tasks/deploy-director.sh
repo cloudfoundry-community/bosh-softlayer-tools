@@ -34,14 +34,15 @@ cat >remove-health-monitor.yml <<EOF
   type: remove
 EOF
 
-echo -e "\n\033[32m[INFO] Generating manifest director.yml.\033[0m"
+echo -e "\n\033[32m[INFO] Generating director manifest director.yml.\033[0m"
 bosh-cli int bosh-deployment/bosh.yml \
+	-o bosh-deployment/powerdns.yml \
 	-o bosh-deployment/$INFRASTRUCTURE/cpi-base.yml \
 	-o bosh-deployment/$INFRASTRUCTURE/dynamic-director.yml \
 	-o bosh-deployment/jumpbox-user.yml \
 	-o ./remove-health-monitor.yml \
 	-v internal_ip=$SL_VM_PREFIX.$SL_VM_DOMAIN \
-	-v dns_recursor_ip=$SL_VM_PREFIX.$SL_VM_DOMAIN \
+	-v dns_recursor_ip=127.0.0.1 \
 	-v director_name=bats-director \
 	-v sl_director_fqn=$SL_VM_PREFIX.$SL_VM_DOMAIN \
 	-v sl_datacenter=$SL_DATACENTER \
@@ -53,6 +54,7 @@ bosh-cli int bosh-deployment/bosh.yml \
 	-v sl_api_key=$SL_API_KEY \
 	--vars-store ${deployment_dir}/director-creds.yml \
 	>${deployment_dir}/director.yml
+cat ${deployment_dir}/director.yml
 
 echo -e "\n\033[32m[INFO] Deploying director.\033[0m"
 bosh-cli create-env \
@@ -63,21 +65,28 @@ bosh-cli create-env \
 echo -e "\n\033[32m[INFO] Deployed director successfully:\033[0m"
 cat /etc/hosts | grep "$SL_VM_DOMAIN" | tee ${deployment_dir}/director-hosts
 
-echo -e "\n\033[32m[INFO] Updating cloud-config.\033[0m"
 export BOSH_ENVIRONMENT=$(awk '{if ($2!="") print $2}' ${deployment_dir}/director-hosts)
 export BOSH_CLIENT=admin
 export BOSH_CLIENT_SECRET=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /admin_password)
 export BOSH_CA_CERT=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /default_ca/ca)
 
-bosh-cli update-cloud-config -n ./bosh-deployment/${INFRASTRUCTURE}/cloud-config.yml \
+echo -e "\n\033[32m[INFO] Generating cloud-config director.yml.\033[0m"
+director_ip=$(awk '{if ($1!="") print $1}' ${deployment_dir}/director-hosts)
+bosh-cli int ./bosh-deployment/${INFRASTRUCTURE}/cloud-config.yml \
 	-o ./bosh-softlayer-tools/ci/softlayer_ng/ops/cloud-config-plus.yml \
+	-v director_ip=${director_ip} \
 	-v sl_datacenter=${SL_DATACENTER} \
 	-v sl_vm_name_prefix=${CF_PREFIX} \
 	-v sl_vm_domain=${SL_VM_DOMAIN} \
 	-v internal_cidr=10.0.0.0/24 \
 	-v internal_gw=10.0.0.1 \
 	-v sl_vlan_public_id=${SL_VLAN_PUBLIC} \
-	-v sl_vlan_private_id=${SL_VLAN_PRIVATE}
+	-v sl_vlan_private_id=${SL_VLAN_PRIVATE} \
+	> ${deployment_dir}/cloud-config.yml
+cat ${deployment_dir}/cloud-config.yml
+
+echo -e "\n\033[32m[INFO] Updating cloud-config.\033[0m"
+bosh-cli update-cloud-config -n ${deployment_dir}/cloud-config.yml
 
 echo -e "\n\033[32m[INFO] Final state of director deployment:\033[0m"
 cat ${deployment_dir}/director-state.json
