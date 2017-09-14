@@ -1,8 +1,8 @@
-# New softlayer CPI manifest specification
+# New softlayer CPI Summary
 
-## manifest change a lot
+## manifest change  
 
-This topic describes properties of deployment by new softlayer cpi by compare with the old SoftLayer CPI.
+This topic describes properties of deployment by comparing with the old SoftLayer CPI.
 
 ### AZs
 
@@ -15,7 +15,7 @@ AZs schema:
 
 _Note that IaaS specific cloud properties related to AZs should now be only placed under azs. Make sure to remove them from resource_pools/vm_types’ cloud properties._
 
-sample manifest for softlayer cpi:  
+sample manifest for legacy softlayer cpi:  
 ```yaml
 azs:
 - name: z1
@@ -48,7 +48,7 @@ Manual networks schema:
     * azs [Array, optional]: List of AZs associated with this subnet (should only be used when using first class AZs). Example: [z1, z2]. Available in v241+.
     * cloud_properties [Hash, optional]: Describes any IaaS-specific properties for the subnet. Default is {} (empty Hash).
 
-sample manifest of static network for softlayer cpi:  
+sample manifest of static network for legacy softlayer cpi:  
 ```yaml
 networks:
 - name: default
@@ -90,7 +90,7 @@ Dynamic networks schema:
   * cloud_properties [Hash, optional]: Describes any IaaS-specific properties for the network. Default is {} (empty Hash).
 
 
-sample manifest of dynamic network for softlayer cpi:  
+sample manifest of dynamic network for legacy softlayer cpi:  
 ```yaml
 networks
 - name: dynamic
@@ -107,6 +107,7 @@ networks
 
 sample manifest of dynamic network for new softlayer cpi:  
 ```yaml
+networks
 - name: dynamic
   type: dynamic
   cloud_properties:
@@ -124,7 +125,7 @@ Vm_types schema:
     * name [String, required]: A unique name used to identify and reference the VM type
     * cloud_properties [Hash, optional]: Describes any IaaS-specific properties needed to create VMs; for most IaaSes, some data here is actually required. See CPI Specific cloud_properties below. Example: instance_type: m3.medium. Default is {} (empty Hash).
 
-sample manifest of softlayer cpi: 
+sample manifest of legacy softlayer cpi: 
 ```yaml
 vm_types:
 - name: default
@@ -142,11 +143,11 @@ vm_types:
 
 sample manifest for new softlayer cpi:  
 ```yaml
+vm_types:
 - name: default
   cloud_properties:
     startCpus:  4
     maxMemory:  8192
-    maxNetworkSpeed: 100
     ephemeralDiskSize: 100
     hourlyBillingFlag: true
     vmNamePrefix: manifest-sample
@@ -163,6 +164,7 @@ Disk Type (previously known as Disk Pool) is a named disk configuration specifie
     * disk_size [Integer, required]: Specifies the disk size. disk_size must be a positive integer. BOSH creates a persistent disk of that size in megabytes and attaches it to each job instance VM.
     * cloud_properties [Hash, optional]: Describes any IaaS-specific properties needed to create disks. Examples: type, iops. Default is {} (empty Hash).
 
+sample manifest of legacy softlayer cpi: 
 ```yaml
 disk_types:
 - name: disks
@@ -172,19 +174,21 @@ disk_types:
     UseHourlyPricing: true
 ```
 
+sample manifest for new softlayer cpi:  
 ```yaml
 disk_types:
-- disk_size: 100000
-  name: disks
+- name: disks
+  disk_size: 100_000
   cloud_properties:
     iops: 3000
+    useHourlyPricing: true
     snapshotSpace: 20
 
 ```
     
-### more sample
+### Typical sample: The director deployment manifest
 
-director manifest comparison
+legacy softlayer cpi: 
 ```yaml
 cloud_provider:
   cert:
@@ -204,8 +208,8 @@ cloud_provider:
     - time3.google.com
     - time4.google.com
     softlayer:
-      apiKey: 7eab8fbfcdda3249e780dce0b10c7e4794e5ccd0fc9af7221b9fa9b40924ba8a
-      username: cuixuex@cn.ibm.com
+      apiKey: ...
+      username: ...
   template:
     name: softlayer_cpi
     release: bosh-softlayer-cpi
@@ -220,7 +224,7 @@ networks:
   - cloud_properties:
       PrimaryNetworkComponent:
         NetworkVlan:
-          Id: 1292653
+          Id: 1234567
     dns:
     - 8.8.8.8
     gateway: 10.112.166.129
@@ -231,10 +235,10 @@ networks:
 - cloud_properties:
     PrimaryBackendNetworkComponent:
       NetworkVlan:
-        Id: 1292651
+        Id: 1234567
     PrimaryNetworkComponent:
       NetworkVlan:
-        Id: 1292653
+        Id: 1234568
   dns:
   - 8.8.8.8
   - 10.0.80.11
@@ -247,14 +251,14 @@ resource_pools:
     datacenter:
       name: lon02
     deployedByBoshcli: true
-    domain: softlayer.com
+    domain: fake-domain.com
     ephemeralDiskSize: 100
     hourlyBillingFlag: true
     maxMemory: 8192
     networkComponents:
     - maxSpeed: 100
     startCpus: 4
-    vmNamePrefix: director-sl-cpi-prefix
+    vmNamePrefix: fakie-prefix
   env:
     bosh: ...
   name: vms
@@ -263,6 +267,7 @@ resource_pools:
 variables: []
 ```
 
+new softlayer cpi: 
 ```yaml
 cloud_provider:
   cert:
@@ -282,8 +287,8 @@ cloud_provider:
     - time3.google.com
     - time4.google.com
     softlayer:
-      api_key: 7eab8fbfcdda3249e780dce0b10c7e4794e5ccd0fc9af7221b9fa9b40924ba8a
-      username: cuixuex@cn.ibm.com
+      api_key: ...
+      username: ...
   ssh_tunnel:
     host: director-sl-cpi-shadow.softlayer.com
     port: 22
@@ -305,7 +310,7 @@ networks:
   subnets:
   - cloud_properties:
       vlanIds:
-      - 1292653
+      - 1234567
     dns:
     - 8.8.8.8
     gateway: 10.112.166.129
@@ -315,8 +320,8 @@ networks:
   type: manual
 - cloud_properties:
     vlanIds:
-    - 1292651
-    - 1292653
+    - 1234567
+    - 1234568
   dns:
   - 8.8.8.8
   - 10.0.80.11
@@ -328,13 +333,13 @@ resource_pools:
 - cloud_properties:
     datacenter: lon02
     deployedByBoshcli: true
-    domain: softlayer.com
+    domain: fake-domain.com
     ephemeralDiskSize: 100
     hourlyBillingFlag: true
     maxMemory: 8192
     maxNetworkSpeed: 100
     startCpus: 4
-    vmNamePrefix: director-sl-cpi-prefix
+    vmNamePrefix: fake-prefix
   env:
     bosh: ...
   name: vms
@@ -343,10 +348,24 @@ resource_pools:
 variables: []
 ```
 
+How about add sample manifest of simpler case.
 
-## diff
-softlayer-go
-implement actions
-userData
-registry
-must settings
+## Comparison with legacy CPI
+
+### softlayer-go
+
+1. new Softlayer CPI is moved to SL official softlayer-go lib.  
+Each data types and service methods of the lib is pre-generated, using the SoftLayer API metadata endpoint as input, thus ensuring 100% coverage of the API right out of the gate. The libray use a session struct to manage all Softlayer Services. Services-relative data can be queried by calling the Mask(), Filter(), Limit() and Offset() service methods prior to invoking an API method. All non-slice method parameters are passed as pointers. Like method parameters, all non-slice members are declared as pointers in datatypes. A custom error type is returned when API services error occurs, with individual fields that can be parsed separately.
+Add retry when network conns error.
+
+TODO: 
+
+2. implement actions
+
+3. userData
+
+4. registry
+
+5. manifest /add-on
+
+6. must settings
