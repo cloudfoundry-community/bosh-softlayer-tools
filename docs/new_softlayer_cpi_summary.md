@@ -28,7 +28,7 @@ sample manifest for new softlayer cpi:
 azs:
 - name: z1
   cloud_properties:
-    datacenter: { name: lon02 }
+    datacenter: lon02 
 ```
 
 ### Networks
@@ -137,8 +137,6 @@ vm_types:
     hourlyBillingFlag: true
     vmNamePrefix: manifest-sample
     domain: sofltayer.com
-    datacenter:
-      name: lon02
 ```
 
 sample manifest for new softlayer cpi:  
@@ -152,7 +150,6 @@ vm_types:
     hourlyBillingFlag: true
     vmNamePrefix: manifest-sample
     domain: sofltayer.com
-    datacenter: lon02
 ```
 
 ### Disk types/Disk Pools
