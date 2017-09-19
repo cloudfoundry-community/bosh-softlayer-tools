@@ -47,11 +47,19 @@ cat >webdav-blobstore.yml <<EOF
     - "allow 169.50.0.0/16;"
 EOF
 
+cat >downsize-consul.yml <<EOF
+- type: replace
+  path: /instance_groups/name=consul/instances?
+  value:
+    1
+EOF
+
 bosh-cli vms >cf-artifacts/deployed-vms
 bosh-cli int cf-deployment/cf-deployment.yml \
 	--vars-store ${DEPLOYMENT_NAME}/cf-creds.yml \
 	-o stemcell.yml \
 	-o cf-deployment/operations/rename-deployment.yml \
+	-o downsize-consul.yml \
 	-v deployment_name=${DEPLOYMENT_NAME} \
 	-v system_domain=${CF_PREFIX}.${CF_DOMAIN} \
 	> ${deployment_dir}/cf.yml

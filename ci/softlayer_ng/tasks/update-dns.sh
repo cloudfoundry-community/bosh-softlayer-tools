@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-source bosh-softlayer-tools/ci/tasks/utils.sh
-source /etc/profile.d/chruby.sh
 
 check_param VCAP_PASSWORD
 
@@ -12,7 +10,6 @@ mkdir -p $deployment_dir
 
 tar -zxvf director-artifacts/director_artifacts.tgz -C ${deployment_dir}
 tar -zxvf cf-artifacts/cf_artifacts.tgz -C ${deployment_dir}
-tar -zxvf run-utils/run-utils.tgz -C run-utils/
 
 deploy_name=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/cf-deploy-base.yml --path /name)
 director_ip=$(awk '{print $1}' deployment/director-hosts)
@@ -20,7 +17,11 @@ domain1="${deploy_name}.sofltayer.com"
 pg_password=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/credentials.yml --path /PG_PASSWORD)
 ip_ha=$(grep ha_proxy ${deployment_dir}/deployed-vms|awk '{print $4}')
 
-cat >run-utils/update_dns.sh<<EOF
+bosh-cli int /data/xzd/deployment/cf/deployment/director-creds.yml --path /jumpbox_ssh/private_key > ~/.ssh/director
+chmod 0600 ~/.ssh/director
+ssh jumpbox@bosh-director-auto-cf-ed.sofltayer.com -i ~/.ssh/director
+echo -e "\n\033[32m[INFO] Updating router to PowerDns by bosh-cli.\033[0m"
+cat >update_dns.sh<<EOF
 cat >/tmp/update_dns.sql<<ENDSQL
 DO \\\$\\\$
 DECLARE new_id INTEGER;
@@ -36,8 +37,11 @@ ENDSQL
 /var/vcap/packages/postgres/bin/psql -U postgres -d powerdns -a -f /tmp/update_dns.sql
 EOF
 
-chmod +x run-utils/update_dns.sh
+chmod +x update_dns.sh
 pushd run-utils
 echo "$director_ip" >ip_list
 ./run.sh -s ./update_dns.sh -i ip_list -p $VCAP_PASSWORD
+
+bosh -e vbox -d cf ssh diego-cell -c 'sudo lsof -i|grep LISTEN'
+
 popd

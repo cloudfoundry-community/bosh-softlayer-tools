@@ -85,3 +85,19 @@ jobs:
   - put: cf-artifacts
     params:
       file: cf-artifacts/cf_artifacts.tgz
+
+- name: deploy-cf-base
+  plan:
+  - aggregate:
+    - get: director-artifacts
+      resource: director-artifacts
+      passed:
+      - deploy-director-base
+    - get: bosh-softlayer-tools
+      resource: bosh-softlayer-tools-master
+    - get: cf-artifacts
+      resource: cf-artifacts
+  - task: update-dns
+    file: bosh-softlayer-tools/ci/softlayer_ng/tasks/update-dns.yml
+    params:
+      VCAP_PASSWORD:                       {{vcap-password}}
