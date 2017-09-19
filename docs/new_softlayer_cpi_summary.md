@@ -353,7 +353,7 @@ How about add sample manifest of simpler case.
 
 1. new Softlayer CPI is moved to SL official softlayer-go lib.  
 Each data types and service methods of the lib is pre-generated, using the SoftLayer API metadata endpoint as input, thus ensuring 100% coverage of the API right out of the gate. The libray use a session struct to manage all Softlayer Services. Services-relative data can be queried by calling the Mask(), Filter(), Limit() and Offset() service methods prior to invoking an API method. All non-slice method parameters are passed as pointers. Like method parameters, all non-slice members are declared as pointers in datatypes. A custom error type is returned when API services error occurs, with individual fields that can be parsed separately.
-Add retry when network conns error.
+Add retry when network connections error.
 
 TODO: 
 

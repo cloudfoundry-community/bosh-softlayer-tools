@@ -37,9 +37,19 @@ cat >stemcell.yml <<EOF
     version: latest
 EOF
 
+cat >webdav-blobstore.yml <<EOF
+- type: replace
+  path: /instance_groups/name=blobstore/jobs/name=blobstore/properties/blobstore/internal_access_rules?
+  value:
+    - "allow 10.0.0.0/8;"
+    - "allow 172.16.0.0/12;"
+    - "allow 192.168.0.0/16;"
+    - "allow 169.50.0.0/16;"
+EOF
+
 bosh-cli vms >cf-artifacts/deployed-vms
 bosh-cli int cf-deployment/cf-deployment.yml \
-	--vars-store env-repo/deployment-vars.yml \
+	--vars-store ${DEPLOYMENT_NAME}/cf-creds.yml \
 	-o stemcell.yml \
 	-o cf-deployment/operations/rename-deployment.yml \
 	-v deployment_name=${DEPLOYMENT_NAME} \
@@ -52,6 +62,7 @@ bosh-cli -d ${DEPLOYMENT_NAME} -n deploy ${deployment_dir}/cf.yml
 
 bosh-cli vms >cf-artifacts/deployed-vms
 cp ${deployment_dir}/cf.yml cf-artifacts/cf.yml
+cp ${deployment_dir}/cf-creds.yml cf-artifacts/cf-creds.yml
 
 pushd cf-artifacts
   tar -zcvf /tmp/cf_artifacts.tgz ./ >/dev/null 2>&1
