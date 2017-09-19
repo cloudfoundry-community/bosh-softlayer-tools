@@ -72,8 +72,7 @@ export BOSH_CA_CERT=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /
 
 echo -e "\n\033[32m[INFO] Generating cloud-config director.yml.\033[0m"
 director_ip=$(awk '{if ($1!="") print $1}' ${deployment_dir}/director-hosts)
-bosh-cli int ./bosh-deployment/${INFRASTRUCTURE}/cloud-config.yml \
-	-o ./bosh-softlayer-tools/ci/softlayer_ng/ops/cloud-config-plus.yml \
+bosh-cli int ./bosh-deployment/${INFRASTRUCTURE}/cf-cloud-config.yml \
 	-v director_ip=${director_ip} \
 	-v sl_datacenter=${SL_DATACENTER} \
 	-v sl_vm_name_prefix=${CF_PREFIX} \
@@ -82,7 +81,7 @@ bosh-cli int ./bosh-deployment/${INFRASTRUCTURE}/cloud-config.yml \
 	-v internal_gw=10.0.0.1 \
 	-v sl_vlan_public_id=${SL_VLAN_PUBLIC} \
 	-v sl_vlan_private_id=${SL_VLAN_PRIVATE} \
-	> ${deployment_dir}/cloud-config.yml
+	>${deployment_dir}/cloud-config.yml
 cat ${deployment_dir}/cloud-config.yml
 
 echo -e "\n\033[32m[INFO] Updating cloud-config.\033[0m"
@@ -91,7 +90,7 @@ bosh-cli update-cloud-config -n ${deployment_dir}/cloud-config.yml
 echo -e "\n\033[32m[INFO] Final state of director deployment:\033[0m"
 cat ${deployment_dir}/director-state.json
 
-echo -e "\n\033[32m[INFO] Saving config.\033[0m"
+echo -e "\n\033[32m[INFO] Saving director artifacts.\033[0m"
 cp bosh-cli-v2/bosh-cli* ${deployment_dir}/
 pushd ${deployment_dir}
   tar -zcvf /tmp/director_artifacts.tgz ./ >/dev/null 2>&1

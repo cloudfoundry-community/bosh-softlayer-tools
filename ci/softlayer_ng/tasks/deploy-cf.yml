@@ -16,9 +16,5 @@ outputs:
 
 params:
   DEPLOYMENT_NAME:                       ""
-  SL_DATACENTER:                         ""
-  SL_VLAN_PUBLIC:                        ""
-  SL_VLAN_PRIVATE:                       ""
   DEPLOY_NAME:                           ""
-  CF_PREFIX:                             ""
-  CF_DOMAIN:                             ""
+  SYSTEM_DOMAIN:                         ""

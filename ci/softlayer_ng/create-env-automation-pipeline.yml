@@ -2,14 +2,14 @@ resources:
 - name: director-artifacts
   type: s3
   source:
-    bucket: bosh-softlayer-create-cf-env
+    bucket: {{aws-env-bucket}}
     versioned_file: director_artifacts.tgz
     access_key_id: {{aws-access-key}}
     secret_access_key: {{aws-secret-key}}
 - name: cf-artifacts
   type: s3
   source:
-    bucket: bosh-softlayer-create-cf-env
+    bucket: {{aws-env-bucket}}
     versioned_file: cf_artifacts.tgz
     access_key_id: {{aws-access-key}}
     secret_access_key: {{aws-secret-key}}    
@@ -76,28 +76,42 @@ jobs:
   - task: deploy-cf
     file: bosh-softlayer-tools/ci/softlayer_ng/tasks/deploy-cf.yml
     params:
-      DEPLOYMENT_NAME:                        {{deployment-name}}
-      SL_DATACENTER:                          {{softlayer-datacenter}}
-      SL_VLAN_PUBLIC:                         {{softlayer-vlan-public}}
-      SL_VLAN_PRIVATE:                        {{softlayer-vlan-private}}
-      CF_PREFIX:                              {{softlayer-cf-prefix}}
-      CF_DOMAIN:                              {{softlayer-cf-domain}}
+      DEPLOYMENT_NAME:  {{deployment-name}}
+      SL_DATACENTER:    {{softlayer-datacenter}}
+      SL_VLAN_PUBLIC:   {{softlayer-vlan-public}}
+      SL_VLAN_PRIVATE:  {{softlayer-vlan-private}}
+      SYSTEM_DOMAIN:    {{cf_system_domain}}
   - put: cf-artifacts
     params:
       file: cf-artifacts/cf_artifacts.tgz
 
-- name: deploy-cf-base
+- name: update-dns
   plan:
   - aggregate:
-    - get: director-artifacts
-      resource: director-artifacts
-      passed:
-      - deploy-director-base
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
     - get: cf-artifacts
       resource: cf-artifacts
+      passed:
+      - deploy-cf-base
   - task: update-dns
     file: bosh-softlayer-tools/ci/softlayer_ng/tasks/update-dns.yml
     params:
-      VCAP_PASSWORD:                       {{vcap-password}}
+      SYSTEM_DOMAIN:  {{cf_system_domain}}
+  - put: cf-artifacts
+    params:
+      file: cf-artifacts/cf_artifacts.tgz
+      
+- name: verify-cf-push
+  plan:
+  - aggregate:
+    - get: bosh-softlayer-tools
+      resource: bosh-softlayer-tools-master
+    - get: cf-artifacts
+      resource: cf-artifacts
+      passed:
+      - update-dns
+  - task: cf-push-app
+    file: bosh-softlayer-tools/ci/softlayer_ng/tasks/verify-cf.yml
+    params: &cf-params
+      CF_API:   api.{{cf_system_domain}}
