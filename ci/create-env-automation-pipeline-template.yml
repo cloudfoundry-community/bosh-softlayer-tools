@@ -20,25 +20,18 @@ resources:
     versioned_file: cli-vm-info
     bucket: bosh-softlayer-create-cf-env
     secret_access_key: {{s3-access-key}}
-
 - name: cf-template
-  type: s3
+  type: git
   source:
-    bucket: bmx-automation-artifacts
-    regexp: cf-template-v(.*).yml
-    access_key_id: {{stemcell-sl-os-access-key}}
-    secret_access_key: {{stemcell-sl-os-secret-key}}
-    endpoint: {{stemcell-sl-os-endpoint}}
-
+    branch: master
+    uri: git@github.ibm.com:BlueMix-Fabric/bosh-ecpi-private.git
+    private_key: {{ghe-private-key}}
 - name: diego-template
-  type: s3
+  type: git
   source:
-    bucket: bmx-automation-artifacts
-    regexp: diego-template-(.*).yml
-    access_key_id: {{stemcell-sl-os-access-key}}
-    secret_access_key: {{stemcell-sl-os-secret-key}}
-    endpoint: {{stemcell-sl-os-endpoint}}
-
+    branch: master
+    uri: git@github.ibm.com:BlueMix-Fabric/bosh-ecpi-private.git
+    private_key: {{ghe-private-key}}
 - name: cf-artifacts
   type: s3
   source:
