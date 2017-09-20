@@ -29,7 +29,7 @@ bosh-cli us https://s3.amazonaws.com/bosh-softlayer-stemcells-candidate-containe
 echo -e "\n\033[32m[INFO] Generating cf manifest.\033[0m"
 bosh-cli vms >cf-artifacts/deployed-vms
 bosh-cli int cf-deployment/cf-deployment.yml \
-	--vars-store ${DEPLOYMENT_NAME}/cf-creds.yml \
+	--vars-store ${deployment_dir}/cf-creds.yml \
 	-o cf-deployment/operations/rename-deployment.yml \
 	-o cf-deployment/operations/community/use-haproxy.yml \
 	-o cf-deployment/operations/softlayer/downsize-cf.yml \
@@ -42,7 +42,7 @@ cat ${deployment_dir}/cf.yml
 
 echo -e "\n\033[32m[INFO] Deploying CF.\033[0m"
 bosh-cli -d ${DEPLOYMENT_NAME} -n deploy ${deployment_dir}/cf.yml \
-	--vars-store ${DEPLOYMENT_NAME}/cf-creds.yml
+	--vars-store ${deployment_dir}/cf-creds.yml
 
 bosh-cli vms >cf-artifacts/deployed-vms
 cp ${deployment_dir}/cf.yml cf-artifacts/cf.yml

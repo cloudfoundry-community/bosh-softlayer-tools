@@ -6,13 +6,34 @@ resources:
     versioned_file: director_artifacts.tgz
     access_key_id: {{aws-access-key}}
     secret_access_key: {{aws-secret-key}}
+- name: director-artifacts-updated
+  type: s3
+  source:
+    bucket: {{aws-env-bucket}}
+    versioned_file: director_artifacts_updated.tgz
+    access_key_id: {{aws-access-key}}
+    secret_access_key: {{aws-access-key}}
 - name: cf-artifacts
   type: s3
   source:
     bucket: {{aws-env-bucket}}
     versioned_file: cf_artifacts.tgz
     access_key_id: {{aws-access-key}}
-    secret_access_key: {{aws-secret-key}}    
+    secret_access_key: {{aws-secret-key}}
+- name: cf-bluemix-artifacts
+  type: s3
+  source:
+    bucket: {{aws-env-bucket}}
+    versioned_file: cf_bluemix_artifacts.tgz
+    access_key_id: {{aws-access-key}}
+    secret_access_key: {{aws-secret-key}}
+- name: cf-artifacts-updated
+  type: s3
+  source:
+    bucket: {{aws-env-bucket}}
+    versioned_file: cf_artifacts_updated.tgz
+    access_key_id: {{aws-access-key}}
+    secret_access_key: {{aws-access-key}}
 - name: bosh-cli-v2
   type: s3
   source:
@@ -34,6 +55,32 @@ resources:
   source:
     uri: https://github.com/bluebosh/cf-deployment
     branch: new_softlayer_cpi
+- name: cf-template
+  type: git
+  source:
+    branch: master
+    uri: git@github.ibm.com:BlueMix-Fabric/bosh-ecpi-private.git
+    private_key: {{ghe-private-key}}
+- name: diego-template
+  type: git
+  source:
+    branch: master
+    uri: git@github.ibm.com:BlueMix-Fabric/bosh-ecpi-private.git
+    private_key: {{ghe-private-key}}
+- name: run-utils
+  type: s3
+  source:
+    bucket: bosh-softlayer-create-cf-env
+    versioned_file: run-utils.tgz
+    access_key_id: {{aws-access-key}}
+    secret_access_key: {{aws-secret-key}}
+- name: cf-app
+  type: s3
+  source:
+    bucket: bosh-softlayer-create-cf-env
+    versioned_file: IICVisit.war
+    access_key_id: {{aws-access-key}}
+    secret_access_key: {{aws-secret-key}}
 
 jobs:
 - name: deploy-director-base
@@ -65,14 +112,14 @@ jobs:
 - name: deploy-cf-base
   plan:
   - aggregate:
-    - get: director-artifacts
-      resource: director-artifacts
-      passed:
-      - deploy-director-base
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
     - get: cf-deployment
       resource: cf-deployment-new-softlayer-cpi
+    - get: director-artifacts
+      resource: director-artifacts
+      passed:
+      - deploy-director-base
   - task: deploy-cf
     file: bosh-softlayer-tools/ci/softlayer_ng/tasks/deploy-cf.yml
     params:
@@ -115,3 +162,143 @@ jobs:
     file: bosh-softlayer-tools/ci/softlayer_ng/tasks/verify-cf.yml
     params: &cf-params
       CF_API:   api.{{cf_system_domain}}
+
+- name: deploy-cf-bluemix
+  plan:
+  - aggregate:
+    - get: director-artifacts
+      resource: director-artifacts
+      passed:
+      - deploy-director-base
+    - get: bosh-softlayer-tools
+      resource: bosh-softlayer-tools-master
+    - get: cf-deployment
+      resource: cf-deployment-new-softlayer-cpi
+  - task: deploy-cf
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/deploy-cf.yml
+    params:
+      cf_template:                            {{cf-template}}
+      diego_template:                         {{diego-template}}
+      deploy_name:                            {{deployment-bluemix-name}}
+      data_center_name:                       {{softlayer-datacenter}}
+      public_vlan_id:                         {{softlayer-vlan-public}}
+      private_vlan_id:                        {{softlayer-vlan-private}}
+      stemcell_name:                          {{stemcell-base-name}}
+      stemcell_version:                       {{stemcell-base-version}}
+      stemcell_location:                      {{stemcell-base-location}}
+  - put: cf-artifacts
+    params:
+      file: cf-bluemix-artifacts/cf_artifacts.tgz
+
+- name: update-dns-bluemix
+  plan:
+  - aggregate:
+    - get: bosh-softlayer-tools
+      resource: bosh-softlayer-tools-master
+    - get: run-utils
+      resource: run-utils
+    - get: cf-artifacts
+      resource: cf-bluemix-artifacts
+    - get: director-artifacts
+      resource: director-artifacts
+      passed:
+      - deploy-director-base
+  - task: update-dns
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-dns.yml
+    params:
+      VCAP_PASSWORD:                       {{vcap-password}}
+
+- name: verify-cf-push-bluemix
+  plan:
+  - aggregate:
+    - get: cf-app
+      resource: cf-app
+    - get: bosh-softlayer-tools
+      resource: bosh-softlayer-tools-master
+    - get: director-artifacts
+      resource: director-artifacts
+      passed:
+      - update-dns-bluemix
+  - task: cf-push-app
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/verify-cf.yml
+    params: &cf-params
+      APP_API:      {{cf-app-api}}
+      CF_API:       {{cf-api}}
+      CF_PASSWORD:  {{cf-password}}
+      CF_USERNAME:  {{cf-username}}
+
+- name: update-director-bluemix
+  serial: true
+  plan:
+  - get: director-artifacts
+    resource: director-artifacts
+    passed:
+    - verify-cf-push-bluemix
+  - get: bosh-softlayer-tools
+    resource: bosh-softlayer-tools-master
+  - get: bosh-cli-v2
+    resource: bosh-cli-v2
+  - task: deploy
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-director.yml
+    params:
+      SL_VM_PREFIX:                      {{deployment-name}}
+      SL_USERNAME:                       {{softlayer-username}}
+      SL_API_KEY:                        {{softlayer-api-key}}
+      SL_DATACENTER:                     {{softlayer-datacenter}}
+      SL_VLAN_PUBLIC:                    {{softlayer-vlan-public}}
+      SL_VLAN_PRIVATE:                   {{softlayer-vlan-private}}
+      BOSH_RELEASE:                      {{bosh-release-update}}
+      BOSH_RELEASE_SHA1:                 {{bosh-release-update-sha1}}
+      BOSH_SOFTLAYER_CPI_RELEASE:        {{bosh-softlayer-cpi-release-update}}
+      BOSH_SOFTLAYER_CPI_RELEASE_SHA1:   {{bosh-softlayer-cpi-release-update-sha1}}
+      DIRECTOR_STEMCELL:                 {{stemcell-update-location}}
+      STEMCELL_SHA1:                     {{stemcell-update-sha1}}
+  - put: director-artifacts-updated
+    params:
+      file: deploy-artifacts-updated/director_artifacts_updated.tgz
+
+- name: update-cf-bluemix
+  plan:
+  - aggregate:
+    - get: director-artifacts-updated
+      resource: director-artifacts-updated
+      passed:
+      - update-director-bluemix
+    - get: bosh-softlayer-tools
+      resource: bosh-softlayer-tools-master
+    - get: cf-template
+      resource: cf-template
+    - get: diego-template
+      resource: diego-template
+    - get: cf-artifacts
+      resource: cf-bluemix-artifacts
+  - task: deploy-cf
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-cf.yml
+    params:
+      cf_template:                            {{cf-template}}
+      diego_template:                         {{diego-template}}
+      deploy_name:                            {{deployment-name}}
+      data_center_name:                       {{softlayer-datacenter}}
+      public_vlan_id:                         {{softlayer-vlan-public}}
+      private_vlan_id:                        {{softlayer-vlan-private}}
+      stemcell_name:                          {{stemcell-update-name}}
+      stemcell_version:                       {{stemcell-update-version}}
+      stemcell_location:                      {{stemcell-update-location}}
+  - put: cf-artifacts-updated
+    params:
+      file: cf-artifacts-updated/cf_artifacts_updated.tgz
+
+- name: verify-cf-push-updated-bluemix
+  plan:
+  - aggregate:
+    - get: cf-app
+      resource: cf-app
+    - get: bosh-softlayer-tools
+      resource: bosh-softlayer-tools-master
+    - get: director-artifacts-updated
+      resource: director-artifacts-updated
+      passed:
+      - update-cf-bluemix
+  - task: cf-push-app
+    file: bosh-softlayer-tools/ci/tasks/create-env-automation/verify-cf-updated.yml
+    params: *cf-params

@@ -351,9 +351,16 @@ How about add sample manifest of simpler case.
 
 ### softlayer-go
 
-1. new Softlayer CPI is moved to SL official softlayer-go lib.  
-Each data types and service methods of the lib is pre-generated, using the SoftLayer API metadata endpoint as input, thus ensuring 100% coverage of the API right out of the gate. The libray use a session struct to manage all Softlayer Services. Services-relative data can be queried by calling the Mask(), Filter(), Limit() and Offset() service methods prior to invoking an API method. All non-slice method parameters are passed as pointers. Like method parameters, all non-slice members are declared as pointers in datatypes. A custom error type is returned when API services error occurs, with individual fields that can be parsed separately.
-Add retry when network connections error.
+1. new Softlayer CPI is moved to SL official `softlayer-go` lib.  
+Each data types and service methods of the lib is pre-generated, using the SoftLayer API metadata endpoint as input, thus ensuring 100% coverage of the API right out of the gate. The library use a session to manage all Softlayer Services, every services has own methods. Services-relative data can be queried by calling the Mask(), Filter(), Limit() and Offset() service methods prior to invoking an API method. All non-slice method parameters are passed as pointers. Like method parameters, all non-slice members are declared as pointers in datatypes. A custom error type is returned when API services error occurs, with individual fields that can be parsed separately.
+
+And `softlayer-go` Add wait/retry logic to retry the api requests if there is a timeout error. 
+
+So we combine the 3-layer wait/retry mechanism:  
+1. softlayer-go covers connection timeout error. The transport handler of softlayer-go support the retry of connectino error. It contains http timeout error(408 Request Timeout, 504 Gateway Timeout, 599 Network connect timeout) and transport timeout error[[#2](https://github.com/softlayer/softlayer-go/blob/retries/session/session.go#L284-L301).
+2. CPI covers Softlayer resource 'Not_Found' error and registry timeout error. When CPI calls specific softlayer API such getObject and Softlayer return 'Not_Found' error, CPI will wait 5 seconds and retry in one minute.
+3. Bosh director cover CPI actions' retries when CPI return error with positive ok_to_retry. For example, CPI would return a error with positive ok_to_retry when calling Softlayer Virtual Guest Serivce create Object failed as long as the parameter check is correct before call API methods.
+
 
 TODO: 
 
