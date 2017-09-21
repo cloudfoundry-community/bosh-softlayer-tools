@@ -1,22 +1,18 @@
 #!/usr/bin/env bash
 set -e
 
-check_param CF_API
-check_param CF_USERNAME
-check_param CF_PASSWORD
-check_param APP_API
+: ${CF_API:?}
 
 deployment_dir="${PWD}/deployment"
 mkdir -p $deployment_dir
 
 tar -zxvf cf-artifacts/cf_artifacts.tgz -C ${deployment_dir}
 
-cp ${deployment_dir}/bosh-cli* /usr/local/bin/bosh-cli
-chmod +x /usr/local/bin/bosh-cli
 
 echo -e "\n\033[32m[INFO] Installing Cloud Foundry Client.\033[0m"
-wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
-echo "deb http://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+apt-get install wget -y
+wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add -
+echo "deb http://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list
 apt-get update
 apt-get install cf-cli -y
 echo -e "\n\033[32m[INFO] Using cf $(cf --version).\033[0m"

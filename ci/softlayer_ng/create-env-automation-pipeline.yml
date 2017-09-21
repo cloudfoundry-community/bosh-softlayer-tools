@@ -172,8 +172,10 @@ jobs:
       - deploy-director-base
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
-    - get: cf-deployment
-      resource: cf-deployment-new-softlayer-cpi
+    - get: cf-template
+      resource: cf-template
+    - get: diego-template
+      resource: diego-template
   - task: deploy-cf
     file: bosh-softlayer-tools/ci/tasks/create-env-automation/deploy-cf.yml
     params:
@@ -186,7 +188,7 @@ jobs:
       stemcell_name:                          {{stemcell-base-name}}
       stemcell_version:                       {{stemcell-base-version}}
       stemcell_location:                      {{stemcell-base-location}}
-  - put: cf-artifacts
+  - put: cf-bluemix-artifacts
     params:
       file: cf-bluemix-artifacts/cf_artifacts.tgz
 
@@ -199,10 +201,12 @@ jobs:
       resource: run-utils
     - get: cf-artifacts
       resource: cf-bluemix-artifacts
+      passed:
+      - deploy-cf-bluemix
     - get: director-artifacts
       resource: director-artifacts
       passed:
-      - deploy-director-base
+      - deploy-cf-bluemix
   - task: update-dns
     file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-dns.yml
     params:
