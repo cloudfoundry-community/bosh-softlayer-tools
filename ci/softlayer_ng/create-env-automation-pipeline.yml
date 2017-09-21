@@ -139,8 +139,6 @@ jobs:
   - aggregate:
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
-      passed:
-      - deploy-cf-community
     - get: cf-artifacts-comm
       resource: cf-artifacts-comm
       passed:
@@ -158,8 +156,6 @@ jobs:
   - aggregate:
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
-      passed:
-      - update-dns-community
     - get: cf-artifacts-comm
       resource: cf-artifacts-comm
       passed:
@@ -178,8 +174,6 @@ jobs:
       - deploy-director-base
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
-      passed:
-      - deploy-director-base
     - get: cf-template
       resource: cf-template
     - get: diego-template
@@ -205,8 +199,6 @@ jobs:
   - aggregate:
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
-      passed:
-      - deploy-cf-bluemix
     - get: run-utils
       resource: run-utils
     - get: cf-artifacts
@@ -229,8 +221,6 @@ jobs:
       resource: cf-app
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
-      passed:
-      - update-dns-bluemix
     - get: director-artifacts
       resource: director-artifacts
       passed:
@@ -252,8 +242,6 @@ jobs:
     - verify-cf-push-bluemix
   - get: bosh-softlayer-tools
     resource: bosh-softlayer-tools-master
-    passed:
-    - verify-cf-push-bluemix
   - get: bosh-cli-v2
     resource: bosh-cli-v2
   - task: deploy
@@ -284,8 +272,6 @@ jobs:
       - update-director-bluemix
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
-      passed:
-      - update-director-bluemix
     - get: cf-template
       resource: cf-template
     - get: diego-template
@@ -315,8 +301,6 @@ jobs:
       resource: cf-app
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
-      passed:
-      - update-cf-bluemix
     - get: director-artifacts-updated
       resource: director-artifacts-updated
       passed:
@@ -325,19 +309,17 @@ jobs:
     file: bosh-softlayer-tools/ci/tasks/create-env-automation/verify-cf-updated.yml
     params: *cf-params
 
-- name: destroy-director
+- name: manual-teardown
   plan:
   - aggregate:
-    - get: cf-app
-      resource: cf-app
+    - get: director-artifacts
+      resource: director-artifacts
+      passed:
+      - deploy-director-base
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
-      passed:
-      - update-cf-bluemix
-    - get: director-artifacts-updated
-      resource: director-artifacts-updated
-      passed:
-      - update-cf-bluemix
-  - task: cf-push-app
-    file: bosh-softlayer-tools/ci/tasks/create-env-automation/verify-cf-updated.yml
-    params: *cf-params
+  - task: teardown
+    file: bosh-softlayer-tools/ci/softlayer_ng/tasks/teardown.yml
+    params:
+      DEPLOYMENT_BlUEMIX_NAME:   {{deployment-bluemix-name}}
+      DEPLOYMENT_COMMUNITY_NAME: {{deployment-name}}

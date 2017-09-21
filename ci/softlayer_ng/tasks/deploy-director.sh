@@ -92,7 +92,12 @@ cat ${deployment_dir}/director-state.json
 
 echo -e "\n\033[32m[INFO] Saving director artifacts.\033[0m"
 cp bosh-cli-v2/bosh-cli* ${deployment_dir}/
+cp ${deployment_dir}/director-state.json ${deployment_dir}/director-deploy-state.json
 cp ${deployment_dir}/director-creds.yml ${deployment_dir}/credentials.yml
+
+sed -i 's/director_ssl/DIRECTOR_SSL/g' ${deployment_dir}/credentials.yml
+sed -i 's/admin_password/DI_ADMIN_PASSWORD/g' ${deployment_dir}/credentials.yml
+
 pushd ${deployment_dir}
   tar -zcvf /tmp/director_artifacts.tgz ./ >/dev/null 2>&1
 popd
