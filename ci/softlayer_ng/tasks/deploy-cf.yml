@@ -11,7 +11,8 @@ run:
   path: bosh-softlayer-tools/ci/softlayer_ng/tasks/deploy-cf.sh
 
 outputs:
-- name: cf-artifacts
+- name: cf-artifacts-comm
+  path: cf-artifacts
 - name: deploy-status
 
 params:
