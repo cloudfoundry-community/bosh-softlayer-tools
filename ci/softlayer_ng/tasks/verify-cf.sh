@@ -6,7 +6,7 @@ set -e
 deployment_dir="${PWD}/deployment"
 mkdir -p $deployment_dir
 
-tar -zxvf cf-artifacts/cf_artifacts.tgz -C ${deployment_dir}
+tar -zxvf cf-artifacts-comm/cf-artifacts-comm.tgz -C ${deployment_dir}
 
 
 echo -e "\n\033[32m[INFO] Installing Cloud Foundry Client.\033[0m"

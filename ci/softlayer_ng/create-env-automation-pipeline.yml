@@ -132,7 +132,7 @@ jobs:
       SYSTEM_DOMAIN:    {{cf_system_domain}}
   - put: cf-artifacts-comm
     params:
-      file: cf-artifacts-comm/cf_artifacts.tgz
+      file: cf-artifacts/cf_artifacts.tgz
 
 - name: update-dns-community
   plan:
@@ -149,7 +149,7 @@ jobs:
       SYSTEM_DOMAIN:  {{cf_system_domain}}
   - put: cf-artifacts-comm
     params:
-      file: cf-artifacts-comm/cf_artifacts.tgz
+      file: cf-artifacts/cf_artifacts.tgz
       
 - name: verify-cf-push-community
   plan:
@@ -163,7 +163,7 @@ jobs:
   - task: cf-push-app
     file: bosh-softlayer-tools/ci/softlayer_ng/tasks/verify-cf.yml
     params: &cf-params
-      CF_API:   api.{{cf_system_domain}}
+      CF_API:   {{cf_api_community}}
 
 - name: deploy-cf-bluemix
   plan:

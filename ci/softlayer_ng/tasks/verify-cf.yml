@@ -5,10 +5,13 @@ image: docker:///boshcpi/azure-cpi-release
 inputs:
 - name: bosh-softlayer-tools
 - name: cf-artifacts-comm
-  path: cf-artifacts
 
 run:
   path: bosh-softlayer-tools/ci/softlayer_ng/tasks/verify-cf.sh
+
+outputs:
+- name: cf-artifacts
+  path: cf-artifacts
 
 params:
   CF_USERNAME: 		replace-me
