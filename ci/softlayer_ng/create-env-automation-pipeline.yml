@@ -114,8 +114,6 @@ jobs:
   - aggregate:
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
-      passed:
-      - deploy-director-base
     - get: cf-deployment
       resource: cf-deployment-new-softlayer-cpi
     - get: director-artifacts
