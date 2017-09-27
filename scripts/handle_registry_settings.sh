@@ -22,7 +22,7 @@ usage() {
     echo "      default dump_file_location is current directory: $(pwd)"
     echo -e "\nExample:"
     echo "Fetch instance settings from director: $0 -ip 10.10.10.47 -p password -id 12345678"
-    echo "Update instance settings to director: $0 -a update -ip 10.165.227.47 -p password -id 12345678 -f /data/instance_12345678_settings.2017-09-26_08_29.sql"
+    echo "Update instance settings to director: $0 -a update -ip 10.165.227.47 -p password -id 12345678 -f 2017-09-26_0/data/instance_12345678_settings.8_29.json"
 }
 
 parse_command_line()
@@ -92,7 +92,7 @@ parse_command_line()
 
 # Args: $1: director ip, $2: director username, $3 director user password, $4: database, $5 dababase username, $6 instance_id, $7 file_location
 fetch_registry_settings() {
-    dump_file=instance_$6_settings.$(date -d now "+%F_%H_%M").sql
+    dump_file=instance_$6_settings.$(date -d now "+%F_%H_%M").json
     # Generate script
     cat >fetch_registry_settings.sh<<EOF
 psql_path=\$(dirname \`pgrep -a postg |awk '\$0 ~ "/var/vcap/" {print \$2;}'\`)
@@ -114,6 +114,8 @@ EOF
     chmod +x ./fetch_registry_settings.sh
     sshpass -p $3 ssh -o StrictHostKeychecking=no $2@$1 'bash -s' < "./fetch_registry_settings.sh"
     sshpass -p $3 scp $2@$1:/var/vcap/store/postgres*/${dump_file} $7/${dump_file}
+    # delete first command line
+    sed '1d' $7/${dump_file} > tmp.json && mv tmp.json $7/${dump_file}
     # new softlayer cpi can use jumpbox user to ssh access
     # ssh -o StrictHostKeyChecking=no jumpbox@${director_ip} -i ./jumpbox.key 'bash -s' < fetch_registry_settings.sh
 }
