@@ -23,6 +23,13 @@ bosh-cli login
 echo -e "\n\033[32m[INFO] Uploading stemcell.\033[0m"
 bosh-cli us https://s3.amazonaws.com/bosh-softlayer-stemcells-candidate-container/light-bosh-stemcell-3421.11-softlayer-xen-ubuntu-trusty-go_agent.tgz
 
+echo -e "\n\033[32m[INFO] Disabling uaa https.\033[0m"
+cat >disable-uaa-https.yml << EOF
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/require_https?
+  value: false
+EOF
+
 echo -e "\n\033[32m[INFO] Generating cf manifest.\033[0m"
 bosh-cli vms >${deployment_dir}/deployed-vms
 bosh-cli int cf-deployment/cf-deployment.yml \
@@ -32,6 +39,7 @@ bosh-cli int cf-deployment/cf-deployment.yml \
 	-o cf-deployment/operations/softlayer/downsize-cf.yml \
 	-o cf-deployment/operations/softlayer/add-blobstore-access-rules.yml \
 	-o cf-deployment/operations/use-latest-stemcell.yml \
+	-o ./disable-uaa-https.yml \
 	-v deployment_name=${DEPLOYMENT_NAME} \
 	-v system_domain=${SYSTEM_DOMAIN} \
 	>${deployment_dir}/cf.yml
