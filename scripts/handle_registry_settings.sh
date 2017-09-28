@@ -115,7 +115,7 @@ EOF
     sshpass -p $3 ssh -o StrictHostKeychecking=no $2@$1 'bash -s' < "./fetch_registry_settings.sh"
     sshpass -p $3 scp $2@$1:/var/vcap/store/postgres*/${dump_file} $7/${dump_file}
     # delete first command line
-    sed '1d' $7/${dump_file} > tmp.json && mv tmp.json $7/${dump_file}
+    sed -i '1d' $7/${dump_file}
     # new softlayer cpi can use jumpbox user to ssh access
     # ssh -o StrictHostKeyChecking=no jumpbox@${director_ip} -i ./jumpbox.key 'bash -s' < fetch_registry_settings.sh
 }

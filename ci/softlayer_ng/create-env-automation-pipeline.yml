@@ -161,7 +161,7 @@ jobs:
   - task: cf-push-app
     file: bosh-softlayer-tools/ci/softlayer_ng/tasks/verify-cf.yml
     params: &cf-params
-      CF_API:   {{cf_api_community}}
+      SYSTEM_DOMAIN:  {{cf_system_domain}}
 
 - name: deploy-cf-bluemix
   plan:

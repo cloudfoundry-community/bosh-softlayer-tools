@@ -21,8 +21,7 @@ export BOSH_CA_CERT=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /
 bosh-cli login
 
 echo -e "\n\033[32m[INFO] Uploading stemcell.\033[0m"
-bosh-cli us https://s3.amazonaws.com/bosh-softlayer-stemcells-candidate-container/light-bosh-stemcell-3421.11-softlayer-xen-ubuntu-trusty-go_agent.tgz
-
+bosh-cli us https://s3.amazonaws.com/bosh-softlayer-stemcells-candidate-container/light-bosh-stemcell-3445.2.11-softlayer-xen-ubuntu-trusty-go_agent.tgz
 echo -e "\n\033[32m[INFO] Disabling uaa https.\033[0m"
 cat >disable-uaa-https.yml << EOF
 - type: replace
