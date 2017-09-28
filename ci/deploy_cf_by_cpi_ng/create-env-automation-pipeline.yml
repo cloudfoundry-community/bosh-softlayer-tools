@@ -94,7 +94,7 @@ jobs:
     - get: bosh-deployment
       resource: bosh-deployment-new-softlayer-cpi
   - task: deploy
-    file: bosh-softlayer-tools/ci/softlayer_ng/tasks/deploy-director.yml
+    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/deploy-director.yml
     params:
       INFRASTRUCTURE:                      softlayer
       SL_VM_PREFIX:                        {{softlayer-director-name-prefix}}
@@ -121,13 +121,11 @@ jobs:
       passed:
       - deploy-director-base
   - task: deploy-cf
-    file: bosh-softlayer-tools/ci/softlayer_ng/tasks/deploy-cf.yml
+    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/deploy-cf.yml
     params:
-      DEPLOYMENT_NAME:  {{deployment-name}}
-      SL_DATACENTER:    {{softlayer-datacenter}}
-      SL_VLAN_PUBLIC:   {{softlayer-vlan-public}}
-      SL_VLAN_PRIVATE:  {{softlayer-vlan-private}}
-      SYSTEM_DOMAIN:    {{cf_system_domain}}
+      DEPLOYMENT_NAME:            {{deployment-name}}
+      SYSTEM_DOMAIN:              {{cf_system_domain}}
+      SOFTLAYER_STEMCELL_VERSION: {{softlayer_stemcell_version}}
   - put: cf-artifacts-comm
     params:
       file: cf-artifacts/cf_artifacts.tgz
@@ -142,7 +140,7 @@ jobs:
       passed:
       - deploy-cf-community
   - task: update-dns
-    file: bosh-softlayer-tools/ci/softlayer_ng/tasks/update-dns.yml
+    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/update-dns.yml
     params:
       SYSTEM_DOMAIN:  {{cf_system_domain}}
   - put: cf-artifacts-comm
@@ -159,9 +157,12 @@ jobs:
       passed:
       - update-dns-community
   - task: cf-push-app
-    file: bosh-softlayer-tools/ci/softlayer_ng/tasks/verify-cf.yml
+    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/verify-cf.yml
     params: &cf-params
       SYSTEM_DOMAIN:  {{cf_system_domain}}
+  - put: cf-artifacts-comm
+    params:
+      file: cf-artifacts/cf_artifacts.tgz
 
 - name: deploy-cf-bluemix
   plan:
@@ -208,7 +209,7 @@ jobs:
       passed:
       - deploy-cf-bluemix
   - task: update-dns
-    file: bosh-softlayer-tools/ci/tasks/create-env-automation/update-dns.yml
+    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/update-dns-bluemix.yml
     params:
       VCAP_PASSWORD:                       {{vcap-password}}
 
@@ -317,7 +318,7 @@ jobs:
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
   - task: teardown
-    file: bosh-softlayer-tools/ci/softlayer_ng/tasks/teardown.yml
+    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/teardown.yml
     params:
       DEPLOYMENT_BlUEMIX_NAME:   {{deployment-bluemix-name}}
       DEPLOYMENT_COMMUNITY_NAME: {{deployment-name}}

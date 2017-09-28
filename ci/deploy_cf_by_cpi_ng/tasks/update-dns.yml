@@ -7,7 +7,7 @@ inputs:
 - name: cf-artifacts-comm
 
 run:
-  path: bosh-softlayer-tools/ci/softlayer_ng/tasks/update-dns.sh
+  path: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/update-dns.sh
 
 outputs:
 - name: cf-artifacts

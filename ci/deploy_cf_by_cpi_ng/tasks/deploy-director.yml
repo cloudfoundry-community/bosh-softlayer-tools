@@ -11,7 +11,7 @@ outputs:
 - name: deploy-artifacts
 
 run:
-  path: bosh-softlayer-tools/ci/softlayer_ng/tasks/deploy-director.sh
+  path: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/deploy-director.sh
 
 params:
   INFRASTRUCTURE:       ""

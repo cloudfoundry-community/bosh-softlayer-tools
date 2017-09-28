@@ -20,36 +20,38 @@ apt-get install cf-cli -y
 
 echo -e "\n\033[32m[INFO] Using cf $(cf --version).\033[0m"
 
-echo -e "\n\033[32m[INFO] Logging in CF app.\033[0m"
+echo -e "\n\033[32m[INFO] Logging in CF.\033[0m"
 name_server=$(cat deployment/director-hosts | awk '{print $1}')
 cat /etc/resolv.conf
 sed -i '1 i\nameserver '"${name_server}"'' /etc/resolv.conf
-
 CF_API=api.${SYSTEM_DOMAIN}
+
 CF_TRACE=true cf api ${CF_API} --skip-ssl-validation
-CF_TRACE=true cf login -u admin -p $(bosh-cli int ${deployment_dir}/cf-creds.yml --path /cf_admin_password)
-cf create-org cpi_ng
-cf target -o "cpi_ng"
-cf create-space dev
-cf target -s "dev"
+echo 1 | CF_TRACE=true cf login -u admin -p $(bosh-cli int ${deployment_dir}/cf-creds.yml --path /cf_admin_password)
+cf target -o "cpi_ng" || (cf create-org "cpi_ng" && cf target -o "cpi_ng")
+cf target -s "dev" || (cf create-space "dev" && cf target -s "dev")
+
+echo -e "\n\033[32m[INFO] Listing apps in CF before pushing.\033[0m"
+cf apps
 
 echo -e "\n\033[32m[INFO] Pushing CF app.\033[0m"
-cf apps
 git clone https://github.com/cloudfoundry-samples/cf-sample-app-nodejs.git
 pushd cf-sample-app-nodejs
     sed -i '$d' manifest.yml
     echo "  routes:" >> manifest.yml
     echo "    - route: cf-nodejs-sample.${SYSTEM_DOMAIN}" >> manifest.yml
     cf push
+
+    echo -e "\n\033[32m[INFO] Listing apps in CF after pushing.\033[0m"
     cf apps
 
-    echo -e "\n\033[32m[INFO] Pushing CF app.\033[0m"
+    echo -e "\n\033[32m[INFO] Verifying sample app.\033[0m"
     response=$(curl --write-out %{http_code} --silent --output /dev/null cf-nodejs-sample.${SYSTEM_DOMAIN})
     if [[ "$response" == "200" ]]; then
-        echo -e "\n\033[32m[INFO] Node.js sample app is executed normally.\033[0m"
+        echo -e "\n\033[32m[INFO] The Node.js sample app is executed normally.\033[0m"
         curl cf-nodejs-sample.${SYSTEM_DOMAIN}
     else
-        echo -e "\n\033[31m[ERROR] Node.js sample app is not executed normally.\033[0m"
+        echo -e "\n\033[31m[ERROR] The Node.js sample app is not executed normally.\033[0m"
         exit 1
     fi
 popd

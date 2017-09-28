@@ -3,6 +3,7 @@ set -e
 
 : ${DEPLOYMENT_NAME:?}
 : ${SYSTEM_DOMAIN:?}
+: ${SOFTLAYER_STEMCELL_VERSION:?}
 
 deployment_dir="${PWD}/deployment"
 mkdir -p $deployment_dir
@@ -21,7 +22,13 @@ export BOSH_CA_CERT=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /
 bosh-cli login
 
 echo -e "\n\033[32m[INFO] Uploading stemcell.\033[0m"
-bosh-cli us https://s3.amazonaws.com/bosh-softlayer-stemcells-candidate-container/light-bosh-stemcell-3445.2.11-softlayer-xen-ubuntu-trusty-go_agent.tgz
+bosh-cli us https://s3.amazonaws.com/bosh-softlayer-stemcells-candidate-container/light-bosh-stemcell-${SOFTLAYER_STEMCELL_VERSION}-softlayer-xen-ubuntu-trusty-go_agent.tgz
+cat >specify-stemcell-version.yml << EOF
+- path: /stemcells/alias=default/version
+  type: replace
+  value: ${SOFTLAYER_STEMCELL_VERSION}
+EOF
+
 echo -e "\n\033[32m[INFO] Disabling uaa https.\033[0m"
 cat >disable-uaa-https.yml << EOF
 - type: replace
@@ -37,7 +44,7 @@ bosh-cli int cf-deployment/cf-deployment.yml \
 	-o cf-deployment/operations/community/use-haproxy.yml \
 	-o cf-deployment/operations/softlayer/downsize-cf.yml \
 	-o cf-deployment/operations/softlayer/add-blobstore-access-rules.yml \
-	-o cf-deployment/operations/use-latest-stemcell.yml \
+	-o ./specify-stemcell-version.yml \
 	-o ./disable-uaa-https.yml \
 	-v deployment_name=${DEPLOYMENT_NAME} \
 	-v system_domain=${SYSTEM_DOMAIN} \

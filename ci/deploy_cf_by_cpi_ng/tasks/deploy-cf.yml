@@ -8,7 +8,7 @@ inputs:
 - name: cf-deployment
 
 run:
-  path: bosh-softlayer-tools/ci/softlayer_ng/tasks/deploy-cf.sh
+  path: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/deploy-cf.sh
 
 outputs:
 - name: cf-artifacts
@@ -19,3 +19,4 @@ params:
   DEPLOYMENT_NAME:                       ""
   DEPLOY_NAME:                           ""
   SYSTEM_DOMAIN:                         ""
+  SOFTLAYER_STEMCELL_VERSION:            ""
