@@ -225,7 +225,7 @@ jobs:
       passed:
       - update-dns-bluemix
   - task: cf-push-app
-    file: bosh-softlayer-tools/ci/tasks/create-env-automation/verify-cf.yml
+    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/verify-cf-bluemix.yml
     params: &cf-params
       APP_API:      {{cf-app-api}}
       CF_API:       {{cf-api}}

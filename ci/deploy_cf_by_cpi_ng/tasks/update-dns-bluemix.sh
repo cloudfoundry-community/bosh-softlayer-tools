@@ -16,8 +16,8 @@ tar -zxvf run-utils/run-utils.tgz -C run-utils/
 
 deploy_name=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/cf-deploy-base.yml --path /name)
 director_ip=$(awk '{print $1}' deployment/director-hosts)
-domain1="${deploy_name}.bluemix.net"
-domain2="${deploy_name}.mybluemix.net"
+domain1="${deploy_name}.bluebosh.com"
+domain2="${deploy_name}.mybluebosh.com"
 pg_password=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/credentials.yml --path /postgres_password)
 ip_ha=$(grep ha_proxy ${deployment_dir}/deployed-vms|awk '{print $4}')
 
@@ -38,11 +38,12 @@ BEGIN
     INSERT INTO records(name, type, content, ttl, domain_id) VALUES('*.$domain2', 'A', '$ip_ha', 300,new_id);
 END\\\$\\\$;
 ENDSQL
-/var/vcap/packages/postgres/bin/psql -U postgres -d bosh -a -f /tmp/update_dns.sql
+/var/vcap/packages/postgres/bin/psql -U postgres -d powerdns -a -f /tmp/update_dns.sql
 EOF
 
 chmod +x run-utils/update_dns.sh
 pushd run-utils
-echo "$director_ip" >ip_list
-./run.sh -s ./update_dns.sh -i ip_list -p $VCAP_PASSWORD
+  ${deployment_dir}/bosh-cli* int ${deployment_dir}/director-creds.yml --path /jumpbox_ssh/private_key > ./jumpbox.key
+  chmod 600 ./jumpbox.key
+  ssh -o StrictHostKeyChecking=no jumpbox@${director_ip} -i ./jumpbox.key 'bash -s' < update_dns.sh
 popd
