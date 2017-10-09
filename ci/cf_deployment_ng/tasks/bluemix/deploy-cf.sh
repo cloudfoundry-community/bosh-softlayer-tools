@@ -11,20 +11,29 @@ deployment_dir="${PWD}/deployment"
 mkdir -p $deployment_dir
 
 tar -zxvf director-artifacts/director_artifacts.tgz -C ${deployment_dir}
-cat ${deployment_dir}/director-hosts >> /etc/hosts
-${deployment_dir}/bosh-cli* -e $(cat ${deployment_dir}/director-hosts |awk '{print $2}') --ca-cert <(${deployment_dir}/bosh-cli* int ${deployment_dir}/credentials.yml --path /DIRECTOR_SSL/ca ) alias-env bosh-test 
+cp ${deployment_dir}/bosh-cli* /usr/local/bin/bosh-cli
+chmod +x /usr/local/bin/bosh-cli
 
-director_password=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/credentials.yml --path /DI_ADMIN_PASSWORD)
+echo -e "\n\033[32m[INFO] Using bosh-cli $(bosh-cli -v).\033[0m"
+
+cat ${deployment_dir}/director-hosts >> /etc/hosts
+bosh-cli -e $(cat ${deployment_dir}/director-hosts |awk '{print $2}') --ca-cert <(bosh-cli int ${deployment_dir}/director-creds.yml --path /director_ssl/ca ) alias-env bosh-test
+
+director_password=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /admin_password)
 echo "Trying to login to director..."
 export BOSH_CLIENT=admin
 export BOSH_CLIENT_SECRET=${director_password}
-${deployment_dir}/bosh-cli* -e bosh-test login
+bosh-cli -e bosh-test login
 
 director_ip=$(awk '{print $1}' ${deployment_dir}/director-hosts)
-director_uuid=$(grep -Po '(?<=director_id": ")[^"]*' ${deployment_dir}/director-deploy-state.json)
+director_uuid=$(grep -Po '(?<=director_id": ")[^"]*' ${deployment_dir}/director-state.json)
+
+
+echo -e "\n\033[32m[INFO] Uploading stemcell.\033[0m"
+bosh-cli -e bosh-test us https://s3.amazonaws.com/ng-bosh-softlayer-stemcells-bluemix-candidate-container/light-bosh-stemcell-3445.11.3-bluemix-xen-ubuntu-trusty-go_agent.tgz
 
 # generate cf deployment yml file
-${deployment_dir}/bosh-cli* int cf-template/${cf_template} \
+bosh-cli int cf-template/${cf_template} \
 							-v director_password=${director_password} \
 							-v director_ip=${director_ip}\
 							-v director_uuid=${director_uuid}\
@@ -38,7 +47,7 @@ ${deployment_dir}/bosh-cli* int cf-template/${cf_template} \
 						    > ${deployment_dir}/cf-deploy-base.yml
 
 # generate diego deployment yml file
-${deployment_dir}/bosh-cli* int diego-template/${diego_template} \
+bosh-cli int diego-template/${diego_template} \
 							-v director_password=${director_password} \
 							-v director_ip=${director_ip}\
 							-v director_uuid=${director_uuid}\
@@ -51,18 +60,18 @@ ${deployment_dir}/bosh-cli* int diego-template/${diego_template} \
 							-v stemcell_name=${stemcell_name}\
 						    > ${deployment_dir}/diego-deploy-base.yml
 
-releases_cf=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/cf-deploy-base.yml --path /releases |grep -Po '(?<=- location: ).*')
-releases_diego=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/diego-deploy-base.yml --path /releases |grep -Po '(?<=- location: ).*')
+releases_cf=$(bosh-cli int ${deployment_dir}/cf-deploy-base.yml --path /releases |grep -Po '(?<=- location: ).*')
+releases_diego=$(bosh-cli int ${deployment_dir}/diego-deploy-base.yml --path /releases |grep -Po '(?<=- location: ).*')
 releases=`echo -e "${releases_cf}\n${releases_diego}"`
 
 # upload releases
 while IFS= read -r line; do
-${deployment_dir}/bosh-cli* -e bosh-test upload-release $line
+bosh-cli -e bosh-test upload-release $line
 done <<< "$releases"
 
 function stemcell_exist(){
 	stemcell_version=$1
-	uploaded_stemcells=$(${deployment_dir}/bosh-cli*  -e bosh-test stemcells |awk '{print $2}'|sed s/[+*]$//)
+	uploaded_stemcells=$(bosh-cli  -e bosh-test stemcells |awk '{print $2}'|sed s/[+*]$//)
 	IFS= read -r -a stemcells<<<"$uploaded_stemcells"
 	for stemcell in "$stemcells"
 	do
@@ -74,13 +83,13 @@ function stemcell_exist(){
 }
 
 if ! stemcell_exist ${stemcell_version}; then
-	${deployment_dir}/bosh-cli* -e bosh-test upload-stemcell ${stemcell_location}
+	bosh-cli -e bosh-test upload-stemcell ${stemcell_location}
 fi
-${deployment_dir}/bosh-cli* -e bosh-test vms > cf-artifacts/deployed-vms
-${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name} deploy ${deployment_dir}/cf-deploy-base.yml --no-redact
-${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name}-diego deploy ${deployment_dir}/diego-deploy-base.yml --no-redact
+bosh-cli -e bosh-test vms > cf-artifacts/deployed-vms
+bosh-cli -n -e bosh-test -d ${deploy_name} deploy ${deployment_dir}/cf-deploy-base.yml --no-redact
+bosh-cli -n -e bosh-test -d ${deploy_name}-diego deploy ${deployment_dir}/diego-deploy-base.yml --no-redact
 
-${deployment_dir}/bosh-cli* -e bosh-test vms > cf-artifacts/deployed-vms
+bosh-cli -e bosh-test vms > cf-artifacts/deployed-vms
 cp ${deployment_dir}/cf-deploy-base.yml  cf-artifacts/cf-deploy-base.yml
 cp ${deployment_dir}/diego-deploy-base.yml  cf-artifacts/diego-deploy-base.yml
 

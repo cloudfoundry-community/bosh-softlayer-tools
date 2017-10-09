@@ -18,7 +18,7 @@ deploy_name=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/cf-deploy-base.y
 director_ip=$(awk '{print $1}' deployment/director-hosts)
 domain1="${deploy_name}.bluebosh.com"
 domain2="${deploy_name}.mybluebosh.com"
-pg_password=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/credentials.yml --path /postgres_password)
+pg_password=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/director-creds.yml --path /postgres_password)
 ip_ha=$(grep ha_proxy ${deployment_dir}/deployed-vms|awk '{print $4}')
 
 cat >run-utils/update_dns.sh<<EOF

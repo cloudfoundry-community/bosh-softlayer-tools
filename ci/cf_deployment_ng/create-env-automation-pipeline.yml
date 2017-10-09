@@ -83,7 +83,7 @@ resources:
     secret_access_key: {{aws-secret-key}}
 
 jobs:
-- name: deploy-director-base
+- name: deploy-director-community
   serial: true
   plan:
   - aggregate:
@@ -94,7 +94,7 @@ jobs:
     - get: bosh-deployment
       resource: bosh-deployment-new-softlayer-cpi
   - task: deploy
-    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/deploy-director.yml
+    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/community/deploy-director.yml
     params:
       INFRASTRUCTURE:                      softlayer
       SL_VM_PREFIX:                        {{softlayer-director-name-prefix}}
@@ -119,9 +119,9 @@ jobs:
     - get: director-artifacts
       resource: director-artifacts
       passed:
-      - deploy-director-base
+      - deploy-director-community
   - task: deploy-cf
-    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/deploy-cf.yml
+    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/community/deploy-cf.yml
     params:
       DEPLOYMENT_NAME:            {{deployment-name}}
       SYSTEM_DOMAIN:              {{cf_system_domain}}
@@ -140,7 +140,7 @@ jobs:
       passed:
       - deploy-cf-community
   - task: update-dns
-    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/update-dns.yml
+    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/community/update-dns.yml
     params:
       SYSTEM_DOMAIN:  {{cf_system_domain}}
   - put: cf-artifacts-comm
@@ -157,12 +157,62 @@ jobs:
       passed:
       - update-dns-community
   - task: cf-push-app
-    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/verify-cf.yml
+    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/community/verify-cf.yml
     params: &cf-params
       SYSTEM_DOMAIN:  {{cf_system_domain}}
   - put: cf-artifacts-comm
     params:
       file: cf-artifacts/cf_artifacts.tgz
+
+- name: deploy-director-bluemix
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-cli-v2
+      resource: bosh-cli-v2
+    - get: bosh-softlayer-tools
+      resource: bosh-softlayer-tools-master
+    - get: bosh-deployment
+      resource: bosh-deployment-new-softlayer-cpi
+  - task: deploy
+    file: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/deploy-director.yml
+    params:
+      INFRASTRUCTURE:                      softlayer
+      DEPLOY_NAME:                         {{deployment-bluemix-name}}
+      SL_VM_PREFIX:                        {{softlayer-director-name-prefix}}
+      SL_VM_DOMAIN:                        {{softlayer-vm-domain}}
+      SL_USERNAME:                         {{softlayer-username}}
+      SL_API_KEY:                          {{softlayer-api-key}}
+      SL_DATACENTER:                       {{softlayer-datacenter}}
+      SL_VLAN_PUBLIC:                      {{softlayer-vlan-public}}
+      SL_VLAN_PRIVATE:                     {{softlayer-vlan-private}}
+  - put: director-artifacts
+    params:
+      file: deploy-artifacts/director_artifacts.tgz
+
+- name: update-cloud-config-bluemix
+  plan:
+  - aggregate:
+    - get: director-artifacts
+      resource: director-artifacts
+      passed:
+      - deploy-director-bluemix
+    - get: bosh-softlayer-tools
+      resource: bosh-softlayer-tools-master
+    - get: bosh-deployment
+      resource: bosh-deployment-new-softlayer-cpi
+  - task: update-cloud-config
+    file: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/update-cloud-config.yml
+    params:
+      INFRASTRUCTURE:                      softlayer
+      DEPLOY_NAME:                         {{deployment-bluemix-name}}
+      SL_VM_DOMAIN:                        {{softlayer-vm-domain}}
+      SL_DATACENTER:                       {{softlayer-datacenter}}
+      SL_VLAN_PUBLIC:                      {{softlayer-vlan-public}}
+      SL_VLAN_PRIVATE:                     {{softlayer-vlan-private}}
+  - put: director-artifacts
+    params:
+      file: deploy-artifacts/director_artifacts.tgz
 
 - name: deploy-cf-bluemix
   plan:
@@ -170,7 +220,7 @@ jobs:
     - get: director-artifacts
       resource: director-artifacts
       passed:
-      - deploy-director-base
+      - update-cloud-config-bluemix
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
     - get: cf-template
@@ -178,7 +228,7 @@ jobs:
     - get: diego-template
       resource: diego-template
   - task: deploy-cf
-    file: bosh-softlayer-tools/ci/tasks/create-env-automation/deploy-cf.yml
+    file: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/deploy-cf.yml
     params:
       cf_template:                            {{cf-template}}
       diego_template:                         {{diego-template}}
@@ -209,7 +259,7 @@ jobs:
       passed:
       - deploy-cf-bluemix
   - task: update-dns
-    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/update-dns-bluemix.yml
+    file: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/update-dns.yml
     params:
       VCAP_PASSWORD:                       {{vcap-password}}
 
@@ -225,7 +275,7 @@ jobs:
       passed:
       - update-dns-bluemix
   - task: cf-push-app
-    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/verify-cf-bluemix.yml
+    file: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/verify-cf.yml
     params: &cf-params
       APP_API:      {{cf-app-api}}
       CF_API:       {{cf-api}}
@@ -308,17 +358,17 @@ jobs:
     file: bosh-softlayer-tools/ci/tasks/create-env-automation/verify-cf-updated.yml
     params: *cf-params
 
-- name: manual-teardown
+- name: manual-teardown-bluemix
   plan:
   - aggregate:
     - get: director-artifacts
       resource: director-artifacts
       passed:
-      - deploy-director-base
+      - deploy-director-bluemix
     - get: bosh-softlayer-tools
       resource: bosh-softlayer-tools-master
   - task: teardown
-    file: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/teardown.yml
+    file: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/teardown.yml
     params:
       DEPLOYMENT_BlUEMIX_NAME:   {{deployment-bluemix-name}}
       DEPLOYMENT_COMMUNITY_NAME: {{deployment-name}}

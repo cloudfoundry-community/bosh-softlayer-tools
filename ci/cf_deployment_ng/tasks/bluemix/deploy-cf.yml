@@ -9,7 +9,7 @@ inputs:
 - name: diego-template
 
 run:
-  path: bosh-softlayer-tools/ci/tasks/create-env-automation/deploy-cf.sh
+  path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/deploy-cf.sh
 
 outputs:
 - name: cf-artifacts

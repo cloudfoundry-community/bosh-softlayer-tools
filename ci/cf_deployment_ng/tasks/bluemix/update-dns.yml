@@ -9,5 +9,5 @@ inputs:
 - name: cf-artifacts
 
 run:
-  path: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/update-dns-bluemix.sh
+  path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/update-dns.sh
 

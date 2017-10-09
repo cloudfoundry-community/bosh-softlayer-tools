@@ -13,7 +13,6 @@ chruby 2.2.4
 : ${SL_DATACENTER:?}
 : ${SL_VLAN_PUBLIC:?}
 : ${SL_VLAN_PRIVATE:?}
-: ${CF_PREFIX:?}
 
 cp bosh-cli-v2/bosh-cli-* /usr/local/bin/bosh-cli
 chmod +x /usr/local/bin/bosh-cli
@@ -23,7 +22,7 @@ mkdir -p $deployment_dir
 chmod +x bosh-cli-v2/bosh-cli*
 
 echo -e "\n\033[32m[INFO] Using bosh-cli $(bosh-cli -v).\033[0m"
-echo -e "\n\033[32m[INFO] Generating director yml.\033[0m"
+
 cat >remove_variables.yml <<EOF
 - type: remove
   path: /variables
@@ -65,38 +64,11 @@ bosh-cli create-env \
 echo -e "\n\033[32m[INFO] Deployed director successfully:\033[0m"
 cat /etc/hosts | grep "$SL_VM_DOMAIN" | tee ${deployment_dir}/director-hosts
 
-export BOSH_ENVIRONMENT=$(awk '{if ($2!="") print $2}' ${deployment_dir}/director-hosts)
-export BOSH_CLIENT=admin
-export BOSH_CLIENT_SECRET=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /admin_password)
-export BOSH_CA_CERT=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /default_ca/ca)
-
-echo -e "\n\033[32m[INFO] Generating cloud-config director.yml.\033[0m"
-director_ip=$(awk '{if ($1!="") print $1}' ${deployment_dir}/director-hosts)
-bosh-cli int ./bosh-deployment/${INFRASTRUCTURE}/cf-cloud-config.yml \
-	-v director_ip=${director_ip} \
-	-v sl_datacenter=${SL_DATACENTER} \
-	-v sl_vm_name_prefix=${CF_PREFIX} \
-	-v sl_vm_domain=${SL_VM_DOMAIN} \
-	-v internal_cidr=10.0.0.0/24 \
-	-v internal_gw=10.0.0.1 \
-	-v sl_vlan_public_id=${SL_VLAN_PUBLIC} \
-	-v sl_vlan_private_id=${SL_VLAN_PRIVATE} \
-	>${deployment_dir}/cloud-config.yml
-cat ${deployment_dir}/cloud-config.yml
-
-echo -e "\n\033[32m[INFO] Updating cloud-config.\033[0m"
-bosh-cli update-cloud-config -n ${deployment_dir}/cloud-config.yml
-
 echo -e "\n\033[32m[INFO] Final state of director deployment:\033[0m"
 cat ${deployment_dir}/director-state.json
 
 echo -e "\n\033[32m[INFO] Saving director artifacts.\033[0m"
 cp bosh-cli-v2/bosh-cli* ${deployment_dir}/
-cp ${deployment_dir}/director-state.json ${deployment_dir}/director-deploy-state.json
-cp ${deployment_dir}/director-creds.yml ${deployment_dir}/credentials.yml
-
-sed -i 's/director_ssl/DIRECTOR_SSL/g' ${deployment_dir}/credentials.yml
-sed -i 's/admin_password/DI_ADMIN_PASSWORD/g' ${deployment_dir}/credentials.yml
 
 pushd ${deployment_dir}
   tar -zcvf /tmp/director_artifacts.tgz ./ >/dev/null 2>&1

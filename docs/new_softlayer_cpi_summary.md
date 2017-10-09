@@ -112,7 +112,7 @@ networks
   type: dynamic
   cloud_properties:
     vlanIds: [((sl_vlan_public_id)), ((sl_vlan_private_id))]
-   dns: [8.8.8.8, 10.0.80.11, 10.0.80.12]
+  dns: [8.8.8.8, 10.0.80.11, 10.0.80.12]
 ```
 
 ### VM Types/Resource Pools
