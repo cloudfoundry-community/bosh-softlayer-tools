@@ -35,7 +35,7 @@ function cf_push_cpp () {
   cf set-quota org q4GB
   cf create-space dev
   cf target -o org -s dev
-  cf push IICVisit -p ${app}
+  cf push IICVisit -p ${app} -d ${APP_API}
   curl iicvisit.${APP_API}/GetEnv|grep "DEA IP"
   if [ $? -eq 0 ]; then
    echo "cf push app successful!"
