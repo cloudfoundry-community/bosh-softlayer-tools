@@ -1,3 +1,22 @@
+groups:
+- name: bluemix-cloud-foundry
+  jobs:
+  - deploy-director-bluemix
+  - update-cloud-config-bluemix
+  - deploy-cf-bluemix
+  - update-dns-bluemix
+  - verify-cf-push-bluemix
+  - update-director-bluemix
+  - update-cf-bluemix
+  - verify-cf-push-updated-bluemix
+  - manual-teardown-bluemix
+- name: community-cloud-foundry
+  jobs:
+  - deploy-director-community
+  - deploy-cf-community
+  - update-dns-community
+  - verify-cf-push-community
+
 resources:
 - name: director-artifacts
   type: s3
