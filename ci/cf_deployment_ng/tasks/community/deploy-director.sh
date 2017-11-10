@@ -35,8 +35,9 @@ cat >remove-health-monitor.yml <<EOF
 EOF
 
 echo -e "\n\033[32m[INFO] Generating director manifest director.yml.\033[0m"
+powerdns_yml_path=$(find ${pwd} -name powerdns.yml | head -n 1)
 bosh-cli int bosh-deployment/bosh.yml \
-	-o bosh-deployment/powerdns.yml \
+	-o ${powerdns_yml_path} \
 	-o bosh-deployment/$INFRASTRUCTURE/cpi-base.yml \
 	-o bosh-deployment/$INFRASTRUCTURE/dynamic-director.yml \
 	-o bosh-deployment/jumpbox-user.yml \
