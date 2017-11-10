@@ -8,11 +8,10 @@ inputs:
 - name: cf-deployment
 
 run:
-  path: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/deploy-cf.sh
+  path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/community/deploy-cf.sh
 
 outputs:
 - name: cf-artifacts
-  path: cf-artifacts
 - name: deploy-status
 
 params:

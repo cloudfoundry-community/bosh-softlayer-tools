@@ -7,7 +7,7 @@ inputs:
 - name: director-artifacts
 
 run:
-  path: bosh-softlayer-tools/ci/deploy_cf_by_cpi_ng/tasks/teardown.sh
+  path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/community/teardown.sh
 
 params:
   DEPLOYMENT_BlUEMIX_NAME:   ""
