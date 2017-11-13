@@ -6,7 +6,8 @@ set -e
 deployment_dir="${PWD}/deployment"
 mkdir -p $deployment_dir
 
-tar -zxvf cf-artifacts-comm/cf-artifacts-comm.tgz -C ${deployment_dir}
+cf_artifacts_path=$(find ${pwd} -name "cf-artifacts*.tgz" | head -n 1)
+tar -zxvf ${cf_artifacts_path} -C ${deployment_dir}
 
 cp ${deployment_dir}/bosh-cli* /usr/local/bin/bosh-cli
 chmod +x /usr/local/bin/bosh-cli

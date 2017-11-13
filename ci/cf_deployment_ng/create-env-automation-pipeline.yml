@@ -389,5 +389,4 @@ jobs:
   - task: teardown
     file: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/teardown.yml
     params:
-      DEPLOYMENT_BlUEMIX_NAME:   {{deployment-bluemix-name}}
       DEPLOYMENT_COMMUNITY_NAME: {{deployment-name}}

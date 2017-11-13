@@ -10,5 +10,4 @@ run:
   path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/community/teardown.sh
 
 params:
-  DEPLOYMENT_BlUEMIX_NAME:   ""
   DEPLOYMENT_COMMUNITY_NAME: ""

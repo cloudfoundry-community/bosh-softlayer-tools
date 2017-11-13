@@ -11,4 +11,3 @@ run:
 
 params:
   DEPLOYMENT_BlUEMIX_NAME:   ""
-  DEPLOYMENT_COMMUNITY_NAME: ""
