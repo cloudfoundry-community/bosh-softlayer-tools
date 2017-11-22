@@ -43,7 +43,7 @@ while true
         if [ "$CLI_LAST_VM_ACTIVE_TRANSACTION" != "$CLI_VM_ACTIVE_TRANSACTION" ];then
             echo "waiting vm to boot and setup ... last transaction:$CLI_VM_ACTIVE_TRANSACTION"
         fi
-        CLI_VM_READY=$(slcli vs ready ${CLI_VM_ID} || true) 
+        CLI_VM_READY=$(slcli vs ready ${CLI_VM_ID} || true)
         if [ "$CLI_VM_READY" == "READY" ];then
             break
         fi
@@ -85,10 +85,21 @@ spawn ssh-copy-id -i key.rsa.pub \$user@\$host
 
 expect {
     "continue" { send "yes\n"; exp_continue }
-    "assword:" { send "\$password\n"; interact }
+    "password:" { send "\$password\n"; interact }
 }
 EOF
 
+echo "Wait until the host is reachable."
+apt-get install iputils-ping -y
+pingSuccess=0
+while true
+    do
+        ping -c 1 $CLI_VM_IP >/dev/null 2>&1 && pingSuccess=1
+        [ ${pingSuccess} -eq 1 ] && echo "got the successful ping. " && break
+        echo "ping failed. sleeping for 5 secs" && sleep 5
+    done
+
+sleep 100
 chmod +x ./add-private-key.sh
 ./add-private-key.sh root $CLI_VM_IP $CLI_VM_PWD
 
