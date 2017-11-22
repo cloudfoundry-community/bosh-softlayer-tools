@@ -24,7 +24,7 @@ director_ip=$(awk '{print $1}' ${deployment_dir}/director-hosts)
 director_uuid=$(grep -Po '(?<=director_id": ")[^"]*' ${deployment_dir}/director-deploy-state.json)
 
 # generate cf deployment yml file
-${deployment_dir}/bosh-cli* int cf-template/${cf_template} \
+${deployment_dir}/bosh-cli* int cf-template/manifests/auto_deploy/${cf_template} \
 							-v director_password=${director_password} \
 							-v director_ip=${director_ip}\
 							-v director_uuid=${director_uuid}\
@@ -38,7 +38,7 @@ ${deployment_dir}/bosh-cli* int cf-template/${cf_template} \
 						    > ${deployment_dir}/cf-deploy-base.yml
 
 # generate diego deployment yml file
-${deployment_dir}/bosh-cli* int diego-template/${diego_template} \
+${deployment_dir}/bosh-cli* int diego-template/manifests/auto_deploy/${diego_template} \
 							-v director_password=${director_password} \
 							-v director_ip=${director_ip}\
 							-v director_uuid=${director_uuid}\
