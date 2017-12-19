@@ -1,0 +1,60 @@
+resources:
+- name: bosh-softlayer-tools-master
+  type: git
+  source:
+    uri: https://github.com/bluebosh/bosh-softlayer-tools.git
+    branch: master
+
+- name: version-semver
+  type: semver
+  source:
+    key:               stemcell-cmds/current-version
+    bucket:            {{s3_bosh_softlayer_tools_bucket}}
+    access_key_id:     {{s3_access_key_id}}
+    secret_access_key: {{s3_secret_access_key}}
+    initial_version:   0.0.3
+
+- name: bosh-softlayer-tools-artifacts
+  type: s3
+  source:
+    regexp: stemcell-cmds/sl_stemcells-(.*)
+    bucket: {{s3_bosh_softlayer_tools_bucket}}
+    access_key_id: {{s3_access_key_id}}
+    secret_access_key: {{s3_secret_access_key}}
+
+jobs:
+- name: test-unit
+  public: true
+  plan:
+  - get: bosh-softlayer-tools-master
+  - task: bst-unit
+    file: bosh-softlayer-tools-master/ci/softlayer-cmds/bst-unit.yml
+    params:
+      SL_USERNAME: fake-username
+      SL_API_KEY: fake-api-key
+
+- name: test-integration
+  plan:
+  - get: bosh-softlayer-tools-master
+    trigger: true
+    passed: [test-unit]
+  - task: bst-integration
+    file: bosh-softlayer-tools-master/ci/softlayer-cmds/bst-integration.yml
+
+- name: build
+  plan:
+  - aggregate:
+      - {trigger: false, get: version-semver, params: {bump: patch}, resource: version-semver}
+
+  - get: bosh-softlayer-tools-master
+    trigger: true
+    passed: [test-integration]
+
+  - task: bst-promote-build
+    file: bosh-softlayer-tools-master/ci/softlayer-cmds/bst-promote.yml
+
+  - put: version-semver
+    params: {file: version-semver/number}
+
+  - put: bosh-softlayer-tools-artifacts
+    params: {file: promoted/*}

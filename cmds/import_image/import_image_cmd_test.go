@@ -166,10 +166,6 @@ var _ = Describe("import-image command", func() {
 			It("creates a public VGDTG from a vhd file", func() {
 				fileNames := []string{
 					"SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createFromExternalSource.json",
-					"SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createPublicArchiveTransaction_err.json",
-					"SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createPublicArchiveTransaction_err.json",
-					"SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createPublicArchiveTransaction_err.json",
-					"SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createPublicArchiveTransaction_err.json",
 					"SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service_createPublicArchiveTransaction.json",
 				}
 				testhelpers.SetTestFixturesForFakeSoftLayerClient(fakeClient, fileNames)

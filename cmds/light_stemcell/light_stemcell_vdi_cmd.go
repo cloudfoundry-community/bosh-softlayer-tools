@@ -200,6 +200,7 @@ func (cmd *LightStemcellVDICmd) buildLightStemcellWithVirtualDiskImage(virtualDi
 			VirtualDiskImageUuid: virtualDiskImage.Uuid,
 			DatacenterName:       datacenterName,
 		},
+		StemcellFormats: []string{"softlayer-light"},
 	}
 
 	return GenerateLightStemcellTarball(lightStemcellMF, cmd.lightStemcellInfo, cmd.path)
