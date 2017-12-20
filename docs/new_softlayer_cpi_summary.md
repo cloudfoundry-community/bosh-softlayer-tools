@@ -15,7 +15,7 @@ AZs schema:
 
 _Note that IaaS specific cloud properties related to AZs should now be only placed under azs. Make sure to remove them from resource_pools/vm_types’ cloud properties._
 
-sample manifest for legacy softlayer cpi:  
+sample manifest for current softlayer cpi:
 ```yaml
 azs:
 - name: z1
@@ -48,7 +48,7 @@ Manual networks schema:
     * azs [Array, optional]: List of AZs associated with this subnet (should only be used when using first class AZs). Example: [z1, z2]. Available in v241+.
     * cloud_properties [Hash, optional]: Describes any IaaS-specific properties for the subnet. Default is {} (empty Hash).
 
-sample manifest of static network for legacy softlayer cpi:  
+sample manifest of static network for current softlayer cpi:
 ```yaml
 networks:
 - name: default
@@ -80,7 +80,7 @@ networks:
     static: [10.112.166.131]
     az: z1
     cloud_properties:
-      vlanIds: [524956, 524954]
+      vlan_ids: [524956, 524954]
 ```
 
 Dynamic networks schema:  
@@ -90,7 +90,7 @@ Dynamic networks schema:
   * cloud_properties [Hash, optional]: Describes any IaaS-specific properties for the network. Default is {} (empty Hash).
 
 
-sample manifest of dynamic network for legacy softlayer cpi:  
+sample manifest of dynamic network for current softlayer cpi:
 ```yaml
 networks
 - name: dynamic
@@ -111,7 +111,7 @@ networks
 - name: dynamic
   type: dynamic
   cloud_properties:
-    vlanIds: [((sl_vlan_public_id)), ((sl_vlan_private_id))]
+    vlan_ids: [((sl_vlan_public_id)), ((sl_vlan_private_id))]
   dns: [8.8.8.8, 10.0.80.11, 10.0.80.12]
 ```
 
@@ -125,7 +125,7 @@ Vm_types schema:
     * name [String, required]: A unique name used to identify and reference the VM type
     * cloud_properties [Hash, optional]: Describes any IaaS-specific properties needed to create VMs; for most IaaSes, some data here is actually required. See CPI Specific cloud_properties below. Example: instance_type: m3.medium. Default is {} (empty Hash).
 
-sample manifest of legacy softlayer cpi: 
+sample manifest of current softlayer cpi:
 ```yaml
 vm_types:
 - name: default
@@ -144,11 +144,11 @@ sample manifest for new softlayer cpi:
 vm_types:
 - name: default
   cloud_properties:
-    startCpus:  4
-    maxMemory:  8192
-    ephemeralDiskSize: 100
-    hourlyBillingFlag: true
-    vmNamePrefix: manifest-sample
+    cpu:  4
+    memory:  8192
+    ephemeral_disk_size: 100
+    hourly_billing_flag: true
+    hostname_prefix: manifest-sample
     domain: sofltayer.com
 ```
 
@@ -161,7 +161,7 @@ Disk Type (previously known as Disk Pool) is a named disk configuration specifie
     * disk_size [Integer, required]: Specifies the disk size. disk_size must be a positive integer. BOSH creates a persistent disk of that size in megabytes and attaches it to each job instance VM.
     * cloud_properties [Hash, optional]: Describes any IaaS-specific properties needed to create disks. Examples: type, iops. Default is {} (empty Hash).
 
-sample manifest of legacy softlayer cpi: 
+sample manifest of current softlayer cpi:
 ```yaml
 disk_types:
 - name: disks
@@ -178,14 +178,13 @@ disk_types:
   disk_size: 100_000
   cloud_properties:
     iops: 3000
-    useHourlyPricing: true
-    snapshotSpace: 20
+    snapshot_space: 20
 
 ```
     
 ### Typical sample: The director deployment manifest
 
-legacy softlayer cpi: 
+current softlayer cpi:
 ```yaml
 cloud_provider:
   cert:
@@ -297,7 +296,7 @@ cloud_provider:
 disk_pools:
 - cloud_properties:
     iops: 3000
-    snapshotSpace: 20
+    snapshot_space: 20
   disk_size: 200000
   name: disks
 instance_groups: ...
@@ -306,7 +305,7 @@ networks:
 - name: default
   subnets:
   - cloud_properties:
-      vlanIds:
+      vlan_ids:
       - 1234567
     dns:
     - 8.8.8.8
@@ -316,7 +315,7 @@ networks:
     - 10.112.166.130
   type: manual
 - cloud_properties:
-    vlanIds:
+    vlan_ids:
     - 1234567
     - 1234568
   dns:
@@ -329,14 +328,14 @@ releases: ...
 resource_pools:
 - cloud_properties:
     datacenter: lon02
-    deployedByBoshcli: true
+    deployed_by_boshcli: true
     domain: fake-domain.com
-    ephemeralDiskSize: 100
-    hourlyBillingFlag: true
-    maxMemory: 8192
-    maxNetworkSpeed: 100
-    startCpus: 4
-    vmNamePrefix: fake-prefix
+    ephemeral_disk_size: 100
+    hourly_billing_flag: true
+    memory: 8192
+    max_network_speed: 100
+    cpu: 4
+    hostname_prefix: fake-prefix
   env:
     bosh: ...
   name: vms
@@ -347,7 +346,7 @@ variables: []
 
 How about add sample manifest of simpler case.
 
-## Comparison with legacy CPI
+## Comparison with current CPI
 
 ### softlayer-go
 
