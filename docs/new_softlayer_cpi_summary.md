@@ -111,7 +111,7 @@ networks
 - name: dynamic
   type: dynamic
   cloud_properties:
-    vlan_ids: [((sl_vlan_public_id)), ((sl_vlan_private_id))]
+    vlan_ids: [524956, 524954]
   dns: [8.8.8.8, 10.0.80.11, 10.0.80.12]
 ```
 
@@ -130,12 +130,13 @@ sample manifest of current softlayer cpi:
 vm_types:
 - name: default
   cloud_properties:
-    bosh_ip: ((internal_ip))
-    startCpus:  4
-    maxMemory:  8192
-    ephemeralDiskSize: 100
-    hourlyBillingFlag: true
-    vmNamePrefix: manifest-sample
+    Bosh_ip: ((internal_ip))
+    StartCpus:  4
+    MaxMemory:  8192
+    EphemeralDiskSize: 100
+    HourlyBillingFlag: true
+    VmNamePrefix: manifest-sample
+    LocalDiskFlag: true
     domain: sofltayer.com
 ```
 
@@ -149,6 +150,7 @@ vm_types:
     ephemeral_disk_size: 100
     hourly_billing_flag: true
     hostname_prefix: manifest-sample
+    local_disk_flag: true
     domain: sofltayer.com
 ```
 
