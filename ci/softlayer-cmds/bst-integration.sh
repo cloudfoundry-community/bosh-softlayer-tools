@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e -x
+set -e
 
 base=$( cd "$( dirname "$( dirname "$0" )")"/.. && pwd )
 base_gopath=$( cd $base/../../../.. && pwd )
@@ -29,7 +29,7 @@ echo -e "\n cd to base of project..."
 cd $base
 
 echo -e "\n Integration Testing packages:"
-ginkgo -r -p -v --skipPackage ./integration/bmp --noisyPendings integration
+ginkgo -r -p -v --skipPackage bmp --noisyPendings integration
 
 echo -e "\n Vetting packages for potential issues..."
 go tool vet main common cmds integration

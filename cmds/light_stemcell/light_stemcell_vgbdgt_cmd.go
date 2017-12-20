@@ -194,6 +194,7 @@ func (cmd *LightStemcellVGBDTGCmd) buildLightStemcellWithVirtualGuestBlockDevice
 			VirtualDiskImageUuid: vgdtgGroup.GlobalIdentifier,
 			DatacenterName:       datacenterName,
 		},
+		StemcellFormats: []string{"softlayer-light"},
 	}
 
 	return GenerateLightStemcellTarball(lightStemcellMF, cmd.lightStemcellInfo, cmd.path)

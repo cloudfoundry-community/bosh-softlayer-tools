@@ -1,4 +1,4 @@
-package integration_test
+package stemcells_test
 
 import (
 	"time"

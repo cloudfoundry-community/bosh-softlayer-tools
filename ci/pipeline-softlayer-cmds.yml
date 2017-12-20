@@ -40,6 +40,9 @@ jobs:
     passed: [test-unit]
   - task: bst-integration
     file: bosh-softlayer-tools-master/ci/softlayer-cmds/bst-integration.yml
+    params:
+      SL_USERNAME: {{softlayer-username}}
+      SL_API_KEY:  {{softlayer-api-key}}
 
 - name: build
   plan:
