@@ -14,7 +14,7 @@ outputs:
   - name: stemcell-image
 
 run:
-  path: bosh-softlayer-tools-master/ci/bluemix/tasks/import-stemcell.sh
+  path: bosh-softlayer-tools-master/ci/softlayer/tasks/import-stemcell.sh
 
 params:
   IAAS:            bluemix

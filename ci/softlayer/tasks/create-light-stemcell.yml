@@ -17,7 +17,7 @@ outputs:
   - name: light-stemcell
 
 run:
-  path: bosh-softlayer-tools-master/ci/bluemix/tasks/create-light-stemcell.sh
+  path: bosh-softlayer-tools-master/ci/softlayer/tasks/create-light-stemcell.sh
 
 params:
   HYPERVISOR:  xen
