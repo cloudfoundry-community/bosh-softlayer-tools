@@ -12,6 +12,7 @@ AZs schema:
   * azs [Array, required]: List of AZs.
   * name [String, required]: Name of an AZ within the Director.
   * cloud_properties [Hash, optional]: Describes any IaaS-specific properties needed to associated with AZ; for most IaaSes, some data here is actually required. See CPI Specific cloud_properties below. Example: availability_zone. Default is {} (empty Hash).
+    - datacenter [String&lt;String&gt;, required]: Name of the datacenter. Example: `lon02`.
 
 _Note that IaaS specific cloud properties related to AZs should now be only placed under azs. Make sure to remove them from resource_pools/vm_types’ cloud properties._
 
@@ -35,7 +36,7 @@ azs:
 
 There are three different network types: `manual`, `dynamic`, and `vip`. And softlayer-cpi does not support `vip` type at present.
 
-Manual networks schema:  
+Manual networks schema:
   * name [String, required]: Name used to reference this network configuration
   * type [String, required]: Value should be manual
   * subnets [Array, required]: Lists subnets in this network
@@ -47,6 +48,7 @@ Manual networks schema:
     * az [String, optional]: AZ associated with this subnet (should only be used when using first class AZs). Example: z1. Available in v241+.
     * azs [Array, optional]: List of AZs associated with this subnet (should only be used when using first class AZs). Example: [z1, z2]. Available in v241+.
     * cloud_properties [Hash, optional]: Describes any IaaS-specific properties for the subnet. Default is {} (empty Hash).
+      - vlan_ids [Array&lt;String&gt;, required]: A list of the [SoftLayer Network Vlan](https://sldn.softlayer.com/reference/datatypes/SoftLayer_Network_Vlan) id that the CPI will use when creating the instance (at lest set one private network). Example: `524954`.
 
 sample manifest of static network for current softlayer cpi:
 ```yaml
@@ -88,7 +90,7 @@ Dynamic networks schema:
   * type [String, required]: Value should be dynamic
   * dns [Array, optional]: DNS IP addresses for this network
   * cloud_properties [Hash, optional]: Describes any IaaS-specific properties for the network. Default is {} (empty Hash).
-
+      - vlan_ids [Array&lt;String&gt;, required]: A list of the [SoftLayer Network Vlan](https://sldn.softlayer.com/reference/datatypes/SoftLayer_Network_Vlan) id that the CPI will use when creating the instance (at lest set one private network). Example: `524954`.
 
 sample manifest of dynamic network for current softlayer cpi:
 ```yaml
@@ -111,11 +113,11 @@ networks
 - name: dynamic
   type: dynamic
   cloud_properties:
-    vlan_ids: [524956, 524954]
+    vlan_ids: [((sl_vlan_public_id)), ((sl_vlan_private_id))]
   dns: [8.8.8.8, 10.0.80.11, 10.0.80.12]
 ```
 
-### VM Types/Resource Pools
+### VM Types
 
 VM type is a named Virtual Machine size configuration in the cloud config.
 Resource pool is collections of VMs created from the same stemcell, with the same configuration, in a deployment.
@@ -124,19 +126,28 @@ Vm_types schema:
   * vm_types [Array, required]: Specifies the VM types available to deployments. At least one should be specified.
     * name [String, required]: A unique name used to identify and reference the VM type
     * cloud_properties [Hash, optional]: Describes any IaaS-specific properties needed to create VMs; for most IaaSes, some data here is actually required. See CPI Specific cloud_properties below. Example: instance_type: m3.medium. Default is {} (empty Hash).
+      - hostname_prefix** [String, required]: The hostname of the [SoftLayer Virtual Guest](https://sldn.softlayer.com/reference/datatypes/SoftLayer_Virtual_Guest) the CPI will use when creating the instance. Please note that, for bosh director, this property is the full hostname, and for other instances in deployments, a timestamp will be appended to the property value to make the hostname. Example: `bosh-softlayer`.
+      - domain** [String, required]: The domain name of the [SoftLayer Virtual Guest](https://sldn.softlayer.com/reference/datatypes/SoftLayer_Virtual_Guest) the CPI will use when creating the instance. Example: `softlayer.com`.
+      - cpu** [Integer, required]: Number of CPUs ([SoftLayer Virtual Guest](https://sldn.softlayer.com/reference/datatypes/SoftLayer_Virtual_Guest)) the CPI will use when creating the instance. Example: `4`.
+      - memory** [Integer, required]: Memory(in Mb) ([SoftLayer Virtual Guest](https://sldn.softlayer.com/reference/datatypes/SoftLayer_Virtual_Guest)) the CPI will use when creating the instance. Example: `8192`.
+      - max_network_speed** [Integer, optional]: Max speed of networkComponents SoftLayer Virtual Guest](https://sldn.softlayer.com/reference/datatypes/SoftLayer_Virtual_Guest) the CPI will use when creating the instance. Default is `1000`.
+      - ephemeral_disk_size** [Integer, optional]: Ephemeral disk size(in Gb) the CPI will use when creating the instance. Example: `100`.
+      - hourly_billing_flag** [Boolean, optional]: If the instance is hourly billing. Default is `false`.
+      - local_disk_flag** [Boolean, optional]: If the instance has at least one disk which is local to the host it runs on. Default is `false`.
+      - dedicated_account_host_only_flag** [Boolean, optional]: If the instance is to run on hosts that only have guests from the same account. Default is `false`.
+      - deployed_by_boshcli** [Boolean, optional]: If the instance is deployed by bosh-cli. Default is `false`.
 
 sample manifest of current softlayer cpi:
 ```yaml
 vm_types:
 - name: default
   cloud_properties:
-    Bosh_ip: ((internal_ip))
-    StartCpus:  4
-    MaxMemory:  8192
-    EphemeralDiskSize: 100
-    HourlyBillingFlag: true
-    VmNamePrefix: manifest-sample
-    LocalDiskFlag: true
+    bosh_ip: ((internal_ip))
+    startCpus:  4
+    maxMemory:  8192
+    ephemeralDiskSize: 100
+    hourlyBillingFlag: true
+    vmNamePrefix: manifest-sample
     domain: sofltayer.com
 ```
 
@@ -150,11 +161,10 @@ vm_types:
     ephemeral_disk_size: 100
     hourly_billing_flag: true
     hostname_prefix: manifest-sample
-    local_disk_flag: true
     domain: sofltayer.com
 ```
 
-### Disk types/Disk Pools
+### Disk types
 
 Disk Type (previously known as Disk Pool) is a named disk configuration specified in the cloud config.
 
@@ -162,6 +172,8 @@ Disk Type (previously known as Disk Pool) is a named disk configuration specifie
     * name [String, required]: A unique name used to identify and reference the disk type
     * disk_size [Integer, required]: Specifies the disk size. disk_size must be a positive integer. BOSH creates a persistent disk of that size in megabytes and attaches it to each job instance VM.
     * cloud_properties [Hash, optional]: Describes any IaaS-specific properties needed to create disks. Examples: type, iops. Default is {} (empty Hash).
+      - iops** [Integer, optional]: Input/output operations per second (IOPS) value. Example: `1000`. If it's not set, a medium IOPS value of the specified disk size will be chosen.
+      - snapshot_space** [Boolean, optional]: The size of snapshot space of the disk. Example: `20`.
 
 sample manifest of current softlayer cpi:
 ```yaml
@@ -345,32 +357,3 @@ resource_pools:
   stemcell: ...
 variables: []
 ```
-
-How about add sample manifest of simpler case.
-
-## Comparison with current CPI
-
-### softlayer-go
-
-1. new Softlayer CPI is moved to SL official `softlayer-go` lib.  
-Each data types and service methods of the lib is pre-generated, using the SoftLayer API metadata endpoint as input, thus ensuring 100% coverage of the API right out of the gate. The library use a session to manage all Softlayer Services, every services has own methods. Services-relative data can be queried by calling the Mask(), Filter(), Limit() and Offset() service methods prior to invoking an API method. All non-slice method parameters are passed as pointers. Like method parameters, all non-slice members are declared as pointers in datatypes. A custom error type is returned when API services error occurs, with individual fields that can be parsed separately.
-
-And `softlayer-go` Add wait/retry logic to retry the api requests if there is a timeout error. 
-
-So we combine the 3-layer wait/retry mechanism:  
-1. softlayer-go covers connection timeout error. The transport handler of softlayer-go support the retry of connectino error. It contains http timeout error(408 Request Timeout, 504 Gateway Timeout, 599 Network connect timeout) and transport timeout error[[#2](https://github.com/softlayer/softlayer-go/blob/retries/session/session.go#L284-L301).
-2. CPI covers Softlayer resource 'Not_Found' error and registry timeout error. When CPI calls specific softlayer API such getObject and Softlayer return 'Not_Found' error, CPI will wait 5 seconds and retry in one minute.
-3. Bosh director cover CPI actions' retries when CPI return error with positive ok_to_retry. For example, CPI would return a error with positive ok_to_retry when calling Softlayer Virtual Guest Serivce create Object failed as long as the parameter check is correct before call API methods.
-
-
-TODO: 
-
-2. implement actions
-
-3. userData
-
-4. registry
-
-5. manifest /add-on
-
-6. must settings
