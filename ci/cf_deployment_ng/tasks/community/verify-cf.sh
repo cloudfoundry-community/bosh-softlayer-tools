@@ -13,7 +13,8 @@ cp ${deployment_dir}/bosh-cli* /usr/local/bin/bosh-cli
 chmod +x /usr/local/bin/bosh-cli
 
 echo -e "\n\033[32m[INFO] Installing Cloud Foundry Client.\033[0m"
-apt-get install wget -y
+# apt-get install wget -y
+apt-get install apt-transport-https -y
 wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add -
 echo "deb http://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list
 apt-get update

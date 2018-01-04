@@ -1,6 +1,6 @@
 ---
 platform: linux
-image: docker:///boshcpi/azure-cpi-release
+image: docker:///boshcpi/aws-cpi-release
 
 inputs:
 - name: director-artifacts
