@@ -24,11 +24,6 @@ chmod +x bosh-cli-v2/bosh-cli*
 
 echo -e "\n\033[32m[INFO] Using bosh-cli $(bosh-cli -v).\033[0m"
 echo -e "\n\033[32m[INFO] Generating director yml.\033[0m"
-cat >remove_variables.yml <<EOF
-- type: remove
-  path: /variables
-EOF
-
 cat >remove-health-monitor.yml <<EOF
 - path: /instance_groups/name=bosh/jobs/name=health_monitor
   type: remove
@@ -44,7 +39,7 @@ bosh-cli int bosh-deployment/bosh.yml \
 	-o ./remove-health-monitor.yml \
 	-v internal_ip=$SL_VM_PREFIX.$SL_VM_DOMAIN \
 	-v dns_recursor_ip=127.0.0.1 \
-	-v director_name=bats-director \
+	-v director_name=automation-director \
 	-v sl_director_fqn=$SL_VM_PREFIX.$SL_VM_DOMAIN \
 	-v sl_datacenter=$SL_DATACENTER \
 	-v sl_vlan_public=$SL_VLAN_PUBLIC \

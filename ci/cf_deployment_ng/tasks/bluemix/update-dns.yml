@@ -10,4 +10,3 @@ inputs:
 
 run:
   path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/update-dns.sh
-
