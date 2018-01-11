@@ -31,7 +31,7 @@ ${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name} deploy ${deploymen
 
 
 # generate new cf deployment yml file for update
-${deployment_dir}/bosh-cli* interpolate cf-template/${cf_template} \
+${deployment_dir}/bosh-cli* interpolate cf-template/manifests/auto_deploy/${cf_template} \
 							-v director_password=${director_password} \
 							-v director_ip=${director_ip}\
 							-v director_uuid=${director_uuid}\
@@ -45,7 +45,7 @@ ${deployment_dir}/bosh-cli* interpolate cf-template/${cf_template} \
 						    > ${deployment_dir}/cf-deploy-update.yml
 
 # generate diego deployment yml file
-${deployment_dir}/bosh-cli* int diego-template/${diego_template} \
+${deployment_dir}/bosh-cli* int diego-template/manifests/auto_deploy/${diego_template} \
 							-v director_password=${director_password} \
 							-v director_ip=${director_ip}\
 							-v director_uuid=${director_uuid}\
