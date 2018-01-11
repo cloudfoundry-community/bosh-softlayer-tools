@@ -262,8 +262,3 @@ jobs:
   - task: cf-push-app
     file: bosh-softlayer-tools/ci/tasks/create-env-automation/verify-cf-updated.yml
     params: *cf-params
-
-
-
-
-
