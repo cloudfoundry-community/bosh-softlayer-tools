@@ -7,7 +7,7 @@ check_param SL_API_KEY
 check_param SL_DATACENTER
 #TODO: create a docker image to avoid the installation.
 apt-get update > /dev/null 2>&1
-apt-get install -y python-pip python-dev build-essential expect > /dev/null 2>&1
+apt-get install -y python-pip python-dev build-essential expect ssh > /dev/null 2>&1
 
 python -V
 
