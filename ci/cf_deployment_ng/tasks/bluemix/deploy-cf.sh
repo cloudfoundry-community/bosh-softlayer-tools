@@ -29,9 +29,6 @@ director_ip=$(awk '{print $1}' ${deployment_dir}/director-hosts)
 director_uuid=$(grep -Po '(?<=director_id": ")[^"]*' ${deployment_dir}/director-state.json)
 
 
-echo -e "\n\033[32m[INFO] Uploading stemcell.\033[0m"
-bosh-cli -e bosh-test us https://s3.amazonaws.com/ng-bosh-softlayer-stemcells-bluemix-candidate-container/light-bosh-stemcell-3445.11.3-bluemix-xen-ubuntu-trusty-go_agent.tgz
-
 # generate cf deployment yml file
 bosh-cli int cf-template/${cf_template} \
 							-v director_password=${director_password} \
