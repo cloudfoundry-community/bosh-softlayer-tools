@@ -27,7 +27,7 @@ director_uuid=$(grep -Po '(?<=director_id": ")[^"]*' ${deployment_dir}/director-
 print_title  "Ensure cf is base version..."
 
 # deploy base version of cf
-${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name} deploy ${deployment_dir}/cf-deploy-base.yml
+#${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name} deploy ${deployment_dir}/cf-deploy-base.yml
 
 
 # generate new cf deployment yml file for update
