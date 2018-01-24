@@ -24,6 +24,7 @@ export BOSH_CA_CERT=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /
 
 echo -e "\n\033[32m[INFO] Deleting deployments and resources without inspecting the existence of deployments.\033[0m"
 bosh-cli -n -d ${DEPLOYMENT_BlUEMIX_NAME} delete-deployment --force
+bosh-cli -n -d ${DEPLOYMENT_BlUEMIX_NAME}-diego delete-deployment --force
 bosh-cli -n clean-up --all
 
 echo -e "\n\033[32m[INFO] Deleting director.\033[0m"
