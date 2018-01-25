@@ -17,8 +17,8 @@ tar -zxvf run-utils/run-utils.tgz -C run-utils/
 
 deploy_name=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/cf-deploy-base.yml --path /name)
 director_ip=$(awk '{print $1}' deployment/director-hosts)
-domain1="${deploy_name}.bluebosh.com"
-domain2="${deploy_name}.mybluebosh.com"
+domain1="${deploy_name}.bluemix.net"
+domain2="${deploy_name}.mybluemix.net"
 pg_password=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/director-creds.yml --path /postgres_password)
 ip_ha=$(grep ha_proxy ${deployment_dir}/deployed-vms|awk '{print $4}')
 
