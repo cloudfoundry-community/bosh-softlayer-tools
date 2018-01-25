@@ -62,27 +62,27 @@ releases_cf=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/cf-deploy-update
 releases_diego=$(${deployment_dir}/bosh-cli* int ${deployment_dir}/diego-deploy-update.yml --path /releases |grep -Po '(?<=- location: ).*')
 releases=`echo -e "${releases_cf}\n${releases_diego}"`
 
-# upload releases
-while IFS= read -r line; do
-${deployment_dir}/bosh-cli* -e bosh-test upload-release $line
-done <<< "$releases"
-
-function stemcell_exist(){
-	stemcell_version=$1
-	uploaded_stemcells=$(${deployment_dir}/bosh-cli*  -e bosh-test stemcells |awk '{print $2}'|sed s/[+*]$//)
-	IFS= read -r -a stemcells<<<"$uploaded_stemcells"
-	for stemcell in "$stemcells"
-	do
-		if [ "$stemcell_version" == "$stemcell" ];then
-			return 0
-		fi
-	done
-	return 1
-}
-
-if ! stemcell_exist ${stemcell_version}; then
-	${deployment_dir}/bosh-cli* -e bosh-test upload-stemcell ${stemcell_location}
-fi
+## upload releases
+#while IFS= read -r line; do
+#${deployment_dir}/bosh-cli* -e bosh-test upload-release $line
+#done <<< "$releases"
+#
+#function stemcell_exist(){
+#	stemcell_version=$1
+#	uploaded_stemcells=$(${deployment_dir}/bosh-cli*  -e bosh-test stemcells |awk '{print $2}'|sed s/[+*]$//)
+#	IFS= read -r -a stemcells<<<"$uploaded_stemcells"
+#	for stemcell in "$stemcells"
+#	do
+#		if [ "$stemcell_version" == "$stemcell" ];then
+#			return 0
+#		fi
+#	done
+#	return 1
+#}
+#
+#if ! stemcell_exist ${stemcell_version}; then
+#	${deployment_dir}/bosh-cli* -e bosh-test upload-stemcell ${stemcell_location}
+#fi
 
 print_title "Updating CF..."
 
