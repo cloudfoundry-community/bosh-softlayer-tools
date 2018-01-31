@@ -7,6 +7,7 @@ source /etc/profile.d/chruby.sh
 check_param VCAP_PASSWORD
 
 echo "[INFO] Install expect, ssh tool"
+apt-get update
 apt-get -y install expect ssh >/dev/null 2>&1
 deployment_dir="${PWD}/deployment"
 mkdir -p $deployment_dir
