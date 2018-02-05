@@ -43,6 +43,16 @@ cat ${deployment_dir}/cloud-config.yml
 echo -e "\n\033[32m[INFO] Updating cloud-config.\033[0m"
 bosh-cli update-cloud-config -n ${deployment_dir}/cloud-config.yml
 
+echo -e "\n\033[32m[INFO] Uploading stemcell.\033[0m"
+bosh-cli -e $(cat ${deployment_dir}/director-hosts |awk '{print $2}') --ca-cert <(bosh-cli int ${deployment_dir}/director-creds.yml --path /director_ssl/ca ) alias-env bosh-test
+director_password=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /admin_password)
+export BOSH_CLIENT=admin
+export BOSH_CLIENT_SECRET=${director_password}
+bosh-cli -e bosh-test login
+
+stemcell_location=$(bosh-cli int ${deployment_dir}/cloud-config.yml --path /stemcell_location)
+bosh-cli -e bosh-test upload-stemcell ${stemcell_location} --fix
+
 echo -e "\n\033[32m[INFO] Final state of director deployment:\033[0m"
 cat ${deployment_dir}/director-state.json
 
