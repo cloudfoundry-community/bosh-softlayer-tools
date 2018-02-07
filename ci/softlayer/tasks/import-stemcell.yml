@@ -17,10 +17,10 @@ run:
   path: bosh-softlayer-tools-master/ci/softlayer/tasks/import-stemcell.sh
 
 params:
-  IAAS:            bluemix
-  HYPERVISOR:      xen
-  OS_NAME:         ubuntu
-  OS_VERSION:      trusty
+  IAAS:            replace-me
+  HYPERVISOR:      replace-me
+  OS_NAME:         replace-me
+  OS_VERSION:      replace-me
   SL_USERNAME:     replace-me
   SL_API_KEY:      replace-me
   SWIFT_USERNAME:  replace-me

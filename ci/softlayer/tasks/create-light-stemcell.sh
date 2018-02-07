@@ -23,7 +23,7 @@ export sl_stemcells=$(realpath stemcell-cmds/sl_stemcells-*)
 chmod +x $sl_stemcells
 
 echo -e "\n[INFO] Softlayer creating light stemcell..."
-$sl_stemcells -c light-stemcell --version ${stemcell_version} --infrastructure "$IAAS" --stemcell-info-filename "./stemcell-info/stemcell-info.json"
+$sl_stemcells -c light-stemcell --version ${stemcell_version} --os-name "ubuntu-$OS_VERSION" --infrastructure "$IAAS" --stemcell-info-filename "./stemcell-info/stemcell-info.json"
 
 echo -e "\n[INFO] Repacking light stemcell with info files..."
 stemcell_filename=`ls light*.tgz`
