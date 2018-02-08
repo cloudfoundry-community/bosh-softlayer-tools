@@ -67,27 +67,27 @@ releases=`echo -e "${releases_cf}\n${releases_diego}"`
 #${deployment_dir}/bosh-cli* -e bosh-test upload-release $line
 #done <<< "$releases"
 #
-#function stemcell_exist(){
-#	stemcell_version=$1
-#	uploaded_stemcells=$(${deployment_dir}/bosh-cli*  -e bosh-test stemcells |awk '{print $2}'|sed s/[+*]$//)
-#	IFS= read -r -a stemcells<<<"$uploaded_stemcells"
-#	for stemcell in "$stemcells"
-#	do
-#		if [ "$stemcell_version" == "$stemcell" ];then
-#			return 0
-#		fi
-#	done
-#	return 1
-#}
-#
-#if ! stemcell_exist ${stemcell_version}; then
-#	${deployment_dir}/bosh-cli* -e bosh-test upload-stemcell ${stemcell_location}
-#fi
+function stemcell_exist(){
+	stemcell_version=$1
+	uploaded_stemcells=$(${deployment_dir}/bosh-cli*  -e bosh-test stemcells |awk '{print $2}'|sed s/[+*]$//)
+	IFS= read -r -a stemcells<<<"$uploaded_stemcells"
+	for stemcell in "$stemcells"
+	do
+		if [ "$stemcell_version" == "$stemcell" ];then
+			return 0
+		fi
+	done
+	return 1
+}
+
+if ! stemcell_exist ${stemcell_version}; then
+	${deployment_dir}/bosh-cli* -e bosh-test upload-stemcell ${stemcell_location}
+fi
 
 print_title "Updating CF..."
 
-${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name} deploy ${deployment_dir}/cf-deploy-update.yml --no-redact
-${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name}-diego deploy ${deployment_dir}/diego-deploy-update.yml --no-redact
+${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name} deploy ${deployment_dir}/cf-deploy-update.yml --fix --no-redact
+${deployment_dir}/bosh-cli* -n -e bosh-test -d ${deploy_name}-diego deploy ${deployment_dir}/diego-deploy-update.yml --fix --no-redact
 
 cp ${deployment_dir}/cf-deploy-update.yml  cf-artifacts/cf-deploy-update.yml
 cp ${deployment_dir}/diego-deploy-update.yml  cf-artifacts/diego-deploy-update.yml
