@@ -15,7 +15,13 @@ pushd stemcell
   echo -e "\n Unpacking stemcell raw tgz..."
   tar -zxvf *.tgz
   ls -la
-  cp dev_tools_file_list.txt stemcell_dpkg_l.txt "${base}"
+  cp dev_tools_file_list.txt "${base}"
+  if [ -f stemcell_dpkg_l.txt ]; then
+     cp stemcell_dpkg_l.txt "${base}"
+  fi
+  if [ -f packages.txt ]; then
+     cp packages.txt "${base}"
+  fi
 popd
 
 echo -e "\n[INFO] Getting stemcell binary..."
@@ -28,7 +34,12 @@ $sl_stemcells -c light-stemcell --version ${stemcell_version} --os-name "ubuntu-
 echo -e "\n[INFO] Repacking light stemcell with info files..."
 stemcell_filename=`ls light*.tgz`
 tar -zxvf ${stemcell_filename}
-tar -zcvf ${stemcell_filename} image stemcell.MF dev_tools_file_list.txt stemcell_dpkg_l.txt
+if [ -f stemcell_dpkg_l.txt ]; then
+    tar -zcvf ${stemcell_filename} image stemcell.MF dev_tools_file_list.txt stemcell_dpkg_l.txt
+fi
+if [ -f packages.txt ]; then
+    tar -zcvf ${stemcell_filename} image stemcell.MF dev_tools_file_list.txt packages.txt
+fi
 cp *.tgz "./${output_dir}/"
 
 echo -e "\n[INFO] Printing stemcell sha1 value..."
