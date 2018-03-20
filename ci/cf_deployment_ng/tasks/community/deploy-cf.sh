@@ -22,7 +22,7 @@ export BOSH_CA_CERT=$(bosh-cli int ${deployment_dir}/director-creds.yml --path /
 bosh-cli login
 
 echo -e "\n\033[32m[INFO] Uploading stemcell.\033[0m"
-bosh-cli us https://s3.amazonaws.com/bosh-softlayer-stemcells-candidate-container/light-bosh-stemcell-${SOFTLAYER_STEMCELL_VERSION}-softlayer-xen-ubuntu-trusty-go_agent.tgz
+bosh-cli us https://s3.amazonaws.com/ng-bosh-softlayer-stemcells-candidate-container/light-bosh-stemcell-${SOFTLAYER_STEMCELL_VERSION}-softlayer-xen-ubuntu-trusty-go_agent.tgz
 cat >specify-stemcell-version.yml << EOF
 - path: /stemcells/alias=default/version
   type: replace
