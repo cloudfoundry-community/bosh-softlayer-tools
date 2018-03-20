@@ -35,7 +35,7 @@ EOF
 
 echo -e "\n\033[32m[INFO] Generating director manifest director.yml.\033[0m"
 bosh-cli int bosh-deployment/bosh.yml \
-	-o bosh-deployment/powerdns.yml \
+	-o bosh-deployment/misc/powerdns.yml \
 	-o bosh-deployment/$INFRASTRUCTURE/cpi-base.yml \
 	-o bosh-deployment/$INFRASTRUCTURE/dynamic-director.yml \
 	-o bosh-deployment/jumpbox-user.yml \
