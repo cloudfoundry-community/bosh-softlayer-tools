@@ -12,6 +12,7 @@ check_param SWIFT_USERNAME
 check_param SWIFT_API_KEY
 check_param SWIFT_CLUSTER
 check_param SWIFT_CONTAINER
+check_param OS_VERSION
 
 export CANDIDATE_BUILD_NUMBER=$( cat version/number | sed 's/\.0$//;s/\.0$//' )
 
@@ -28,7 +29,16 @@ chmod +x $sl_stemcells
 echo -e "\n[INFO] Softlayer create from external source..."
 IFS=':' read -ra OBJ_STORAGE_ACC_NAME <<< "$SWIFT_USERNAME"
 URI="swift://${OBJ_STORAGE_ACC_NAME}@${SWIFT_CLUSTER}/${SWIFT_CONTAINER}/${stemcell_vhd_filename}"
-$sl_stemcells -c import-image --os-ref-code UBUNTU_14_64 --uri ${URI} --infrastructure "$IAAS" --public-name "light-bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-xen-ubuntu-trusty-go_agent" \
+if [ "$OS_VERSION" = "xenial" ]; then
+  os_ref_code=UBUNTU_16_64
+elif [ "$OS_VERSION" = "trusty" ]; then
+  os_ref_code=UBUNTU_14_64
+else
+  echo -e "\n[INFO] Unmatched os version: ${OS_VERSION}"
+  exit 1
+fi
+
+$sl_stemcells -c import-image --os-ref-code ${os_ref_code} --uri ${URI} --infrastructure "$IAAS" --public-name "light-bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-xen-ubuntu-$OS_VERSION-go_agent" \
   --public-note "Public_light_stemcell_${CANDIDATE_BUILD_NUMBER}" --public | tail -1 > "./stemcell-image/stemcell-info.json"
 
 sleep 10
