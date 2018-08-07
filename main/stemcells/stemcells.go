@@ -156,6 +156,7 @@ func init() {
 	flag.StringVar(&stemcellsOptions.InfrastructureFlag, "infrastructure", "softlayer", "the light stemcell infrastructure, defaults to softlayer")
 	flag.StringVar(&stemcellsOptions.HypervisorFlag, "hypervisor", "xen", "the light stemcell version")
 	flag.StringVar(&stemcellsOptions.OsNameFlag, "os-name", "ubuntu-trusty", "the name of the operating system")
+	flag.StringVar(&stemcellsOptions.StemcellFormatsFlag, "stemcell-formats", "softlayer-light", "stemcell formats supported by the CPI")
 }
 
 func usage() {

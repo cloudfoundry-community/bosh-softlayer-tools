@@ -20,9 +20,10 @@ run:
   path: bosh-softlayer-tools-master/ci/bluemix/tasks/create-light-stemcell.sh
 
 params:
-  HYPERVISOR:  xen
-  IAAS:        bluemix
-  OS_NAME:     ubuntu
-  OS_VERSION:  trusty
-  SL_USERNAME: replace-me
-  SL_API_KEY:  replace-me
+  HYPERVISOR:       xen
+  IAAS:             bluemix
+  OS_NAME:          ubuntu
+  OS_VERSION:       trusty
+  STEMCELL_FORMATS: replace-me
+  SL_USERNAME:      replace-me
+  SL_API_KEY:       replace-me

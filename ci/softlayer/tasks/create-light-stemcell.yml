@@ -19,9 +19,10 @@ run:
   path: bosh-softlayer-tools-master/ci/softlayer/tasks/create-light-stemcell.sh
 
 params:
-  HYPERVISOR:  replace-me
-  IAAS:        replace-me
-  OS_NAME:     replace-me
-  OS_VERSION:  replace-me
-  SL_USERNAME: replace-me
-  SL_API_KEY:  replace-me
+  HYPERVISOR:       replace-me
+  IAAS:             replace-me
+  OS_NAME:          replace-me
+  OS_VERSION:       replace-me
+  STEMCELL_FORMATS: replace-me
+  SL_USERNAME:      replace-me
+  SL_API_KEY:       replace-me

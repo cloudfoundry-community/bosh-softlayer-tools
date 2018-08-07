@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 
@@ -29,10 +30,14 @@ type LightStemcellVDICmd struct {
 	hypervisor     string
 	osName         string
 
+	stemcellFormats []string
+
 	client softlayer.Client
 }
 
 func NewLightStemcellVDICmd(options common.Options, client softlayer.Client) *LightStemcellVDICmd {
+	stemcellFormats := strings.Split(options.StemcellFormatsFlag, ",")
+
 	cmd := &LightStemcellVDICmd{
 		options: options,
 
@@ -42,9 +47,10 @@ func NewLightStemcellVDICmd(options common.Options, client softlayer.Client) *Li
 
 		stemcellInfoFilename: options.StemcellInfoFilenameFlag,
 
-		infrastructure: options.InfrastructureFlag,
-		hypervisor:     options.HypervisorFlag,
-		osName:         options.OsNameFlag,
+		infrastructure:  options.InfrastructureFlag,
+		hypervisor:      options.HypervisorFlag,
+		osName:          options.OsNameFlag,
+		stemcellFormats: stemcellFormats,
 
 		client: client,
 	}
@@ -144,6 +150,7 @@ func (cmd *LightStemcellVDICmd) updateLightStemcellInfo() {
 	cmd.lightStemcellInfo.Version = cmd.version
 	cmd.lightStemcellInfo.Hypervisor = cmd.hypervisor
 	cmd.lightStemcellInfo.OsName = cmd.osName
+	cmd.lightStemcellInfo.StemcellFormats = cmd.stemcellFormats
 }
 
 func (cmd *LightStemcellVDICmd) createSoftLayerStemcellInfo() (SoftLayerStemcellInfo, error) {
@@ -200,7 +207,7 @@ func (cmd *LightStemcellVDICmd) buildLightStemcellWithVirtualDiskImage(virtualDi
 			VirtualDiskImageUuid: virtualDiskImage.Uuid,
 			DatacenterName:       datacenterName,
 		},
-		StemcellFormats: []string{"softlayer-light"},
+		StemcellFormats: cmd.lightStemcellInfo.StemcellFormats,
 	}
 
 	return GenerateLightStemcellTarball(lightStemcellMF, cmd.lightStemcellInfo, cmd.path)

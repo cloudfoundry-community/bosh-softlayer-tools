@@ -6,12 +6,12 @@ image_resource:
     repository: zhanggongsw/bosh
 
 inputs:
-  - name: bosh-softlayer-tools-master
-  - name: bosh-softlayer-tools
-  - name: version
-  - name: stemcell-cmds
+- name: bosh-softlayer-tools-master
+- name: bosh-softlayer-tools
+- name: version
+- name: stemcell-cmds
 outputs:
-  - name: stemcell-image
+- name: stemcell-image
 
 run:
   path: bosh-softlayer-tools-master/ci/softlayer/tasks/import-stemcell.sh

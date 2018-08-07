@@ -2,6 +2,12 @@
 
 set -e -x
 
+if [ "$STEMCELL_FORMATS" == 'replace-me' ]; then
+  echo -e "\n[INFO] Set stemcell-formats for backward compatiblity."
+  STEMCELL_FORMATS="softlayer-light-legacy"
+fi
+echo -e "\n[INFO] stemcell-formats: ${STEMCELL_FORMATS}"
+
 # outputs
 output_dir="light-stemcell"
 mkdir -p ${output_dir}
@@ -29,8 +35,8 @@ export sl_stemcells=$(realpath stemcell-cmds/sl_stemcells-*)
 chmod +x $sl_stemcells
 
 echo -e "\n[INFO] Softlayer creating light stemcell..."
-$sl_stemcells -c light-stemcell --version ${stemcell_version} --infrastructure "$IAAS" --stemcell-info-filename "./stemcell-info/stemcell-info.json"
-
+$sl_stemcells -c light-stemcell --version ${stemcell_version} --infrastructure "$IAAS" --stemcell-info-filename "./stemcell-info/stemcell-info.json" \
+  --stemcell-formats "$STEMCELL_FORMATS"
 echo -e "\n[INFO] Repacking light stemcell with info files..."
 stemcell_filename=`ls light*.tgz`
 tar -zxvf ${stemcell_filename}

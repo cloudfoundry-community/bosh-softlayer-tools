@@ -20,6 +20,8 @@ type LightStemcellInfo struct {
 	Version    string `json:"version"`
 	Hypervisor string `json:"hypervisor"`
 	OsName     string `json:"os-name"`
+
+	StemcellFormats []string `json:"stemcell_formats" yaml:"stemcell_formats"`
 }
 
 type LightStemcellMF struct {
