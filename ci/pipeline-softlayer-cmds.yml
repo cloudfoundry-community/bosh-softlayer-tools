@@ -47,7 +47,7 @@ jobs:
 - name: build
   plan:
   - aggregate:
-      - {trigger: false, get: version-semver, params: {bump: patch}, resource: version-semver}
+    - {trigger: false, get: version-semver, params: {bump: patch}, resource: version-semver}
 
   - get: bosh-softlayer-tools-master
     trigger: true
@@ -61,3 +61,7 @@ jobs:
 
   - put: bosh-softlayer-tools-artifacts
     params: {file: promoted/sl_stemcells-*}
+
+  - put: version-semver
+    params:
+      file: version-semver/number
