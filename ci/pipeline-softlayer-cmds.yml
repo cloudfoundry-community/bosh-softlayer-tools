@@ -60,4 +60,4 @@ jobs:
     params: {file: version-semver/number}
 
   - put: bosh-softlayer-tools-artifacts
-    params: {file: promoted/*}
+    params: {file: promoted/sl_stemcells-*}
