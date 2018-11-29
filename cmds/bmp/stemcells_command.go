@@ -44,12 +44,18 @@ func (cmd stemcellsCommand) Options() cmds.Options {
 }
 
 func (cmd stemcellsCommand) Validate() (bool, error) {
-	cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	_, err := cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	if err != nil {
+		return false, err
+	}
 	return true, nil
 }
 
 func (cmd stemcellsCommand) Execute(args []string) (int, error) {
-	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	_, err := cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	if err != nil {
+		return 1, err
+	}
 
 	stemcellsResponse, err := cmd.bmpClient.Stemcells()
 	if err != nil {
@@ -72,9 +78,18 @@ func (cmd stemcellsCommand) Execute(args []string) (int, error) {
 		table.Append(value)
 	}
 
-	cmd.ui.PrintTable(table)
-	cmd.ui.PrintlnInfo("")
-	cmd.ui.PrintfInfo("Stemcells total: %d\n", length)
+	_, err = cmd.ui.PrintTable(table)
+	if err != nil {
+		return 1, err
+	}
+	_, err = cmd.ui.PrintlnInfo("")
+	if err != nil {
+		return 1, err
+	}
+	_, err = cmd.ui.PrintfInfo("Stemcells total: %d\n", length)
+	if err != nil {
+		return 1, err
+	}
 
 	return 0, nil
 }

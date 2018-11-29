@@ -161,7 +161,10 @@ func (cmd *LightStemcellVDICmd) createSoftLayerStemcellInfo() (SoftLayerStemcell
 		return softLayerStemcellInfo, errors.New(fmt.Sprintf("Could not read from SoftLayer info file: `%s`", err.Error()))
 	}
 
-	json.Unmarshal(slInfoFile, &softLayerStemcellInfo)
+	err = json.Unmarshal(slInfoFile, &softLayerStemcellInfo)
+	if err != nil {
+		return softLayerStemcellInfo, errors.New(fmt.Sprintf("Could not unmarshal softLayerStemcellInfo: `%s`", err.Error()))
+	}
 
 	return softLayerStemcellInfo, nil
 }

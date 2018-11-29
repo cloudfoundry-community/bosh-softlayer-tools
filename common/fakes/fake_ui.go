@@ -75,7 +75,10 @@ func (fakeUi *FakeUi) PrintlnInfo(args ...interface{}) (int, error) {
 func (fakeUi *FakeUi) Scanln(args ...interface{}) (int, error) {
 	fakeUi.Args = args
 
-	fmt.Sscanln(fakeUi.UserInput, args[0])
+	_, err := fmt.Sscanln(fakeUi.UserInput, args[0])
+	if err != nil {
+		return 1, err
+	}
 
 	return fakeUi.ScanlnRc, fakeUi.ScanlnErr
 }

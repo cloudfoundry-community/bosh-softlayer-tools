@@ -59,7 +59,10 @@ func (cmd provisioningBaremetalCommand) Options() cmds.Options {
 }
 
 func (cmd provisioningBaremetalCommand) Validate() (bool, error) {
-	cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	_, err := cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	if err != nil {
+		return false, err
+	}
 
 	if cmd.options.NetbootImage == "" {
 		return false, errors.New("cannot have empty netboot image")
@@ -77,9 +80,15 @@ func (cmd provisioningBaremetalCommand) Validate() (bool, error) {
 }
 
 func (cmd provisioningBaremetalCommand) Execute(args []string) (int, error) {
-	cmd.printer.Printf("Executing %s command: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	_, err := cmd.printer.Printf("Executing %s command: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	if err != nil {
+		return 1, err
+	}
 
-	cmd.ui.PrintlnInfo("WARNING: Be careful provisioning with the specific stemcell!")
+	_, err = cmd.ui.PrintlnInfo("WARNING: Be careful provisioning with the specific stemcell!")
+	if err != nil {
+		return 1, err
+	}
 	if cmd.isConfirmed() {
 		provisioningBaremetalInfo := clients.ProvisioningBaremetalInfo{
 			VmNamePrefix:     cmd.options.VMPrefix,
@@ -96,7 +105,10 @@ func (cmd provisioningBaremetalCommand) Execute(args []string) (int, error) {
 			return provisioningBaremetalResponse.Status, nil
 		}
 
-		cmd.ui.PrintlnInfo("Provisioning Successful!")
+		_, err = cmd.ui.PrintlnInfo("Provisioning Successful!")
+		if err != nil {
+			return 1, err
+		}
 
 		return 0, nil
 	} else {
@@ -108,8 +120,11 @@ func (cmd provisioningBaremetalCommand) Execute(args []string) (int, error) {
 
 func (cmd provisioningBaremetalCommand) isConfirmed() bool {
 	var userInput string
-	cmd.ui.PrintfInfo("Continue to provisioning? (type 'yes' to continue)")
-	_, err := cmd.ui.Scanln(&userInput)
+	_, err := cmd.ui.PrintfInfo("Continue to provisioning? (type 'yes' to continue)")
+	if err != nil {
+		return false
+	}
+	_, err = cmd.ui.Scanln(&userInput)
 	if err != nil {
 		return false
 	}

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -57,13 +58,19 @@ func importImageCmd() {
 
 	cmd, err := import_image.NewImportImageCmd(stemcellsOptions, client)
 	if err != nil {
-		cmd.Println("stemcells: Could not create image command, err:", err)
+		_, err = cmd.Println("stemcells: Could not create image command, err:", err)
+		if err != nil {
+			log.Fatal(err)
+		}
 		os.Exit(1)
 	}
 
 	err = cmd.CheckOptions()
 	if err != nil {
-		cmd.Println("stemcells: Could not create image command, err:", err)
+		_, err = cmd.Println("stemcells: Could not create image command, err:", err)
+		if err != nil {
+			log.Fatal(err)
+		}
 		usage()
 		os.Exit(1)
 	}
@@ -74,7 +81,10 @@ func importImageCmd() {
 
 	err = cmd.Run()
 	if err != nil {
-		cmd.Println("stemcells: Could not import image, err:", err)
+		_, err = cmd.Println("stemcells: Could not import image, err:", err)
+		if err != nil {
+			log.Fatal(err)
+		}
 		os.Exit(1)
 	}
 
@@ -84,12 +94,18 @@ func importImageCmd() {
 
 	cmdOutputJson, err := json.Marshal(cmdOutput)
 	if err != nil {
-		cmd.Println("Cannot marshal: improperly formatted json:", err)
+		_, err = cmd.Println("Cannot marshal: improperly formatted json:", err)
+		if err != nil {
+			log.Fatal(err)
+		}
 		os.Exit(1)
 	}
 
 	duration := time.Now().Sub(startTime)
-	cmd.Println("Total time: ", duration)
+	_, err = cmd.Println("Total time: ", duration)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println(string(cmdOutputJson))
 }
@@ -116,7 +132,10 @@ func lightStemcellCmd() {
 
 	err = cmd.CheckOptions()
 	if err != nil {
-		cmd.Println("stemcells: Could not light stemcell command, err:", err)
+		_, err = cmd.Println("stemcells: Could not light stemcell command, err:", err)
+		if err != nil {
+			log.Fatal(err)
+		}
 		os.Exit(1)
 	}
 
@@ -124,12 +143,18 @@ func lightStemcellCmd() {
 
 	err = cmd.Run()
 	if err != nil {
-		cmd.Println("stemcells: Could not light stemcell, err:", err)
+		_, err = cmd.Println("stemcells: Could not light stemcell, err:", err)
+		if err != nil {
+			log.Fatal(err)
+		}
 		os.Exit(1)
 	}
 
 	duration := time.Now().Sub(startTime)
-	cmd.Println("Total time: ", duration)
+	_, err = cmd.Println("Total time: ", duration)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println(cmd.GetStemcellPath())
 }

@@ -47,8 +47,10 @@ func (cmd taskCommand) Options() cmds.Options {
 }
 
 func (cmd taskCommand) Validate() (bool, error) {
-	cmd.printer.Printf("Validating %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
-
+	_, err := cmd.printer.Printf("Validating %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
+	if err != nil {
+		return false, err
+	}
 	if cmd.options.TaskID == 0 {
 		return false, errors.New("cannot have empty task ID")
 	}
@@ -57,8 +59,10 @@ func (cmd taskCommand) Validate() (bool, error) {
 }
 
 func (cmd taskCommand) Execute(args []string) (int, error) {
-	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
-
+	_, err := cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	if err != nil {
+		return 1, err
+	}
 	level := "event"
 	if cmd.options.Debug == true {
 		level = "debug"
@@ -74,9 +78,15 @@ func (cmd taskCommand) Execute(args []string) (int, error) {
 			return taskJsonResponse.Status, nil
 		}
 
-		cmd.ui.PrintfInfo("Task output for ID %d with %s level\n", cmd.options.TaskID, level)
+		_, err = cmd.ui.PrintfInfo("Task output for ID %d with %s level\n", cmd.options.TaskID, level)
+		if err != nil {
+			return 1, err
+		}
 		for _, value := range taskJsonResponse.Data {
-			cmd.ui.PrintlnInfo(value)
+			_, err = cmd.ui.PrintlnInfo(value)
+			if err != nil {
+				return 1, err
+			}
 		}
 
 		return 0, nil
@@ -91,9 +101,15 @@ func (cmd taskCommand) Execute(args []string) (int, error) {
 			return taskTxtResponse.Status, nil
 		}
 
-		cmd.ui.PrintfInfo("Task output for ID %d with %s level\n", cmd.options.TaskID, level)
+		_, err = cmd.ui.PrintfInfo("Task output for ID %d with %s level\n", cmd.options.TaskID, level)
+		if err != nil {
+			return 1, err
+		}
 		for _, value := range taskTxtResponse.Data {
-			cmd.ui.PrintlnInfo(value)
+			_, err = cmd.ui.PrintlnInfo(value)
+			if err != nil {
+				return 1, err
+			}
 		}
 
 		return 0, nil
