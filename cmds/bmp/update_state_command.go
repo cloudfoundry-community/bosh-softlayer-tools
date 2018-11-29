@@ -59,7 +59,10 @@ func (cmd updateStateCommand) Options() cmds.Options {
 }
 
 func (cmd updateStateCommand) Validate() (bool, error) {
-	cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	_, err := cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	if err != nil {
+		return false, err
+	}
 
 	if cmd.options.Server == "" {
 		return false, errors.New("cannot have empty server ID")
@@ -77,9 +80,15 @@ func (cmd updateStateCommand) Validate() (bool, error) {
 }
 
 func (cmd updateStateCommand) Execute(args []string) (int, error) {
-	cmd.printer.Printf("Executing %s command: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	_, err := cmd.printer.Printf("Executing %s command: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	if err != nil {
+		return 1, err
+	}
 
-	cmd.ui.PrintlnInfo("WARNING: Be careful updating the state of a server, as it might break your deployment!")
+	_, err = cmd.ui.PrintlnInfo("WARNING: Be careful updating the state of a server, as it might break your deployment!")
+	if err != nil {
+		return 1, err
+	}
 	if cmd.isConfirmed() {
 		updateStateResponse, err := cmd.bmpClient.UpdateState(cmd.options.Server, cmd.options.State)
 		if err != nil {
@@ -90,7 +99,10 @@ func (cmd updateStateCommand) Execute(args []string) (int, error) {
 			return updateStateResponse.Status, nil
 		}
 
-		cmd.ui.PrintlnInfo("Update Successful!")
+		_, err = cmd.ui.PrintlnInfo("Update Successful!")
+		if err != nil {
+			return 1, err
+		}
 
 		return 0, nil
 	} else {
@@ -110,8 +122,11 @@ func (cmd updateStateCommand) isValidState(state string) bool {
 
 func (cmd updateStateCommand) isConfirmed() bool {
 	var userInput string
-	cmd.ui.PrintfInfo("Continue to update? (type 'yes' or 'y' to continue)")
-	_, err := cmd.ui.Scanln(&userInput)
+	_, err := cmd.ui.PrintfInfo("Continue to update? (type 'yes' or 'y' to continue)")
+	if err != nil {
+		return false
+	}
+	_, err = cmd.ui.Scanln(&userInput)
 	if err != nil {
 		return false
 	}

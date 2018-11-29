@@ -53,12 +53,15 @@ func (cmd bmsCommand) Options() cmds.Options {
 }
 
 func (cmd bmsCommand) Validate() (bool, error) {
-	cmd.printer.Printf("Validating %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
+	_, err := cmd.printer.Printf("Validating %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
+	if err != nil {
+		return false, err
+	}
 	if cmd.options.Deployment == "" {
 		return false, errors.New("please specify the deployment file with -d")
 	}
 
-	_, err := os.Stat(cmd.options.Deployment)
+	_, err = os.Stat(cmd.options.Deployment)
 	if os.IsNotExist(err) {
 		return false, errors.New(fmt.Sprintf("deployment file '%s' doesn't exist", cmd.options.Deployment))
 	}
@@ -67,9 +70,15 @@ func (cmd bmsCommand) Validate() (bool, error) {
 }
 
 func (cmd bmsCommand) Execute(args []string) (int, error) {
-	cmd.printer.Printf("Executing %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
+	_, err := cmd.printer.Printf("Executing %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
+	if err != nil {
+		return 1, err
+	}
 
-	filename, _ := filepath.Abs(cmd.options.Deployment)
+	filename, err := filepath.Abs(cmd.options.Deployment)
+	if err != nil {
+		return 1, err
+	}
 	yamlFile, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -121,9 +130,20 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 	for _, value := range content {
 		table.Append(value)
 	}
-	cmd.ui.PrintTable(table)
-	cmd.ui.PrintlnInfo("")
-	cmd.ui.PrintfInfo("Baremetals total: %d\n", length)
+	_, err = cmd.ui.PrintTable(table)
+	if err != nil {
+		return 1, err
+	}
+
+	_, err = cmd.ui.PrintlnInfo("")
+	if err != nil {
+		return 1, err
+	}
+
+	_, err = cmd.ui.PrintfInfo("Baremetals total: %d\n", length)
+	if err != nil {
+		return 1, err
+	}
 
 	return 0, nil
 }
