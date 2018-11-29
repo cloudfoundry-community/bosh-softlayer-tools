@@ -50,7 +50,7 @@ func ReadJsonTestFixtures(rootPath, packageName, fileName string) ([]byte, error
 	if err != nil {
 		return []byte{}, errors.New(fmt.Sprintf("Could not get current directory '%s'", err.Error()))
 	}
-	return ioutil.ReadFile(filepath.Join(wd, rootPath, "test_fixtures", packageName, fileName))
+	return ioutil.ReadFile(filepath.Join(wd, rootPath, "test_fixtures", packageName, filepath.Clean(fileName)))
 }
 
 func CreateBmpClient() (clients.BmpClient, error) {
@@ -80,7 +80,7 @@ func CreateConfig(pathToConfig string) (config.ConfigInfo, error) {
 // Private methods
 
 func addFileToTarWriter(filePath string, tarWriter *tar.Writer) error {
-	file, err := os.Open(filePath)
+	file, err := os.Open(filepath.Clean(filePath))
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not open file '%s', got error '%s'", filePath, err.Error()))
 	}

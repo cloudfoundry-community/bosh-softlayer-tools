@@ -79,7 +79,7 @@ func (cmd bmsCommand) Execute(args []string) (int, error) {
 	if err != nil {
 		return 1, err
 	}
-	yamlFile, err := ioutil.ReadFile(filename)
+	yamlFile, err := ioutil.ReadFile(filepath.Clean(filename))
 
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: could not read File '%s', error message '%s'", filename, err.Error())
