@@ -50,7 +50,7 @@ func ReadJsonTestFixtures(rootPath, packageName, fileName string) ([]byte, error
 	if err != nil {
 		return []byte{}, errors.New(fmt.Sprintf("Could not get current directory '%s'", err.Error()))
 	}
-	return ioutil.ReadFile(filepath.Join(wd, rootPath, "test_fixtures", packageName, filepath.Clean(fileName)))
+	return ioutil.ReadFile(filepath.Join(filepath.Clean(wd), filepath.Clean(rootPath), "test_fixtures", filepath.Clean(packageName), filepath.Clean(fileName)))
 }
 
 func CreateBmpClient() (clients.BmpClient, error) {

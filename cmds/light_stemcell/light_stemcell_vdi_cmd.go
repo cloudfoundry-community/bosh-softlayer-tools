@@ -1,7 +1,7 @@
 package light_stemcell
 
 import (
-	"crypto/sha1"
+	"crypto/sha1" // #nosec G505
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -196,9 +196,10 @@ func (cmd *LightStemcellVDICmd) buildLightStemcellWithVirtualDiskImage(virtualDi
 	}
 
 	lightStemcellMF := LightStemcellMF{
-		Name:            GenerateStemcellName(cmd.lightStemcellInfo),
-		Version:         cmd.lightStemcellInfo.Version,
-		BoshProtocol:    1, //Must be defaulted to 1 for legacy reasons (no other values supported)
+		Name:         GenerateStemcellName(cmd.lightStemcellInfo),
+		Version:      cmd.lightStemcellInfo.Version,
+		BoshProtocol: 1, //Must be defaulted to 1 for legacy reasons (no other values supported)
+		// #nosec G401
 		Sha1:            base64.StdEncoding.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%d:%s", virtualDiskImage.Id, virtualDiskImage.Uuid)))),
 		OperatingSystem: cmd.lightStemcellInfo.OsName,
 		CloudProperties: CloudProperties{

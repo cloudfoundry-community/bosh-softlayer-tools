@@ -43,6 +43,7 @@ func RunStemcells(args ...string) *Session {
 }
 
 func RunCommand(cmd string, args ...string) *Session {
+	// #nosec G204
 	command := exec.Command(cmd, args...)
 
 	session, err := Start(command, GinkgoWriter, GinkgoWriter)
