@@ -1,0 +1,17 @@
+---
+platform: linux
+image: docker:///boshcpi/aws-cpi-release
+
+inputs:
+- name: bosh-softlayer-tools
+- name: cf-artifacts-comm
+
+run:
+  path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/community/verify-cf.sh
+
+outputs:
+- name: cf-artifacts
+  path: cf-artifacts
+
+params:
+  SYSTEM_DOMAIN: 			  replace-me

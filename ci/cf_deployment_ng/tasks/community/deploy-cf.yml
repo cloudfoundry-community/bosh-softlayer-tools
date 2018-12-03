@@ -1,0 +1,21 @@
+---
+platform: linux
+image: docker:///boshcpi/azure-cpi-release
+
+inputs:
+- name: director-artifacts
+- name: bosh-softlayer-tools
+- name: cf-deployment
+
+run:
+  path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/community/deploy-cf.sh
+
+outputs:
+- name: cf-artifacts
+- name: deploy-status
+
+params:
+  DEPLOYMENT_NAME:                       ""
+  DEPLOY_NAME:                           ""
+  SYSTEM_DOMAIN:                         ""
+  SOFTLAYER_STEMCELL_VERSION:            ""

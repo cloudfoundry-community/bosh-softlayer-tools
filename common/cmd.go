@@ -25,4 +25,6 @@ type Options struct {
 	InfrastructureFlag       string
 	HypervisorFlag           string
 	OsNameFlag               string
+
+	StemcellFormatsFlag string
 }

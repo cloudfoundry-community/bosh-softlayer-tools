@@ -1,0 +1,18 @@
+---
+platform: linux
+image: docker:///boshcpi/aws-cpi-release
+
+inputs:
+- name: director-artifacts
+- name: bosh-softlayer-tools
+
+outputs:
+- name: cli-vm-info
+
+run:
+  path: bosh-softlayer-tools/ci/tasks/create-env-automation/setup-cli-env.sh
+
+params:
+  SL_USERNAME:          replace-me
+  SL_API_KEY:           replace-me
+  SL_DATACENTER:		replace-me

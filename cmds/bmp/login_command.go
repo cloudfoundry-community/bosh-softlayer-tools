@@ -48,7 +48,11 @@ func (cmd loginCommand) Options() cmds.Options {
 }
 
 func (cmd loginCommand) Validate() (bool, error) {
-	cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	_, err := cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	if err != nil {
+		return false, err
+	}
+
 	if cmd.options.Username == "" {
 		return false, errors.New("cannot have empty username")
 	}
@@ -61,7 +65,10 @@ func (cmd loginCommand) Validate() (bool, error) {
 }
 
 func (cmd loginCommand) Execute(args []string) (int, error) {
-	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	_, err := cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	if err != nil {
+		return 1, err
+	}
 
 	loginResponse, err := cmd.bmpClient.Login(cmd.options.Username, cmd.options.Password)
 	if err != nil {
@@ -86,6 +93,9 @@ func (cmd loginCommand) Execute(args []string) (int, error) {
 		return 1, err
 	}
 
-	cmd.ui.PrintfInfo("Login Successful!\n")
+	_, err = cmd.ui.PrintfInfo("Login Successful!\n")
+	if err != nil {
+		return 1, err
+	}
 	return 0, nil
 }

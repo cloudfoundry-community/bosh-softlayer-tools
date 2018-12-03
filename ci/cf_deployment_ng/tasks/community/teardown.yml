@@ -1,0 +1,13 @@
+---
+platform: linux
+image: docker:///boshcpi/azure-cpi-release
+
+inputs:
+- name: bosh-softlayer-tools
+- name: director-artifacts
+
+run:
+  path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/community/teardown.sh
+
+params:
+  DEPLOYMENT_COMMUNITY_NAME: ""

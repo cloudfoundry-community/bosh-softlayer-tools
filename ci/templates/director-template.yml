@@ -1,0 +1,180 @@
+---
+name: bosh-automation-director
+
+releases:
+- name: bosh
+  url: ((BOSH_RELEASE))
+  sha1: ((BOSH_RELEASE_SHA1))
+- name: bosh-softlayer-cpi
+  url: ((BOSH_SOFTLAYER_CPI_RELEASE))
+  sha1: ((BOSH_SOFTLAYER_CPI_RELEASE_SHA1))
+
+resource_pools:
+- name: vms
+  network: default
+  stemcell:
+    url: ((DIRECTOR_STEMCELL))
+    sha1: ((STEMCELL_SHA1))
+  cloud_properties:
+    Domain: softlayer.com
+    VmNamePrefix: ((SL_VM_PREFIX))
+    EphemeralDiskSize: 100
+    StartCpus: 4
+    MaxMemory: 8192
+    Datacenter:
+      Name: ((SL_DATACENTER))
+    HourlyBillingFlag: true
+    PrimaryNetworkComponent:
+      NetworkVlan:
+        Id: ((SL_VLAN_PUBLIC))
+    PrimaryBackendNetworkComponent:
+      NetworkVlan:
+        Id: ((SL_VLAN_PRIVATE))
+    NetworkComponents:
+    - MaxSpeed: 100
+    DeployedByBoshcli: true
+  env:
+    bosh:
+      keep_root_password: true
+      vcappassword: $6$KBgeJNhM$HOTjUc/wN.EgTgtiYJSKeOfe5/6L3qlPXVmBuB/OYVKMjxsqa3BaeqAERmKp10Z3PME.aD41mrsTmO3v5t26j/
+
+disk_pools:
+- name: disks
+  disk_size: 100_000
+
+networks:
+- name: default
+  type: dynamic
+  dns: [8.8.8.8]
+
+jobs:
+- name: bosh
+  instances: 1
+
+  templates:
+  - {name: nats, release: bosh}
+  - {name: postgres-9.4, release: bosh}
+  - {name: blobstore, release: bosh}
+  - {name: director, release: bosh}
+  - {name: health_monitor, release: bosh}
+  - {name: powerdns, release: bosh}
+  - {name: softlayer_cpi, release: bosh-softlayer-cpi}
+
+  resource_pool: vms
+  persistent_disk_pool: disks
+
+  networks:
+  - name: default
+
+  properties:
+    nats:
+      address: 127.0.0.1
+      user: nats
+      password: ((NATS_PASSWORD))
+
+    postgres: &db
+      listen_address: 127.0.0.1
+      host: 127.0.0.1
+      user: postgres
+      password: ((PG_PASSWORD))
+      database: bosh
+      adapter: postgres
+
+    blobstore:
+      address: 127.0.0.1
+      port: 25250
+      provider: dav
+      director:
+        user: director
+        password: ((BL_DIRECTOR_PASSWORD))
+      agent:
+        user: agent
+        password: ((BL_AGENT_PASSWORD))
+
+    director:
+      ssl:
+        key: ((DIRECTOR_SSL.private_key))
+        cert: ((DIRECTOR_SSL.certificate))
+      address: 127.0.0.1
+      name: bosh
+      cpi_job: softlayer_cpi
+      enable_virtual_delete_vms: true
+      db: *db
+      local_dns:
+        enabled: true
+        include_index: true
+      user_management:
+        provider: local
+        local:
+          users:
+          - {name: admin, password: ((DI_ADMIN_PASSWORD))}
+          - {name: hm,password: ((DI_HM_PASSWORD))}
+
+    hm:
+      ca_cert: ((ROOT_CERT))
+      director_account:
+        user: hm
+        password: ((DI_HM_PASSWORD))
+      resurrector_enabled: false
+
+    dns:
+      address: 127.0.0.1
+      domain_name: bosh
+      db: *db
+      webserver:
+        port: 8081
+        address: 0.0.0.0
+
+    softlayer: &softlayer
+      username: ((SL_USERNAME))
+      apiKey: ((SL_API_KEY))
+      featureOptions:
+        apiEndpoint: api.softlayer.com
+        apiRetryCount: 10
+        apiWaitTime: 5
+        createIscsiVolumeTimeout: 3600
+        createIscsiVolumePollingInterval: 5
+
+    agent:
+      mbus: "nats://nats:((NATS_PASSWORD))@((SL_VM_DOMAIN)):4222"
+      vcappassword: $6$KBgeJNhM$HOTjUc/wN.EgTgtiYJSKeOfe5/6L3qlPXVmBuB/OYVKMjxsqa3BaeqAERmKp10Z3PME.aD41mrsTmO3v5t26j/
+
+    ntp: &ntp [0.pool.ntp.org, 1.pool.ntp.org]
+
+cloud_provider:
+  template: {name: softlayer_cpi, release: bosh-softlayer-cpi}
+
+  mbus: https://admin:((DI_ADMIN_PASSWORD))@((SL_VM_DOMAIN)):6868
+
+  properties:
+    softlayer: *softlayer
+    agent:
+      mbus: "https://admin:((DI_ADMIN_PASSWORD))@0.0.0.0:6868"
+      vcappassword: $6$KBgeJNhM$HOTjUc/wN.EgTgtiYJSKeOfe5/6L3qlPXVmBuB/OYVKMjxsqa3BaeqAERmKp10Z3PME.aD41mrsTmO3v5t26j/
+    blobstore: {provider: local, path: /var/vcap/micro_bosh/data/cache}
+    ntp: *ntp
+
+variables:
+- name: DI_ADMIN_PASSWORD
+  type: password
+- name: DI_HM_PASSWORD
+  type: password
+- name: PG_PASSWORD
+  type: password
+- name: NATS_PASSWORD
+  type: password
+- name: BL_DIRECTOR_PASSWORD
+  type: password
+- name: BL_AGENT_PASSWORD
+  type: password
+- name: ROOT_CERT
+  type: certificate
+  options:
+    is_ca: true
+    common_name: ca
+- name: DIRECTOR_SSL
+  type: certificate
+  options:
+    ca: ROOT_CERT
+    common_name: ((SL_VM_DOMAIN))
+    alternative_names: [((SL_VM_DOMAIN))]

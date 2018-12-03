@@ -1,0 +1,14 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: posijon/slci
+
+inputs:
+  - name: bosh-softlayer-tools-master
+  - name: stemcell
+  - name: version
+
+run:
+  path: bosh-softlayer-tools-master/ci/softlayer/tasks/convert-stemcell

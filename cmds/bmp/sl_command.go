@@ -47,7 +47,10 @@ func (cmd slCommand) Options() cmds.Options {
 }
 
 func (cmd slCommand) Validate() (bool, error) {
-	cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	_, err := cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	if err != nil {
+		return false, err
+	}
 
 	if !cmd.options.Packages && cmd.options.PackageOptions == "" {
 		return false, errors.New("Please specify --packages or --package-options")
@@ -57,7 +60,10 @@ func (cmd slCommand) Validate() (bool, error) {
 }
 
 func (cmd slCommand) Execute(args []string) (int, error) {
-	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	_, err := cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	if err != nil {
+		return 1, err
+	}
 
 	validate, err := cmd.Validate()
 	if validate == false && err != nil {
@@ -99,9 +105,18 @@ func executeSlPackages(cmd slCommand) (int, error) {
 		table.Append(value)
 	}
 
-	cmd.ui.PrintTable(table)
-	cmd.ui.PrintlnInfo("")
-	cmd.ui.PrintfInfo("Packages total: %d\n", length)
+	_, err = cmd.ui.PrintTable(table)
+	if err != nil {
+		return 1, err
+	}
+	_, err = cmd.ui.PrintlnInfo("")
+	if err != nil {
+		return 1, err
+	}
+	_, err = cmd.ui.PrintfInfo("Packages total: %d\n", length)
+	if err != nil {
+		return 1, err
+	}
 
 	return 0, nil
 }
@@ -117,7 +132,10 @@ func executeSlPackageOptions(cmd slCommand, packageOptions string) (int, error) 
 	}
 
 	for _, category := range slPackageOptionsResponse.Data.Category {
-		cmd.ui.PrintfInfo("Category Code: %s, Name: %s, Required: %t\n", category.Code, category.Name, category.Required)
+		_, err = cmd.ui.PrintfInfo("Category Code: %s, Name: %s, Required: %t\n", category.Code, category.Name, category.Required)
+		if err != nil {
+			return 1, err
+		}
 
 		table := cmd.ui.NewTableWriter()
 		table.SetHeader([]string{"ID", "Description"})
@@ -134,15 +152,27 @@ func executeSlPackageOptions(cmd slCommand, packageOptions string) (int, error) 
 			table.Append(value)
 		}
 
-		cmd.ui.PrintTable(table)
-		cmd.ui.PrintlnInfo("")
+		_, err = cmd.ui.PrintTable(table)
+		if err != nil {
+			return 1, err
+		}
+		_, err = cmd.ui.PrintlnInfo("")
+		if err != nil {
+			return 1, err
+		}
 	}
 
 	if len(slPackageOptionsResponse.Data.Datacenter) > 0 {
-		cmd.ui.PrintfInfo("Package %s is available in below datacenters:\n", packageOptions)
+		_, err = cmd.ui.PrintfInfo("Package %s is available in below datacenters:\n", packageOptions)
+		if err != nil {
+			return 1, err
+		}
 
 		for _, datacenter := range slPackageOptionsResponse.Data.Datacenter {
-			cmd.ui.PrintlnInfo(datacenter)
+			_, err = cmd.ui.PrintlnInfo(datacenter)
+		}
+		if err != nil {
+			return 1, err
 		}
 	}
 

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -26,13 +27,13 @@ func CreateTarball(tarballFilePath string, filePaths []string) error {
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not create tarball file '%s', got error '%s'", tarballFilePath, err.Error()))
 	}
-	defer file.Close()
+	defer close(file)
 
 	gzipWriter := gzip.NewWriter(file)
-	defer gzipWriter.Close()
+	defer close(gzipWriter)
 
 	tarWriter := tar.NewWriter(gzipWriter)
-	defer tarWriter.Close()
+	defer close(tarWriter)
 
 	for _, filePath := range filePaths {
 		err := addFileToTarWriter(filePath, tarWriter)
@@ -45,8 +46,11 @@ func CreateTarball(tarballFilePath string, filePaths []string) error {
 }
 
 func ReadJsonTestFixtures(rootPath, packageName, fileName string) ([]byte, error) {
-	wd, _ := os.Getwd()
-	return ioutil.ReadFile(filepath.Join(wd, rootPath, "test_fixtures", packageName, fileName))
+	wd, err := os.Getwd()
+	if err != nil {
+		return []byte{}, errors.New(fmt.Sprintf("Could not get current directory '%s'", err.Error()))
+	}
+	return ioutil.ReadFile(filepath.Join(filepath.Clean(wd), filepath.Clean(rootPath), "test_fixtures", filepath.Clean(packageName), filepath.Clean(fileName)))
 }
 
 func CreateBmpClient() (clients.BmpClient, error) {
@@ -76,11 +80,11 @@ func CreateConfig(pathToConfig string) (config.ConfigInfo, error) {
 // Private methods
 
 func addFileToTarWriter(filePath string, tarWriter *tar.Writer) error {
-	file, err := os.Open(filePath)
+	file, err := os.Open(filepath.Clean(filePath))
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not open file '%s', got error '%s'", filePath, err.Error()))
 	}
-	defer file.Close()
+	defer close(file)
 
 	stat, err := file.Stat()
 	if err != nil {
@@ -105,4 +109,11 @@ func addFileToTarWriter(filePath string, tarWriter *tar.Writer) error {
 	}
 
 	return nil
+}
+
+func close(c io.Closer) {
+	err := c.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

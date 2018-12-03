@@ -1,0 +1,17 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: zhanggongsw/bosh
+
+inputs:
+  - name: bosh-softlayer-tools-master
+    path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools
+  - name: version-semver
+
+outputs:
+  - name: promoted
+
+run:
+  path: gopath/src/github.com/cloudfoundry-community/bosh-softlayer-tools/ci/softlayer-cmds/bst-promote.sh

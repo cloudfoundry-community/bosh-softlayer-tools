@@ -1,0 +1,25 @@
+---
+platform: linux
+image: docker:///boshcpi/azure-cpi-release
+
+inputs:
+- name: bosh-cli-v2
+- name: bosh-softlayer-tools
+- name: bosh-deployment
+
+outputs:
+- name: deploy-artifacts
+
+run:
+  path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/deploy-director.sh
+
+params:
+  INFRASTRUCTURE:       ""
+  DEPLOY_NAME:          ""
+  SL_VM_PREFIX:         ""
+  SL_VM_DOMAIN:         ""
+  CF_PREFIX:            ""
+  SL_API_KEY:           ""
+  SL_DATACENTER:        ""
+  SL_VLAN_PUBLIC:       ""
+  SL_VLAN_PRIVATE:      ""

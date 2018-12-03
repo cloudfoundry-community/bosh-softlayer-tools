@@ -51,12 +51,15 @@ func (cmd createBaremetalsCommand) Options() cmds.Options {
 }
 
 func (cmd createBaremetalsCommand) Validate() (bool, error) {
-	cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	_, err := cmd.printer.Printf("Validating %s command: options: %#v", cmd.Name(), cmd.options)
+	if err != nil {
+		return false, err
+	}
 	if cmd.options.Deployment == "" {
 		return false, errors.New("please specify the deployment file with -d")
 	}
 
-	_, err := os.Stat(cmd.options.Deployment)
+	_, err = os.Stat(cmd.options.Deployment)
 	if os.IsNotExist(err) {
 		return false, errors.New(fmt.Sprintf("deployment file %s doesn't exist", cmd.options.Deployment))
 	}
@@ -65,10 +68,16 @@ func (cmd createBaremetalsCommand) Validate() (bool, error) {
 }
 
 func (cmd createBaremetalsCommand) Execute(args []string) (int, error) {
-	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	_, err := cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	if err != nil {
+		return 1, err
+	}
 
-	filename, _ := filepath.Abs(cmd.options.Deployment)
-	yamlFile, err := ioutil.ReadFile(filename)
+	filename, err := filepath.Abs(cmd.options.Deployment)
+	if err != nil {
+		return 1, err
+	}
+	yamlFile, err := ioutil.ReadFile(filepath.Clean(filename))
 	if err != nil {
 		errorMessage := fmt.Sprintf("bmp: could not read File %s, error message %s", filename, err.Error())
 		return 1, errors.New(errorMessage)
@@ -102,7 +111,10 @@ func (cmd createBaremetalsCommand) Execute(args []string) (int, error) {
 		return createBaremetalsResponse.Status, nil
 	}
 
-	cmd.ui.PrintfInfo("Run command: bmp task --task_id=%d to get the status of the task\n", createBaremetalsResponse.Data.TaskId)
+	_, err = cmd.ui.PrintfInfo("Run command: bmp task --task_id=%d to get the status of the task\n", createBaremetalsResponse.Data.TaskId)
+	if err != nil {
+		return 1, err
+	}
 
 	return 0, nil
 }

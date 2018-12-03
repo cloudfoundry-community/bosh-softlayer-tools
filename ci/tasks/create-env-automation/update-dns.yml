@@ -1,0 +1,13 @@
+---
+platform: linux
+image: docker:///boshcpi/aws-cpi-release
+
+inputs:
+- name: director-artifacts
+- name: bosh-softlayer-tools
+- name: run-utils
+- name: cf-artifacts
+
+run:
+  path: bosh-softlayer-tools/ci/tasks/create-env-automation/update-dns.sh
+

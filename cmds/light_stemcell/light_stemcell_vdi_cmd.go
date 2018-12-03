@@ -1,12 +1,13 @@
 package light_stemcell
 
 import (
-	"crypto/sha1"
+	"crypto/sha1" // #nosec G505
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	common "github.com/cloudfoundry-community/bosh-softlayer-tools/common"
 
@@ -29,10 +30,14 @@ type LightStemcellVDICmd struct {
 	hypervisor     string
 	osName         string
 
+	stemcellFormats []string
+
 	client softlayer.Client
 }
 
 func NewLightStemcellVDICmd(options common.Options, client softlayer.Client) *LightStemcellVDICmd {
+	stemcellFormats := strings.Split(options.StemcellFormatsFlag, ",")
+
 	cmd := &LightStemcellVDICmd{
 		options: options,
 
@@ -42,9 +47,10 @@ func NewLightStemcellVDICmd(options common.Options, client softlayer.Client) *Li
 
 		stemcellInfoFilename: options.StemcellInfoFilenameFlag,
 
-		infrastructure: options.InfrastructureFlag,
-		hypervisor:     options.HypervisorFlag,
-		osName:         options.OsNameFlag,
+		infrastructure:  options.InfrastructureFlag,
+		hypervisor:      options.HypervisorFlag,
+		osName:          options.OsNameFlag,
+		stemcellFormats: stemcellFormats,
 
 		client: client,
 	}
@@ -144,6 +150,7 @@ func (cmd *LightStemcellVDICmd) updateLightStemcellInfo() {
 	cmd.lightStemcellInfo.Version = cmd.version
 	cmd.lightStemcellInfo.Hypervisor = cmd.hypervisor
 	cmd.lightStemcellInfo.OsName = cmd.osName
+	cmd.lightStemcellInfo.StemcellFormats = cmd.stemcellFormats
 }
 
 func (cmd *LightStemcellVDICmd) createSoftLayerStemcellInfo() (SoftLayerStemcellInfo, error) {
@@ -154,7 +161,10 @@ func (cmd *LightStemcellVDICmd) createSoftLayerStemcellInfo() (SoftLayerStemcell
 		return softLayerStemcellInfo, errors.New(fmt.Sprintf("Could not read from SoftLayer info file: `%s`", err.Error()))
 	}
 
-	json.Unmarshal(slInfoFile, &softLayerStemcellInfo)
+	err = json.Unmarshal(slInfoFile, &softLayerStemcellInfo)
+	if err != nil {
+		return softLayerStemcellInfo, errors.New(fmt.Sprintf("Could not unmarshal softLayerStemcellInfo: `%s`", err.Error()))
+	}
 
 	return softLayerStemcellInfo, nil
 }
@@ -186,9 +196,10 @@ func (cmd *LightStemcellVDICmd) buildLightStemcellWithVirtualDiskImage(virtualDi
 	}
 
 	lightStemcellMF := LightStemcellMF{
-		Name:            GenerateStemcellName(cmd.lightStemcellInfo),
-		Version:         cmd.lightStemcellInfo.Version,
-		BoshProtocol:    1, //Must be defaulted to 1 for legacy reasons (no other values supported)
+		Name:         GenerateStemcellName(cmd.lightStemcellInfo),
+		Version:      cmd.lightStemcellInfo.Version,
+		BoshProtocol: 1, //Must be defaulted to 1 for legacy reasons (no other values supported)
+		// #nosec G401
 		Sha1:            base64.StdEncoding.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%d:%s", virtualDiskImage.Id, virtualDiskImage.Uuid)))),
 		OperatingSystem: cmd.lightStemcellInfo.OsName,
 		CloudProperties: CloudProperties{
@@ -200,6 +211,7 @@ func (cmd *LightStemcellVDICmd) buildLightStemcellWithVirtualDiskImage(virtualDi
 			VirtualDiskImageUuid: virtualDiskImage.Uuid,
 			DatacenterName:       datacenterName,
 		},
+		StemcellFormats: cmd.lightStemcellInfo.StemcellFormats,
 	}
 
 	return GenerateLightStemcellTarball(lightStemcellMF, cmd.lightStemcellInfo, cmd.path)

@@ -16,9 +16,9 @@ import (
 var (
 	locations = []sldatatypes.SoftLayer_Location{
 		{
-			358694,
-			"London 2",
-			"lon02",
+			Id:       358694,
+			LongName: "London 2",
+			Name:     "lon02",
 		},
 	}
 )

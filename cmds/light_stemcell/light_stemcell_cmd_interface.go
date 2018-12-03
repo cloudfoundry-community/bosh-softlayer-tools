@@ -1,7 +1,7 @@
 package light_stemcell
 
 import (
-	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
 )
 
 type SoftLayerStemcellInfo struct {
@@ -20,6 +20,8 @@ type LightStemcellInfo struct {
 	Version    string `json:"version"`
 	Hypervisor string `json:"hypervisor"`
 	OsName     string `json:"os-name"`
+
+	StemcellFormats []string `json:"stemcell_formats" yaml:"stemcell_formats"`
 }
 
 type LightStemcellMF struct {
@@ -29,6 +31,7 @@ type LightStemcellMF struct {
 	Sha1            string          `json:"sha1" yaml:"sha1"`
 	OperatingSystem string          `json:"operating_system" yaml:"operating_system"`
 	CloudProperties CloudProperties `json:"cloud_properties" yaml:"cloud_properties"`
+	StemcellFormats []string        `json:"stemcell_formats" yaml:"stemcell_formats"`
 }
 
 type CloudProperties struct {

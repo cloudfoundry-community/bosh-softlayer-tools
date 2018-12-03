@@ -1,0 +1,29 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: zhanggongsw/bosh
+
+inputs:
+  - name: bosh-softlayer-tools-master
+  - name: bosh-softlayer-tools
+  - name: version
+  - name: stemcell-cmds
+outputs:
+  - name: stemcell-image
+
+run:
+  path: bosh-softlayer-tools-master/ci/bluemix/tasks/import-stemcell.sh
+
+params:
+  IAAS:            replace-me
+  HYPERVISOR:      replace-me
+  OS_NAME:         replace-me
+  OS_VERSION:      replace-me
+  SL_USERNAME:     replace-me
+  SL_API_KEY:      replace-me
+  SWIFT_USERNAME:  replace-me
+  SWIFT_API_KEY:   replace-me
+  SWIFT_CLUSTER:   replace-me
+  SWIFT_CONTAINER: replace-me

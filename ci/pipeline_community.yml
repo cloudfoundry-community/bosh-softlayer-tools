@@ -28,7 +28,7 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: trusty
   - put: candidate-stemcell-ubuntu-trusty
-    params: {file: build/*.tgz}
+    params: {file: build/*-softlayer-esxi-ubuntu-trusty-go_agent.tgz}
 
 - name: convert-stemcell
   plan:
@@ -224,7 +224,7 @@ resources:
 - name: bats
   type: git
   source:
-    uri: git@github.com:jianqiu/bosh-acceptance-tests.git
+    uri: git@github.com:mattcui/bosh-acceptance-tests.git
     branch: master
     private_key: {{github_promote_private_key}}
 

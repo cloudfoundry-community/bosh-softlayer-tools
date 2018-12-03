@@ -2,13 +2,12 @@ package bmp_test
 
 import (
 	"errors"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	fakes "github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
-	cmds "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
-	bmp "github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/clients/fakes"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/cmds"
+	"github.com/cloudfoundry-community/bosh-softlayer-tools/cmds/bmp"
 )
 
 var _ = Describe("sl command", func() {

@@ -49,13 +49,16 @@ func (cmd targetCommand) Options() cmds.Options {
 }
 
 func (cmd targetCommand) Validate() (bool, error) {
-	cmd.printer.Printf("Validating %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
+	_, err := cmd.printer.Printf("Validating %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
+	if err != nil {
+		return false, err
+	}
 
 	if cmd.options.Target == "" {
 		return false, errors.New("cannot have empty target")
 	}
 
-	_, err := url.ParseRequestURI(cmd.options.Target)
+	_, err = url.ParseRequestURI(cmd.options.Target)
 	if err != nil {
 		return false, err
 	}
@@ -64,7 +67,10 @@ func (cmd targetCommand) Validate() (bool, error) {
 }
 
 func (cmd targetCommand) Execute(args []string) (int, error) {
-	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	_, err := cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	if err != nil {
+		return 1, err
+	}
 
 	validate, err := cmd.Validate()
 	if validate == false && err == nil {

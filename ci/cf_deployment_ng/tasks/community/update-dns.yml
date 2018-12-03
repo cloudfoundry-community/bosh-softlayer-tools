@@ -1,0 +1,17 @@
+---
+platform: linux
+image: docker:///boshcpi/azure-cpi-release
+
+inputs:
+- name: bosh-softlayer-tools
+- name: cf-artifacts-comm
+
+run:
+  path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/community/update-dns.sh
+
+outputs:
+- name: cf-artifacts
+  path: cf-artifacts
+
+params:
+  SYSTEM_DOMAIN:                         ""

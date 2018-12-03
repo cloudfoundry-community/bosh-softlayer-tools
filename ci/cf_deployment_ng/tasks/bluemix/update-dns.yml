@@ -1,0 +1,12 @@
+---
+platform: linux
+image: docker:///boshcpi/aws-cpi-release
+
+inputs:
+- name: director-artifacts
+- name: bosh-softlayer-tools
+- name: run-utils
+- name: cf-artifacts
+
+run:
+  path: bosh-softlayer-tools/ci/cf_deployment_ng/tasks/bluemix/update-dns.sh

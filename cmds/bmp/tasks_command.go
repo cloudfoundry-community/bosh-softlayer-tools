@@ -47,12 +47,18 @@ func (cmd tasksCommand) Options() cmds.Options {
 }
 
 func (cmd tasksCommand) Validate() (bool, error) {
-	cmd.printer.Printf("Validating %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
+	_, err := cmd.printer.Printf("Validating %s command: args: %#v, options: %#v", cmd.Name(), cmd.args, cmd.options)
+	if err != nil {
+		return false, err
+	}
 	return true, nil
 }
 
 func (cmd tasksCommand) Execute(args []string) (int, error) {
-	cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	_, err := cmd.printer.Printf("Executing %s comamnd: args: %#v, options: %#v", cmd.Name(), args, cmd.options)
+	if err != nil {
+		return 1, err
+	}
 
 	tasksResponse, err := cmd.bmpClient.Tasks(cmd.options.Latest)
 	if err != nil {
@@ -81,9 +87,18 @@ func (cmd tasksCommand) Execute(args []string) (int, error) {
 		table.Append(value)
 	}
 
-	cmd.ui.PrintTable(table)
-	cmd.ui.PrintlnInfo("")
-	cmd.ui.PrintfInfo("Tasks total: %d\n", length)
+	_, err = cmd.ui.PrintTable(table)
+	if err != nil {
+		return 1, err
+	}
+	_, err = cmd.ui.PrintlnInfo("")
+	if err != nil {
+		return 1, err
+	}
+	_, err = cmd.ui.PrintfInfo("Tasks total: %d\n", length)
+	if err != nil {
+		return 1, err
+	}
 
 	return 0, nil
 }
